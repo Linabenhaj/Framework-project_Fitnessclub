@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36616.10 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessClub.WPF", "FitnessClub.WPF\FitnessClub.WPF.csproj", "{120B85C6-FB8B-4E1A-A6EA-861CC5E5CF68}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessClub.Models", "FitnessClub.Models\FitnessClub.Models.csproj", "{C19E4417-5EEE-4E3A-8545-4AAE770B33CC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{120B85C6-FB8B-4E1A-A6EA-861CC5E5CF68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{120B85C6-FB8B-4E1A-A6EA-861CC5E5CF68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{120B85C6-FB8B-4E1A-A6EA-861CC5E5CF68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{120B85C6-FB8B-4E1A-A6EA-861CC5E5CF68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C19E4417-5EEE-4E3A-8545-4AAE770B33CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C19E4417-5EEE-4E3A-8545-4AAE770B33CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C19E4417-5EEE-4E3A-8545-4AAE770B33CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C19E4417-5EEE-4E3A-8545-4AAE770B33CC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1C60EBB7-A99B-4A58-8669-598BC2208C35}
+	EndGlobalSection
+EndGlobal
