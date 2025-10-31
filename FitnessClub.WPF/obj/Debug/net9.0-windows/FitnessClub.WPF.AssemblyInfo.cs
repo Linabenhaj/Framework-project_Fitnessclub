@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FitnessClub.WPF")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+542c86240650d2cace6977d560dc144f8cd1f02f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7e9d54c9a7bd9b942952f443a09d28a9041ec25b")]
 [assembly: System.Reflection.AssemblyProductAttribute("FitnessClub.WPF")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FitnessClub.WPF")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
