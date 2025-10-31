@@ -3,44 +3,5 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Fitness Club Management" Height="700" Width="1000"
         WindowStartupLocation="CenterScreen">
-    <DockPanel>
-        <Menu DockPanel.Dock="Top" Background="LightGray" x:Name="MainMenu">
-            <!-- Leden Menu - voor iedereen -->
-            <MenuItem Header="Leden" x:Name="mniLeden">
-                <MenuItem Header="Leden Overzicht" Click="mniLedenOverzicht_Click"/>
-                <MenuItem Header="Lid Toevoegen" Click="mniLidToevoegen_Click" x:Name="mniLidToevoegen"/>
-            </MenuItem>
-
-            <!-- Abonnementen Menu - voor Medewerker & Admin -->
-            <MenuItem Header="Abonnementen" x:Name="mniAbonnementen">
-                <MenuItem Header="Abonnementen Overzicht" Click="mniAbonnementenOverzicht_Click"/>
-                <MenuItem Header="Abonnement Toevoegen" Click="mniAbonnementToevoegen_Click" x:Name="mniAbonnementToevoegen"/>
-            </MenuItem>
-
-            <!-- Inschrijvingen Menu - voor Medewerker & Admin -->
-            <MenuItem Header="Inschrijvingen" x:Name="mniInschrijvingen">
-                <MenuItem Header="Inschrijvingen Overzicht" Click="mniInschrijvingenOverzicht_Click"/>
-                <MenuItem Header="Inschrijving Toevoegen" Click="mniInschrijvingToevoegen_Click" x:Name="mniInschrijvingToevoegen"/>
-            </MenuItem>
-
-            <!-- Betalingen Menu - voor Medewerker & Admin -->
-            <MenuItem Header="Betalingen" x:Name="mniBetalingen">
-                <MenuItem Header="Betalingen Overzicht" Click="mniBetalingenOverzicht_Click"/>
-                <MenuItem Header="Betaling Toevoegen" Click="mniBetalingToevoegen_Click" x:Name="mniBetalingToevoegen"/>
-            </MenuItem>
-
-            <!-- Admin Menu - ALLEEN voor Admin -->
-            <MenuItem Header="Admin" x:Name="mniAdmin">
-                <MenuItem Header="Gebruikers Beheer" Click="mniGebruikers_Click" x:Name="mniGebruikers"/>
-                <MenuItem Header="Rollen Beheer" Click="mniRollen_Click" x:Name="mniRollen"/>
-            </MenuItem>
-
-            <!-- Account Menu - voor iedereen -->
-            <MenuItem Header="Account" x:Name="mniAccount">
-                <MenuItem Header="Uitloggen" Click="mniLogout_Click" x:Name="mniLogout"/>
-            </MenuItem>
-        </Menu>
-
-        <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden" Background="White"/>
-    </DockPanel>
+    
 </Window>
