@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="FitnessClub.WPF.Views.BetalingenOverzicht"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="600" Width="800">
+    <Grid Margin="20">
+        <StackPanel>
+            <TextBlock Text="Betalingen Overzicht" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+
+            <Border BorderBrush="Gray" BorderThickness="1" Padding="10" Background="White">
+                <StackPanel>
+                    <TextBlock Text="Ooverzicht van alle betalingen" FontSize="16" TextAlignment="Center" Margin="0,20"/>
+                   
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>

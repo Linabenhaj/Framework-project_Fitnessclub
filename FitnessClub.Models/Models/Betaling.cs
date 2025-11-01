@@ -6,8 +6,10 @@ namespace FitnessClub.Models
 {
     public class Betaling : BasisEntiteit
     {
+        // Unieke identifier voor de betaling
         public int BetalingId { get; set; }
 
+        // Foreign key naar de inschrijving
         [Required]
         [Display(Name = "Inschrijving")]
         [ForeignKey("Inschrijving")]
@@ -26,21 +28,24 @@ namespace FitnessClub.Models
         [Display(Name = "Betaalmethode")]
         public string Betaalmethode { get; set; } = "Overschrijving";
 
+        // Status van de betaling
         [Required]
         [Display(Name = "Status")]
         public string Status { get; set; } = "Betaald";
 
-        // Dummy object zoals leerkracht
+        // Dummy object
         public static Betaling Dummy = null;
 
-        // Navigation property
+        // Navigatie naar de inschrijving
         public virtual Inschrijving Inschrijving { get; set; }
 
+        // Toont betaling info als string
         public override string ToString()
         {
             return $"{Bedrag:C} - {Betaaldatum:dd/MM/yyyy}";
         }
 
+        // Test data 
         public static List<Betaling> SeedingData()
         {
             return new List<Betaling>

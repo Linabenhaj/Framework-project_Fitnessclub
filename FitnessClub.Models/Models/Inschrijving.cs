@@ -30,10 +30,10 @@ namespace FitnessClub.Models
         [Display(Name = "Status")]
         public string Status { get; set; } = "Actief";
 
-        // Dummy object zoals leerkracht
+        // Dummy object 
         public static Inschrijving Dummy = null;
 
-        // Navigation properties
+        // Navigatie properties
         public virtual Lid Lid { get; set; }
         public virtual Abonnement Abonnement { get; set; }
         public virtual ICollection<Betaling> Betalingen { get; set; }

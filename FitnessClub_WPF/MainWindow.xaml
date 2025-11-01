@@ -1,0 +1,30 @@
+﻿<Window x:Class="FitnessClub.WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Fitness Club Management" Height="600" Width="900"
+        WindowStartupLocation="CenterScreen">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" Background="LightGray">
+            <MenuItem Header="Leden">
+                <MenuItem Header="Leden Overzicht" Click="mniLedenOverzicht_Click"/>
+                <MenuItem Header="Lid Toevoegen" Click="mniLidToevoegen_Click"/>
+            </MenuItem>
+            <MenuItem Header="Abonnementen">
+                <MenuItem Header="Abonnementen Overzicht" Click="mniAbonnementenOverzicht_Click"/>
+                <MenuItem Header="Abonnement Toevoegen" Click="mniAbonnementToevoegen_Click"/>
+            </MenuItem>
+            <MenuItem Header="Inschrijvingen">
+                <MenuItem Header="Inschrijvingen Overzicht" Click="mniInschrijvingenOverzicht_Click"/>
+                <MenuItem Header="Inschrijving Toevoegen" Click="mniInschrijvingToevoegen_Click"/>
+            </MenuItem>
+            <MenuItem Header="Betalingen">
+                <MenuItem Header="Betalingen Overzicht" Click="mniBetalingenOverzicht_Click"/>
+                <MenuItem Header="Betaling Toevoegen" Click="mniBetalingToevoegen_Click"/>
+            </MenuItem>
+            <MenuItem Header="Account">
+                <MenuItem Header="Uitloggen" Click="mniLogout_Click"/>
+            </MenuItem>
+        </Menu>
+        <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden" Background="White"/>
+    </DockPanel>
+</Window>

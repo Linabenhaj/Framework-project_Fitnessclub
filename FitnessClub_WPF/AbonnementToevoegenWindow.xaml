@@ -1,0 +1,28 @@
+﻿<Window x:Class="FitnessClub.WPF.AbonnementToevoegenWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Nieuw Abonnement Toevoegen" Height="450" Width="400"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize">
+    <Grid Margin="20">
+        <StackPanel>
+            <TextBlock Text="Nieuw Abonnement Toevoegen" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
+
+            <Label Content="Naam:"/>
+            <TextBox x:Name="txtNaam" Margin="0,0,0,10" Height="25"/>
+
+            <Label Content="Prijs per maand:"/>
+            <TextBox x:Name="txtPrijs" Margin="0,0,0,10" Height="25"/>
+
+            <Label Content="Omschrijving:"/>
+            <TextBox x:Name="txtOmschrijving" Margin="0,0,0,20" Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
+
+            <TextBlock x:Name="txtError" Foreground="Red" Margin="0,0,0,10" TextWrapping="Wrap"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="Opslaan" Click="btnOpslaan_Click" Margin="10,0" Padding="15,5" Width="100"/>
+                <Button Content="Annuleren" Click="btnAnnuleren_Click" Margin="10,0" Padding="15,5" Width="100"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>
