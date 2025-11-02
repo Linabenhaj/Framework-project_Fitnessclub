@@ -1,60 +1,31 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace FitnessClub.Models
+namespace FitnessClub.Models.Models
 {
-    public class Betaling : BasisEntiteit
+    public class Betaling
     {
-        // Unieke identifier voor de betaling
-        public int BetalingId { get; set; }
-
-        // Foreign key naar de inschrijving
-        [Required]
-        [Display(Name = "Inschrijving")]
-        [ForeignKey("Inschrijving")]
-        public int InschrijvingId { get; set; } = Inschrijving.Dummy?.Id ?? 0;
+        public int Id { get; set; }
 
         [Required]
-        [Display(Name = "Bedrag")]
-        [Range(0.01, 10000)]
+        public int LidId { get; set; }
+
+        [Required]
+        public int InschrijvingId { get; set; }
+
+        [Range(0, 999.99)]
         public decimal Bedrag { get; set; }
 
         [Required]
-        [Display(Name = "Betaaldatum")]
-        public DateTime Betaaldatum { get; set; }
+        public DateTime Datum { get; set; }
 
-        [Required]
-        [Display(Name = "Betaalmethode")]
-        public string Betaalmethode { get; set; } = "Overschrijving";
+        public bool IsBetaald { get; set; } = true;
 
-        // Status van de betaling
-        [Required]
-        [Display(Name = "Status")]
-        public string Status { get; set; } = "Betaald";
+        // SOFT-DELETE 
+        public bool IsVerwijderd { get; set; } = false;
+        public DateTime? VerwijderdOp { get; set; }
 
-        // Dummy object
-        public static Betaling Dummy = null;
-
-        // Navigatie naar de inschrijving
+        // Navigatie
+        public virtual Lid Lid { get; set; }
         public virtual Inschrijving Inschrijving { get; set; }
-
-        // Toont betaling info als string
-        public override string ToString()
-        {
-            return $"{Bedrag:C} - {Betaaldatum:dd/MM/yyyy}";
-        }
-
-        // Test data 
-        public static List<Betaling> SeedingData()
-        {
-            return new List<Betaling>
-            {
-                new Betaling { Verwijderd = DateTime.Now },
-                new Betaling { InschrijvingId = 2, Bedrag = 25.00m, Betaaldatum = DateTime.Now.AddMonths(-2) },
-                new Betaling { InschrijvingId = 2, Bedrag = 25.00m, Betaaldatum = DateTime.Now.AddMonths(-1) },
-                new Betaling { InschrijvingId = 3, Bedrag = 45.00m, Betaaldatum = DateTime.Now.AddMonths(-1) }
-            };
-        }
     }
 }

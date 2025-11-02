@@ -23,4 +23,8 @@
     <ProjectReference Include="..\FitnessClub.Models\FitnessClub.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="CustomControls\" />
+  </ItemGroup>
+
 </Project>

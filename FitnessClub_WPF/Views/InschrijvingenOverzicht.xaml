@@ -6,12 +6,28 @@
         <StackPanel>
             <TextBlock Text="Inschrijvingen Overzicht" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
 
-            <Border BorderBrush="Gray" BorderThickness="1" Padding="10" Background="White">
-                <StackPanel>
-                    <TextBlock Text="Overzicht van alle inschrijvingen" FontSize="16" TextAlignment="Center" Margin="0,20"/>
-                   
-                </StackPanel>
-            </Border>
+      
+            <Button Content="Inschrijving Toevoegen" Click="BtnToevoegen_Click" Width="150" Margin="0,0,0,10" HorizontalAlignment="Left"/>
+
+           
+            <DataGrid x:Name="dgInschrijvingen" AutoGenerateColumns="False" Height="400">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Lid ID" Binding="{Binding LidId}" Width="80"/>
+                    <DataGridTextColumn Header="Abonnement ID" Binding="{Binding AbonnementId}" Width="120"/>
+                    <DataGridTextColumn Header="Start Datum" Binding="{Binding StartDatum, StringFormat=d}" Width="120"/>
+                    <DataGridTextColumn Header="Eind Datum" Binding="{Binding EindDatum, StringFormat=d}" Width="120"/>
+                    <DataGridTemplateColumn Header="Acties" Width="150">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Bewerken" Click="BtnBewerken_Click" Margin="5,0" Padding="10,2"/>
+                                    <Button Content="Verwijderen" Click="BtnVerwijderen_Click" Margin="5,0" Padding="10,2" Background="Red" Foreground="White"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
         </StackPanel>
     </Grid>
 </UserControl>

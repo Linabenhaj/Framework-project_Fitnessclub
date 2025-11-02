@@ -6,12 +6,27 @@
         <StackPanel>
             <TextBlock Text="Abonnementen Overzicht" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
 
-            <Border BorderBrush="Gray" BorderThickness="1" Padding="10" Background="White">
-                <StackPanel>
-                    <TextBlock Text="Overzicht van alle abonnementen" FontSize="16" TextAlignment="Center" Margin="0,20"/>
-                   
-                </StackPanel>
-            </Border>
+           
+            <Button Content="Abonnement Toevoegen" Click="BtnToevoegen_Click" Width="150" Margin="0,0,0,10" HorizontalAlignment="Left"/>
+
+            
+            <DataGrid x:Name="dgAbonnementen" AutoGenerateColumns="False" Height="400">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Naam" Binding="{Binding Naam}" Width="200"/>
+                    <DataGridTextColumn Header="Prijs" Binding="{Binding Prijs}" Width="100"/>
+                    <DataGridTextColumn Header="Looptijd (maanden)" Binding="{Binding LooptijdMaanden}" Width="120"/>
+                    <DataGridTemplateColumn Header="Acties" Width="150">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Bewerken" Click="BtnBewerken_Click" Margin="5,0" Padding="10,2"/>
+                                    <Button Content="Verwijderen" Click="BtnVerwijderen_Click" Margin="5,0" Padding="10,2" Background="Red" Foreground="White"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
         </StackPanel>
     </Grid>
 </UserControl>

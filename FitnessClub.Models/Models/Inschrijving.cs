@@ -1,56 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FitnessClub.Models
+namespace FitnessClub.Models.Models
 {
-    public class Inschrijving : BasisEntiteit
+    public class Inschrijving
     {
-        public int InschrijvingId { get; set; }
+        public int Id { get; set; }
 
         [Required]
-        [Display(Name = "Lid")]
-        [ForeignKey("Lid")]
-        public int LidId { get; set; } = Lid.Dummy?.Id ?? 0;
+        public int AbonnementId { get; set; }
 
         [Required]
-        [Display(Name = "Abonnement")]
-        [ForeignKey("Abonnement")]
-        public int AbonnementId { get; set; } = Abonnement.Dummy?.Id ?? 0;
+        public int LidId { get; set; }
 
         [Required]
-        [Display(Name = "Startdatum")]
-        public DateTime Startdatum { get; set; } = DateTime.Now;
+        public DateTime StartDatum { get; set; }
 
-        [Display(Name = "Einddatum")]
-        public DateTime? Einddatum { get; set; }
+        public DateTime? EindDatum { get; set; }
 
-        [Required]
-        [Display(Name = "Status")]
-        public string Status { get; set; } = "Actief";
+        // SOFT-DELETE
+        public bool IsVerwijderd { get; set; } = false;
+        public DateTime? VerwijderdOp { get; set; }
 
-        // Dummy object 
-        public static Inschrijving Dummy = null;
-
-        // Navigatie properties
-        public virtual Lid Lid { get; set; }
+        // Navigatie
         public virtual Abonnement Abonnement { get; set; }
-        public virtual ICollection<Betaling> Betalingen { get; set; }
-
-        public override string ToString()
-        {
-            return $"{Lid?.VolledigeNaam} - {Abonnement?.Naam}";
-        }
-
-        public static List<Inschrijving> SeedingData()
-        {
-            return new List<Inschrijving>
-            {
-                new Inschrijving { Verwijderd = DateTime.Now },
-                new Inschrijving { LidId = 2, AbonnementId = 2, Startdatum = DateTime.Now.AddMonths(-2) },
-                new Inschrijving { LidId = 3, AbonnementId = 3, Startdatum = DateTime.Now.AddMonths(-1) }
-            };
-        }
+        public virtual Lid Lid { get; set; }
+        public virtual ICollection<Betaling> Betalingen { get; set; } = new List<Betaling>();
     }
 }

@@ -1,0 +1,45 @@
+﻿<Window x:Class="FitnessClub.WPF.Windows.RollenBeheerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Rollen Beheer" Height="500" Width="700"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Rollen Beheer" FontSize="24" FontWeight="Bold"/>
+            <TextBlock Text="Beheer gebruikersrollen" FontSize="14" Foreground="Gray" Margin="0,5,0,15"/>
+        </StackPanel>
+
+        <!-- Zoekbalk -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBox x:Name="txtZoek" Width="200" Padding="5" 
+                     TextChanged="TxtZoek_TextChanged"
+                     Text="Zoek gebruiker..."/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1" x:Name="dgGebruikers" AutoGenerateColumns="False" 
+                  CanUserAddRows="False" Margin="0,10,0,0">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Gebruikersnaam" Binding="{Binding UserName}" Width="200"/>
+                <DataGridTextColumn Header="E-mail" Binding="{Binding Email}" Width="250"/>
+                <DataGridTextColumn Header="Huidige Rol" Binding="{Binding CurrentRole}" Width="150"/>
+                <DataGridComboBoxColumn Header="Nieuwe Rol" x:Name="rolColumn" Width="150"
+                                      DisplayMemberPath="Name"
+                                      SelectedValuePath="Name"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="Opslaan" Click="BtnOpslaan_Click" Margin="10,0" Padding="15,5" Width="100"/>
+            <Button Content="Annuleren" Click="BtnAnnuleren_Click" Margin="10,0" Padding="15,5" Width="100"/>
+        </StackPanel>
+    </Grid>
+</Window>
