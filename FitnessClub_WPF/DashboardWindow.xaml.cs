@@ -29,13 +29,17 @@ namespace FitnessClub.WPF
 
         private void SetupRoleBasedTabs()
         {
+            // Menu aanpassen per rol
             if (_roles.Contains("Admin"))
             {
                 LedenTab.Visibility = Visibility.Visible;
+                AbonnementTab.Visibility = Visibility.Visible;
+                InstellingenTab.Visibility = Visibility.Visible;
             }
             if (_roles.Contains("Lid"))
             {
                 AbonnementTab.Visibility = Visibility.Visible;
+                InstellingenTab.Visibility = Visibility.Visible;
             }
         }
 

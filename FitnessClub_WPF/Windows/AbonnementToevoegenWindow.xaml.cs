@@ -1,90 +1,60 @@
-﻿using FitnessClub.Models;
-using FitnessClub.Models.Data;
+﻿using FitnessClub.Models.Data;
 using FitnessClub.Models.Models;
+using System;
 using System.Windows;
 
 namespace FitnessClub.WPF.Windows
 {
     public partial class AbonnementToevoegenWindow : Window
     {
-        private FitnessClubDbContext _context = new FitnessClubDbContext();
-        private Abonnement _teBewerkenAbonnement;
-
         public AbonnementToevoegenWindow()
         {
             InitializeComponent();
         }
 
-        public AbonnementToevoegenWindow(Abonnement abonnement) : this()
-        {
-            _teBewerkenAbonnement = abonnement;
-            VulVelden();
-            Title = "Abonnement Bewerken";
-        }
-
-        private void VulVelden()
-        {
-            if (_teBewerkenAbonnement != null)
-            {
-                txtNaam.Text = _teBewerkenAbonnement.Naam;
-                txtPrijs.Text = _teBewerkenAbonnement.Prijs.ToString();
-                txtLooptijd.Text = _teBewerkenAbonnement.LooptijdMaanden.ToString();
-            }
-        }
-
-        private void BtnOpslaan_Click(object sender, RoutedEventArgs e)
+        private void ToevoegenClick(object sender, RoutedEventArgs e)
         {
             try
             {
                 // Validatie van invoer
-                if (string.IsNullOrWhiteSpace(txtNaam.Text) ||
-                    !decimal.TryParse(txtPrijs.Text, out decimal prijs) ||
-                    !int.TryParse(txtLooptijd.Text, out int looptijd))
+                if (string.IsNullOrWhiteSpace(NaamTextBox.Text) ||
+                    string.IsNullOrWhiteSpace(PrijsTextBox.Text))
                 {
-                    MessageBox.Show("Vul alle velden correct in!", "Fout",
-                                  MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Naam en prijs zijn verplicht!");
                     return;
                 }
 
-                if (_teBewerkenAbonnement == null)
+                if (!decimal.TryParse(PrijsTextBox.Text, out decimal prijs) ||
+                    !int.TryParse(LooptijdTextBox.Text, out int looptijd))
                 {
-                    //  Nieuw abonnement
-                    var nieuwAbonnement = new Abonnement
+                    MessageBox.Show("Voer geldige getallen in voor prijs en looptijd!");
+                    return;
+                }
+
+                using (var context = new FitnessClubDbContext())
+                {
+                    var abonnement = new Abonnement
                     {
-                        Naam = txtNaam.Text,
+                        Naam = NaamTextBox.Text,
                         Prijs = prijs,
-                        LooptijdMaanden = looptijd,
-                        IsVerwijderd = false
+                        LooptijdMaanden = looptijd
                     };
 
-                    _context.Abonnementen.Add(nieuwAbonnement);
+                    context.Abonnementen.Add(abonnement);
+                    context.SaveChanges();
+
+                    MessageBox.Show("Abonnement toegevoegd!");
+                    this.Close();
                 }
-                else
-                {
-                    // Bestaand abonnement bijwerken
-                    _teBewerkenAbonnement.Naam = txtNaam.Text;
-                    _teBewerkenAbonnement.Prijs = prijs;
-                    _teBewerkenAbonnement.LooptijdMaanden = looptijd;
-                }
-
-                _context.SaveChanges();
-
-                MessageBox.Show("Abonnement succesvol opgeslagen!", "Succes",
-                              MessageBoxButton.OK, MessageBoxImage.Information);
-
-                this.DialogResult = true;
-                this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Opslaan mislukt: {ex.Message}", "Fout",
-                              MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Fout: {ex.Message}");
             }
         }
 
-        private void BtnAnnuleren_Click(object sender, RoutedEventArgs e)
+        private void AnnulerenClick(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = false;
             this.Close();
         }
     }

@@ -1,125 +1,55 @@
-﻿using FitnessClub.Models;
-using FitnessClub.Models.Data;
+﻿using FitnessClub.Models.Data;
 using FitnessClub.Models.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
+using System;
 using System.Windows;
 
 namespace FitnessClub.WPF.Windows
 {
     public partial class LidToevoegenWindow : Window
     {
-        private FitnessClubDbContext _context = new FitnessClubDbContext();
-        private Lid _teBewerkenLid;
-
         public LidToevoegenWindow()
         {
             InitializeComponent();
-            LaadAbonnementen();
+            GeboortedatumDatePicker.SelectedDate = DateTime.Now.AddYears(-20);
         }
 
-        public LidToevoegenWindow(Lid lid) : this()
-        {
-            _teBewerkenLid = lid;
-            VulVelden();
-            Title = "Lid Bewerken";
-        }
-
-        private void LaadAbonnementen()
+        private void ToevoegenClick(object sender, RoutedEventArgs e)
         {
             try
             {
-                var abonnementen = _context.Abonnementen
-                    .Where(a => !a.IsVerwijderd)
-                    .ToList();
-
-                cmbAbonnement.ItemsSource = abonnementen;
-                if (abonnementen.Any())
-                    cmbAbonnement.SelectedIndex = 0;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Fout bij laden abonnementen: {ex.Message}");
-            }
-        }
-
-        private void VulVelden()
-        {
-            if (_teBewerkenLid != null)
-            {
-                txtVoornaam.Text = _teBewerkenLid.Voornaam;
-                txtAchternaam.Text = _teBewerkenLid.Achternaam;
-                txtEmail.Text = _teBewerkenLid.Email;
-                txtTelefoon.Text = _teBewerkenLid.Telefoon;
-                dpGeboortedatum.SelectedDate = _teBewerkenLid.Geboortedatum;
-
-                if (_teBewerkenLid.AbonnementId.HasValue)
+                if (string.IsNullOrWhiteSpace(VoornaamTextBox.Text) ||
+                    string.IsNullOrWhiteSpace(EmailTextBox.Text))
                 {
-                    var abonnement = _context.Abonnementen.Find(_teBewerkenLid.AbonnementId.Value);
-                    cmbAbonnement.SelectedItem = abonnement;
-                }
-            }
-        }
-
-        private void BtnOpslaan_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                // Validatie
-                if (string.IsNullOrWhiteSpace(txtVoornaam.Text) ||
-                    string.IsNullOrWhiteSpace(txtAchternaam.Text) ||
-                    string.IsNullOrWhiteSpace(txtEmail.Text))
-                {
-                    MessageBox.Show("Vul verplichte velden in!", "Fout",
-                                  MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Voornaam en email zijn verplicht!");
                     return;
                 }
 
-                if (_teBewerkenLid == null)
+                using (var context = new FitnessClubDbContext())
                 {
-                    // Nieuwe lid
-                    var nieuwLid = new Lid
+                    var lid = new Lid
                     {
-                        Voornaam = txtVoornaam.Text,
-                        Achternaam = txtAchternaam.Text,
-                        Email = txtEmail.Text,
-                        Telefoon = txtTelefoon.Text,
-                        Geboortedatum = dpGeboortedatum.SelectedDate ?? DateTime.Now,
-                        AbonnementId = (cmbAbonnement.SelectedItem as Abonnement)?.Id,
-                        IsVerwijderd = false
+                        Voornaam = VoornaamTextBox.Text,
+                        Achternaam = AchternaamTextBox.Text,
+                        Email = EmailTextBox.Text,
+                        Telefoon = TelefoonTextBox.Text,
+                        Geboortedatum = GeboortedatumDatePicker.SelectedDate ?? DateTime.Now.AddYears(-20)
                     };
 
-                    _context.Leden.Add(nieuwLid);
+                    context.Leden.Add(lid);
+                    context.SaveChanges();
+
+                    MessageBox.Show("Lid toegevoegd!");
+                    this.Close();
                 }
-                else
-                {
-                    // Bestaande lid bijwerken
-                    _teBewerkenLid.Voornaam = txtVoornaam.Text;
-                    _teBewerkenLid.Achternaam = txtAchternaam.Text;
-                    _teBewerkenLid.Email = txtEmail.Text;
-                    _teBewerkenLid.Telefoon = txtTelefoon.Text;
-                    _teBewerkenLid.Geboortedatum = dpGeboortedatum.SelectedDate ?? DateTime.Now;
-                    _teBewerkenLid.AbonnementId = (cmbAbonnement.SelectedItem as Abonnement)?.Id;
-                }
-
-                _context.SaveChanges();
-
-                MessageBox.Show("Lid succesvol opgeslagen!", "Succes",
-                              MessageBoxButton.OK, MessageBoxImage.Information);
-
-                this.DialogResult = true;
-                this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Opslaan mislukt: {ex.Message}", "Fout",
-                              MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Fout: {ex.Message}");
             }
         }
 
-        private void BtnAnnuleren_Click(object sender, RoutedEventArgs e)
+        private void AnnulerenClick(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = false;
             this.Close();
         }
     }

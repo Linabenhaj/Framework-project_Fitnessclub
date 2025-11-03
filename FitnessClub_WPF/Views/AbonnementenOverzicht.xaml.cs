@@ -1,18 +1,15 @@
-﻿using FitnessClub.Models;
+﻿using FitnessClub.Models.Models;
 using FitnessClub.Models.Data;
-using FitnessClub.Models.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using FitnessClub.WPF.Windows;
 
 namespace FitnessClub.WPF.Views
 {
     public partial class AbonnementenOverzicht : UserControl
     {
-        private FitnessClubDbContext _context = new FitnessClubDbContext();
-
         public AbonnementenOverzicht()
         {
             InitializeComponent();
@@ -24,11 +21,14 @@ namespace FitnessClub.WPF.Views
             try
             {
                 // INQ query syntax en soft delete toegevoegd
-                var actieveAbonnementen = from abonnement in _context.Abonnementen
-                                          where !abonnement.IsVerwijderd
-                                          select abonnement;
+                using (var context = new FitnessClubDbContext())
+                {           
+                    var abonnementen = from abonnement in context.Abonnementen
+                                       where !abonnement.IsVerwijderd
+                                       select abonnement;
 
-                dgAbonnementen.ItemsSource = actieveAbonnementen.ToList();
+                    AbonnementenDataGrid.ItemsSource = abonnementen.ToList();
+                }
             }
             catch (Exception ex)
             {
@@ -36,47 +36,56 @@ namespace FitnessClub.WPF.Views
             }
         }
 
-        private void BtnToevoegen_Click(object sender, RoutedEventArgs e)
+        private void ToevoegenClick(object sender, RoutedEventArgs e)
         {
-            var window = new AbonnementToevoegenWindow();
-            if (window.ShowDialog() == true)
+            var window = new Windows.AbonnementToevoegenWindow();
+            window.Closed += (s, args) => LoadAbonnementen();
+            window.ShowDialog();
+        }
+
+        private void BewerkenClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is int abonnementId)
             {
-                LoadAbonnementen();
+                var window = new Windows.AbonnementBewerkenWindow(abonnementId);
+                window.Closed += (s, args) => LoadAbonnementen();
+                window.ShowDialog();
             }
         }
 
-        private void BtnBewerken_Click(object sender, RoutedEventArgs e)
+        private void VerwijderClick(object sender, RoutedEventArgs e)
         {
-            var abonnement = (Abonnement)((Button)sender).DataContext;
-            var window = new AbonnementToevoegenWindow(abonnement);
-            if (window.ShowDialog() == true)
+            var button = sender as Button;
+            if (button?.Tag is int abonnementId)
             {
-                LoadAbonnementen();
-            }
-        }
-
-        private void BtnVerwijderen_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var abonnement = (Abonnement)((Button)sender).DataContext;
-                var result = MessageBox.Show($"Weet je zeker dat je {abonnement.Naam} wilt verwijderen?",
-                                           "Bevestiging", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
+                try
                 {
-                    // SOFT DELETE
-                    abonnement.IsVerwijderd = true;
-                    _context.SaveChanges();
-                    LoadAbonnementen();
-
-                    MessageBox.Show("Abonnement succesvol verwijderd!");
+                    // Lambda expression
+                    using (var context = new FitnessClubDbContext())
+                    {
+                        var abonnement = context.Abonnementen.FirstOrDefault(x => x.Id == abonnementId);
+                        if (abonnement != null)
+                        {
+                            // SOFT DELETE
+                            abonnement.IsVerwijderd = true;
+                            abonnement.VerwijderdOp = DateTime.Now;
+                            context.SaveChanges();
+                            LoadAbonnementen();
+                            MessageBox.Show("Abonnement verwijderd!");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Fout: {ex.Message}");
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Fout bij verwijderen: {ex.Message}");
-            }
+        }
+
+        private void RefreshClick(object sender, RoutedEventArgs e)
+        {
+            LoadAbonnementen();
         }
     }
 }

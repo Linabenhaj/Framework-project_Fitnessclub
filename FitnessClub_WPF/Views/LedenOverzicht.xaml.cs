@@ -1,35 +1,34 @@
-﻿using FitnessClub.Models;
-using FitnessClub.Models.Data;
+﻿using FitnessClub.Models.Data;
 using FitnessClub.Models.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using FitnessClub.WPF.Windows;
 
 namespace FitnessClub.WPF.Views
 {
     public partial class LedenOverzicht : UserControl
     {
-        private FitnessClubDbContext _context = new FitnessClubDbContext(); 
-
         public LedenOverzicht()
         {
             InitializeComponent();
-            LaadLeden();
+            LoadLeden();
         }
 
-        private void LaadLeden()
+        private void LoadLeden()
         {
             try
             {
                 // LINQ method + soft delete
-                var actieveLeden = _context.Leden
-                    .Where(l => !l.IsVerwijderd)
-                    .Include(l => l.Abonnement)
-                    .ToList();
+                using (var context = new FitnessClubDbContext())
+                {
+                    var leden = from lid in context.Leden
+                                where !lid.IsVerwijderd
+                                select lid;
 
-                dgLeden.ItemsSource = actieveLeden;
+                    LedenDataGrid.ItemsSource = leden.ToList();
+                }
             }
             catch (Exception ex)
             {
@@ -37,47 +36,56 @@ namespace FitnessClub.WPF.Views
             }
         }
 
-        private void BtnToevoegen_Click(object sender, RoutedEventArgs e)
+        private void ToevoegenClick(object sender, RoutedEventArgs e)
         {
-            var window = new LidToevoegenWindow();
-            if (window.ShowDialog() == true)
+            var window = new Windows.LidToevoegenWindow();
+            window.Closed += (s, args) => LoadLeden();
+            window.ShowDialog();
+        }
+
+        private void BewerkenClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is int lidId)
             {
-                LaadLeden();
+                var window = new Windows.LidBewerkenWindow(lidId);
+                window.Closed += (s, args) => LoadLeden();
+                window.ShowDialog();
             }
         }
 
-        private void BtnBewerken_Click(object sender, RoutedEventArgs e)
+        private void VerwijderClick(object sender, RoutedEventArgs e)
         {
-            var lid = (Lid)((Button)sender).DataContext;
-            var window = new LidToevoegenWindow(lid);
-            if (window.ShowDialog() == true)
+            var button = sender as Button;
+            if (button?.Tag is int lidId)
             {
-                LaadLeden();
-            }
-        }
-
-        private void BtnVerwijderen_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var lid = (Lid)((Button)sender).DataContext;
-                var result = MessageBox.Show($"Weet je zeker dat je {lid.Voornaam} {lid.Achternaam} wilt verwijderen?",
-                                           "Bevestiging", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
+                try
                 {
-                    // SOFT DELETE
-                    lid.IsVerwijderd = true;
-                    _context.SaveChanges();
-                    LaadLeden();
-
-                    MessageBox.Show("Lid succesvol verwijderd!");
+                    // Lambda expression
+                    using (var context = new FitnessClubDbContext())
+                    {
+                        var lid = context.Leden.FirstOrDefault(x => x.Id == lidId);
+                        if (lid != null)
+                        {
+                            // SOFT DELETE
+                            lid.IsVerwijderd = true;
+                            lid.VerwijderdOp = DateTime.Now;
+                            context.SaveChanges();
+                            LoadLeden();
+                            MessageBox.Show("Lid verwijderd!");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Fout: {ex.Message}");
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Fout bij verwijderen: {ex.Message}");
-            }
+        }
+
+        private void RefreshClick(object sender, RoutedEventArgs e)
+        {
+            LoadLeden();
         }
     }
 }
