@@ -20,7 +20,7 @@ namespace FitnessClub.WPF.Views
         {
             try
             {
-                // LINQ method + soft delete
+                // LINQ query syntax + soft delete
                 using (var context = new FitnessClubDbContext())
                 {
                     var leden = from lid in context.Leden
