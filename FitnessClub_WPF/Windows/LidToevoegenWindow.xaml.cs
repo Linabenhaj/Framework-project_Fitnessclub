@@ -1,7 +1,8 @@
-﻿using FitnessClub.Models.Data;
-using FitnessClub.Models.Models;
-using System;
+﻿using System;
+using System.Linq;
 using System.Windows;
+using FitnessClub.Models.Data;
+using FitnessClub.Models.Models;
 
 namespace FitnessClub.WPF.Windows
 {
@@ -10,45 +11,61 @@ namespace FitnessClub.WPF.Windows
         public LidToevoegenWindow()
         {
             InitializeComponent();
-            GeboortedatumDatePicker.SelectedDate = DateTime.Now.AddYears(-20);
+            LoadAbonnementen();
         }
 
-        private void ToevoegenClick(object sender, RoutedEventArgs e)
+        private void LoadAbonnementen()
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(VoornaamTextBox.Text) ||
-                    string.IsNullOrWhiteSpace(EmailTextBox.Text))
-                {
-                    MessageBox.Show("Voornaam en email zijn verplicht!");
-                    return;
-                }
-
                 using (var context = new FitnessClubDbContext())
                 {
-                    var lid = new Lid
+                    // Haal alle abonnementen op
+                    var abonnementen = context.Abonnementen.ToList();
+
+                    // Zet ze in de combobox
+                    AbonnementComboBox.ItemsSource = abonnementen;
+                    AbonnementComboBox.DisplayMemberPath = "Naam";  // Toon de naam
+                    AbonnementComboBox.SelectedValuePath = "Id";    // Sla de ID op
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fout bij laden abonnementen: {ex.Message}");
+            }
+        }
+
+        private void Opslaan_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                using (var context = new FitnessClubDbContext())
+                {
+                    var nieuwLid = new Lid
                     {
                         Voornaam = VoornaamTextBox.Text,
                         Achternaam = AchternaamTextBox.Text,
                         Email = EmailTextBox.Text,
                         Telefoon = TelefoonTextBox.Text,
-                        Geboortedatum = GeboortedatumDatePicker.SelectedDate ?? DateTime.Now.AddYears(-20)
+                        Geboortedatum = GeboortedatumPicker.SelectedDate ?? DateTime.Now,
+                        LidSinds = DateTime.Now,
+                        AbonnementId = AbonnementComboBox.SelectedValue as int? // Gebruik SelectedValue
                     };
 
-                    context.Leden.Add(lid);
+                    context.Leden.Add(nieuwLid);
                     context.SaveChanges();
 
-                    MessageBox.Show("Lid toegevoegd!");
+                    MessageBox.Show("Lid succesvol toegevoegd!");
                     this.Close();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Fout: {ex.Message}");
+                MessageBox.Show($"Fout bij opslaan: {ex.Message}");
             }
         }
 
-        private void AnnulerenClick(object sender, RoutedEventArgs e)
+        private void Annuleren_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }

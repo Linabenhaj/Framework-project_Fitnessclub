@@ -11,6 +11,8 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+
+   
         <Border Grid.Row="0" Background="#2c3e50" Padding="15">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -31,43 +33,46 @@
             </Grid>
         </Border>
 
-
+    
         <TabControl Grid.Row="1" Margin="10">
+         
             <TabItem Header="Profiel" x:Name="ProfielTab">
-                <StackPanel>
-                    <TextBlock Text="Mijn Profiel" Style="{StaticResource HeaderStyle}"/>
+                <StackPanel Margin="20">
+                    <TextBlock Text="Mijn Profiel" FontSize="18" FontWeight="Bold" Foreground="#2c3e50" Margin="0,0,0,20"/>
                     <TextBlock Text="Hier komt profiel informatie..." Margin="10"/>
                 </StackPanel>
             </TabItem>
 
+            
             <TabItem Header="Leden Beheer" x:Name="LedenTab" Visibility="Collapsed">
-                <views:LedenOverzicht/>
+                <views:LedenOverzicht />
             </TabItem>
 
-          
             <TabItem Header="Abonnementen" x:Name="AbonnementTab" Visibility="Collapsed">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Text="Mijn Abonnement" Style="{StaticResource HeaderStyle}"/>
+                    <TextBlock Grid.Row="0" Text="Mijn Abonnement" FontSize="18" FontWeight="Bold" Foreground="#2c3e50" Margin="10"/>
                     <TextBlock Grid.Row="1" Text="Abonnement informatie..." 
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Grid>
             </TabItem>
-            
+
             <TabItem Header="Instellingen" x:Name="InstellingenTab">
                 <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" Text="Instellingen" Style="{StaticResource HeaderStyle}"/>
+                    <TextBlock DockPanel.Dock="Top" Text="Instellingen" FontSize="18" FontWeight="Bold" Foreground="#2c3e50" Margin="10"/>
                     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Content="Opslaan" Style="{StaticResource SuccessButtonStyle}"/>
-                        <Button Content="Reset" Style="{StaticResource ButtonStyle}"/>
+                        <Button Content="Opslaan" Padding="10,5" Margin="5" Background="#27ae60" Foreground="White"/>
+                        <Button Content="Reset" Padding="10,5" Margin="5" Background="#3498db" Foreground="White"/>
                     </StackPanel>
                     <TextBlock Text="Instellingen content..." HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </DockPanel>
             </TabItem>
         </TabControl>
+
+   
         <Border Grid.Row="2" Background="#ecf0f1" Padding="10">
             <TextBlock x:Name="RoleInfoText" Text="Rol: " HorizontalAlignment="Center"/>
         </Border>

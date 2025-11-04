@@ -36,7 +36,7 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        
+
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
             <Button Content="Opslaan" Click="BtnOpslaan_Click" Margin="10,0" Padding="15,5" Width="100"/>
             <Button Content="Annuleren" Click="BtnAnnuleren_Click" Margin="10,0" Padding="15,5" Width="100"/>

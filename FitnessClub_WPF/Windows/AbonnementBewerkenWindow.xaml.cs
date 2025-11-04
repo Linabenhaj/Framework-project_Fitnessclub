@@ -1,27 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using FitnessClub.Models.Data;
+using FitnessClub.Models.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace FitnessClub.WPF.Windows
 {
-    /// <summary>
-    /// Interaction logic for AbonnementBewerkenWindow.xaml
-    /// </summary>
     public partial class AbonnementBewerkenWindow : Window
     {
-        public AbonnementBewerkenWindow()
+        private readonly FitnessClubDbContext _context = new FitnessClubDbContext();
+        private readonly Abonnement _abonnement;
+
+        public AbonnementBewerkenWindow(int abonnementId)
         {
             InitializeComponent();
+
+            // Lambda expression - vind abonnement
+            _abonnement = _context.Abonnementen.FirstOrDefault(a => a.Id == abonnementId);
+
+            if (_abonnement != null)
+            {
+                VulVelden();
+            }
+        }
+
+        private void VulVelden()
+        {
+            // Vul de velden met bestaande data
+        }
+
+        private void Opslaan_Click(object sender, RoutedEventArgs e)
+        {
+            // Bewerkingslogica
+        }
+
+        private void Annuleren_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+            Close();
         }
     }
 }

@@ -1,30 +1,75 @@
 ﻿<Window x:Class="FitnessClub.WPF.Windows.LidToevoegenWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Lid Toevoegen" Height="400" Width="350"
+        Title="Lid Toevoegen" Height="500" Width="700"
         WindowStartupLocation="CenterOwner">
 
-    <StackPanel Margin="15">
-        <TextBlock Text="Nieuw Lid Toevoegen" Style="{StaticResource HeaderStyle}"/>
+    <Grid Background="#f0f0f0" Margin="20">
+        <Border Background="White" CornerRadius="10" Padding="30">
+            <StackPanel>
+                <TextBlock Text="Lid Toevoegen" 
+                           FontSize="24" 
+                           FontWeight="Bold" 
+                           HorizontalAlignment="Center"
+                           Foreground="#2c3e50"
+                           Margin="0,0,0,30"/>
 
-        <TextBlock Text="Voornaam:" Margin="0,10,0,5"/>
-        <TextBox x:Name="VoornaamTextBox"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-        <TextBlock Text="Achternaam:" Margin="0,10,0,5"/>
-        <TextBox x:Name="AchternaamTextBox"/>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Voornaam:" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBox x:Name="VoornaamTextBox" Height="35" FontSize="14" Padding="5" Margin="0,0,0,15"/>
 
-        <TextBlock Text="Email:" Margin="0,10,0,5"/>
-        <TextBox x:Name="EmailTextBox"/>
+                        <TextBlock Text="Achternaam:" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBox x:Name="AchternaamTextBox" Height="35" FontSize="14" Padding="5" Margin="0,0,0,15"/>
 
-        <TextBlock Text="Telefoon:" Margin="0,10,0,5"/>
-        <TextBox x:Name="TelefoonTextBox"/>
+                        <TextBlock Text="Geboortedatum:" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <DatePicker x:Name="GeboortedatumPicker" Height="35" FontSize="14" Margin="0,0,0,15"/>
+                    </StackPanel>
 
-        <TextBlock Text="Geboortedatum:" Margin="0,10,0,5"/>
-        <DatePicker x:Name="GeboortedatumDatePicker"/>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="E-mail:" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBox x:Name="EmailTextBox" Height="35" FontSize="14" Padding="5" Margin="0,0,0,15"/>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-            <Button Content="Toevoegen" Click="ToevoegenClick" Style="{StaticResource SuccessButtonStyle}"/>
-            <Button Content="Annuleren" Click="AnnulerenClick" Style="{StaticResource ButtonStyle}"/>
-        </StackPanel>
-    </StackPanel>
+                        <TextBlock Text="Telefoon:" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <TextBox x:Name="TelefoonTextBox" Height="35" FontSize="14" Padding="5" Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Abonnement:" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="AbonnementComboBox" 
+                                  Height="35" 
+                                  FontSize="14" 
+                                  Padding="5"
+                                  DisplayMemberPath="Naam"
+                                  SelectedValuePath="Id"
+                                  Margin="0,0,0,15"/>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
+                    <Button Content="Opslaan" 
+                            Click="Opslaan_Click" 
+                            Width="120" 
+                            Height="40"
+                            FontSize="14"
+                            Background="#27ae60"
+                            Foreground="White"
+                            Margin="0,0,10,0"/>
+
+                    <Button Content="Annuleren" 
+                            Click="Annuleren_Click" 
+                            Width="120" 
+                            Height="40"
+                            FontSize="14"
+                            Background="#e74c3c"
+                            Foreground="White"
+                            Margin="10,0,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
 </Window>

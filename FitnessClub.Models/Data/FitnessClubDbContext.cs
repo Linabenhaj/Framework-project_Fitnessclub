@@ -1,7 +1,6 @@
 ﻿using FitnessClub.Models.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 
 namespace FitnessClub.Models.Data
 {
@@ -43,8 +42,6 @@ namespace FitnessClub.Models.Data
             modelBuilder.Entity<Inschrijving>().HasQueryFilter(i => !i.IsVerwijderd);
             modelBuilder.Entity<Betaling>().HasQueryFilter(b => !b.IsVerwijderd);
             modelBuilder.Entity<Gebruiker>().HasQueryFilter(g => !g.IsVerwijderd);
-
-          
         }
     }
 }

@@ -1,20 +1,15 @@
-﻿using FitnessClub.Models.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows;
 
 namespace FitnessClub.WPF
 {
     public partial class DashboardWindow : Window
     {
-        private readonly Gebruiker _user;
         private readonly List<string> _roles;
 
-        public DashboardWindow(Gebruiker user, List<string> roles)
+        public DashboardWindow(object user, List<string> roles)
         {
             InitializeComponent();
-            _user = user;
             _roles = roles;
 
             LoadUserInfo();
@@ -23,7 +18,7 @@ namespace FitnessClub.WPF
 
         private void LoadUserInfo()
         {
-            UserNameText.Text = $"{_user.Voornaam} {_user.Achternaam}";
+            UserNameText.Text = "Demo Gebruiker";
             RoleInfoText.Text = $"Rol: {string.Join(", ", _roles)}";
         }
 
@@ -43,11 +38,8 @@ namespace FitnessClub.WPF
             }
         }
 
-        private async void Logout_Click(object sender, RoutedEventArgs e)
+        private void Logout_Click(object sender, RoutedEventArgs e)
         {
-            var signInManager = App.ServiceProvider.GetRequiredService<SignInManager<Gebruiker>>();
-            await signInManager.SignOutAsync();
-
             MainWindow mainWindow = new MainWindow();
             mainWindow.Show();
             this.Close();

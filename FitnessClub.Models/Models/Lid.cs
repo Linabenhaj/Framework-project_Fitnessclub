@@ -1,37 +1,37 @@
-﻿using System.Collections.Generic;
+﻿using FitnessClub.Models.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace FitnessClub.Models.Models
+public class Lid
 {
-    public class Lid
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        [Required]
-        public string Voornaam { get; set; }
+    [Required]
+    public string Voornaam { get; set; }
 
-        [Required]
-        public string Achternaam { get; set; }
+    [Required]
+    public string Achternaam { get; set; }
 
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; }
 
-        [Required]
-        public DateTime Geboortedatum { get; set; }
+    [Required]
+    public DateTime Geboortedatum { get; set; }
 
-        public string Telefoon { get; set; }
+    public string Telefoon { get; set; }
 
-        // Foreign key
-        public int? AbonnementId { get; set; }
+   
+    public DateTime LidSinds { get; set; } = DateTime.Now;
 
-        // SOFT-DELETE 
-        public bool IsVerwijderd { get; set; } = false;
-        public DateTime? VerwijderdOp { get; set; }
+    // Foreign key
+    public int? AbonnementId { get; set; }
 
-        // Navigatie
-        public virtual Abonnement Abonnement { get; set; }
-        public virtual ICollection<Inschrijving> Inschrijvingen { get; set; } = new List<Inschrijving>();
-        public virtual ICollection<Betaling> Betalingen { get; set; } = new List<Betaling>();
-    }
+    // SOFT-DELETE 
+    public bool IsVerwijderd { get; set; } = false;
+    public DateTime? VerwijderdOp { get; set; }
+
+    // Navigatie
+    public virtual Abonnement Abonnement { get; set; }
+    public virtual ICollection<Inschrijving> Inschrijvingen { get; set; } = new List<Inschrijving>();
+    public virtual ICollection<Betaling> Betalingen { get; set; } = new List<Betaling>();
 }
