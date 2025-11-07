@@ -13,6 +13,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        <!-- Header -->
         <TextBlock Grid.Row="0" Text="Leden Beheer" FontSize="18" FontWeight="Bold" Margin="10"/>
 
         <DataGrid Grid.Row="1" x:Name="LedenDataGrid" AutoGenerateColumns="False" Margin="10">

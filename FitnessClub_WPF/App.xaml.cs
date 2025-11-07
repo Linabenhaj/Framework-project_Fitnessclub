@@ -4,7 +4,7 @@ using FitnessClub.Models.Data;
 
 namespace FitnessClub.WPF
 {
-    public partial class App : Application
+    try
     {
         protected override void OnStartup(StartupEventArgs e)
         {
