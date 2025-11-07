@@ -1,11 +1,13 @@
 ﻿using System;
 
-namespace FitnessClub.Models.Models
+namespace FitnessClub.Models
 {
     public abstract class BasisEntiteit
     {
-        public bool IsVerwijderd { get; set; } = false;
-        public DateTime AangemaaktOp { get; set; } = DateTime.Now;
+        public int Id { get; set; }
+        public DateTime AangemaaktOp { get; set; } = DateTime.UtcNow;
         public DateTime? GewijzigdOp { get; set; }
+        public bool IsVerwijderd { get; set; } = false;
+        public DateTime? VerwijderdOp { get; set; }
     }
 }

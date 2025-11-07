@@ -13,7 +13,6 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
         <TextBlock Grid.Row="0" Text="Leden Beheer" FontSize="18" FontWeight="Bold" Margin="10"/>
 
         <DataGrid Grid.Row="1" x:Name="LedenDataGrid" AutoGenerateColumns="False" Margin="10">
@@ -23,6 +22,7 @@
                 <DataGridTextColumn Header="Achternaam" Binding="{Binding Achternaam}" Width="100"/>
                 <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="150"/>
                 <DataGridTextColumn Header="Telefoon" Binding="{Binding Telefoon}" Width="100"/>
+                <DataGridTextColumn Header="Abonnement" Binding="{Binding Abonnement.Naam}" Width="120"/>
                 <DataGridTemplateColumn Header="Acties" Width="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

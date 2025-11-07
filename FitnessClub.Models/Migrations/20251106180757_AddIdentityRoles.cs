@@ -5,7 +5,7 @@
 namespace FitnessClub.Models.Migrations
 {
     /// <inheritdoc />
-    public partial class AddSoftDeleteToModels : Migration
+    public partial class AddIdentityRoles : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

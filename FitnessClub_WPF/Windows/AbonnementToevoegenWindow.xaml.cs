@@ -1,5 +1,5 @@
 ﻿using FitnessClub.Models.Data;
-using FitnessClub.Models.Models;
+using FitnessClub.Models;
 using System;
 using System.Windows;
 
@@ -24,11 +24,15 @@ namespace FitnessClub.WPF.Windows
                     return;
                 }
 
-                if (!decimal.TryParse(PrijsTextBox.Text, out decimal prijs) ||
-                    !int.TryParse(LooptijdTextBox.Text, out int looptijd))
+                if (!decimal.TryParse(PrijsTextBox.Text, out decimal prijs))
                 {
-                    MessageBox.Show("Voer geldige getallen in voor prijs en looptijd!");
+                    MessageBox.Show("Voer een geldig getal in voor prijs!");
                     return;
+                }
+
+                if (!int.TryParse(LooptijdTextBox.Text, out int looptijd))
+                {
+                    looptijd = 1; 
                 }
 
                 using (var context = new FitnessClubDbContext())
@@ -37,13 +41,15 @@ namespace FitnessClub.WPF.Windows
                     {
                         Naam = NaamTextBox.Text,
                         Prijs = prijs,
-                        LooptijdMaanden = looptijd
+                        LooptijdMaanden = looptijd,
+                        Omschrijving = OmschrijvingTextBox.Text
                     };
 
                     context.Abonnementen.Add(abonnement);
                     context.SaveChanges();
 
                     MessageBox.Show("Abonnement toegevoegd!");
+                    this.DialogResult = true;
                     this.Close();
                 }
             }
@@ -55,6 +61,7 @@ namespace FitnessClub.WPF.Windows
 
         private void AnnulerenClick(object sender, RoutedEventArgs e)
         {
+            this.DialogResult = false;
             this.Close();
         }
     }

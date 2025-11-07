@@ -10,7 +10,7 @@ namespace FitnessClub.WPF.Controls
             InitializeComponent();
         }
 
-        // Data properties voor binding
+        // Data properties 
         public string Naam
         {
             get { return (string)GetValue(NaamProperty); }
@@ -37,5 +37,13 @@ namespace FitnessClub.WPF.Controls
 
         public static readonly DependencyProperty RolProperty =
             DependencyProperty.Register("Rol", typeof(string), typeof(GebruikerInfoControl));
+
+        // data in te stellen 
+        public void SetGebruikerInfo(string naam, string email, string rol)
+        {
+            NaamText.Text = naam;
+            EmailText.Text = email;
+            RolText.Text = rol;
+        }
     }
 }

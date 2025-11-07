@@ -1,43 +1,75 @@
-﻿using FitnessClub.Models.Data;
-using FitnessClub.Models.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System.Windows;
+using FitnessClub.Models.Data;
+using FitnessClub.Models;
 using System.Linq;
-using System.Windows;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessClub.WPF.Windows
 {
     public partial class LidBewerkenWindow : Window
     {
-        private int _lidId;
+        private readonly Gebruiker _teBewerkenLid;
 
-        public LidBewerkenWindow(int lidId)
+        public LidBewerkenWindow(Gebruiker lid)
         {
             InitializeComponent();
-            _lidId = lidId;
-            LaadLid();
+            _teBewerkenLid = lid;
+            LoadLidData();
+            LoadAbonnementen();
         }
 
-        private void LaadLid()
+        private void LoadLidData()
+        {
+            try
+            {
+                // Vul de velden met de bestaande data van het lid
+                VoornaamTextBox.Text = _teBewerkenLid.Voornaam;
+                AchternaamTextBox.Text = _teBewerkenLid.Achternaam;
+                EmailTextBox.Text = _teBewerkenLid.Email;
+                TelefoonTextBox.Text = _teBewerkenLid.Telefoon;
+                GeboortedatumPicker.SelectedDate = _teBewerkenLid.Geboortedatum;
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"Fout bij laden lid data: {ex.Message}", "Fout",
+                              MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void LoadAbonnementen()
         {
             try
             {
                 using (var context = new FitnessClubDbContext())
                 {
-                    // Lambda expression
-                    var lid = context.Leden.FirstOrDefault(x => x.Id == _lidId);
-                    if (lid != null)
+                    // Laad alle abonnementen
+                    var abonnementen = context.Abonnementen
+                        .Where(a => !a.IsVerwijderd)
+                        .ToList();
+
+                    AbonnementComboBox.ItemsSource = abonnementen;
+                    AbonnementComboBox.DisplayMemberPath = "Naam";
+                    AbonnementComboBox.SelectedValuePath = "Id";
+
+                    // Selecteer het huidige abonnement van het lid
+                    if (_teBewerkenLid.AbonnementId.HasValue)
                     {
-                        VoornaamTextBox.Text = lid.Voornaam;
-                        AchternaamTextBox.Text = lid.Achternaam;
-                        EmailTextBox.Text = lid.Email;
-                        TelefoonTextBox.Text = lid.Telefoon;
+                        var huidigAbonnement = abonnementen.FirstOrDefault(a => a.Id == _teBewerkenLid.AbonnementId.Value);
+                        if (huidigAbonnement != null)
+                        {
+                            AbonnementComboBox.SelectedValue = huidigAbonnement.Id;
+                        }
+                    }
+                    else if (abonnementen.Any())
+                    {
+                        AbonnementComboBox.SelectedIndex = 0;
                     }
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MessageBox.Show($"Fout: {ex.Message}");
+                MessageBox.Show($"Fout bij laden abonnementen: {ex.Message}", "Fout",
+                              MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -45,30 +77,64 @@ namespace FitnessClub.WPF.Windows
         {
             try
             {
+                // Validatie
+                if (string.IsNullOrWhiteSpace(VoornaamTextBox.Text) ||
+                    string.IsNullOrWhiteSpace(AchternaamTextBox.Text) ||
+                    string.IsNullOrWhiteSpace(EmailTextBox.Text) ||
+                    string.IsNullOrWhiteSpace(TelefoonTextBox.Text) ||
+                    GeboortedatumPicker.SelectedDate == null)
+                {
+                    MessageBox.Show("Vul alle verplichte velden in!", "Fout",
+                                  MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Update het lid in de database
                 using (var context = new FitnessClubDbContext())
                 {
-                    var lid = context.Leden.FirstOrDefault(x => x.Id == _lidId);
-                    if (lid != null)
+                    var lidInDatabase = context.Users
+                        .FirstOrDefault(u => u.Id == _teBewerkenLid.Id);
+
+                    if (lidInDatabase != null)
                     {
-                        lid.Voornaam = VoornaamTextBox.Text;
-                        lid.Achternaam = AchternaamTextBox.Text;
-                        lid.Email = EmailTextBox.Text;
-                        lid.Telefoon = TelefoonTextBox.Text;
+                        // Update alle properties
+                        lidInDatabase.Voornaam = VoornaamTextBox.Text;
+                        lidInDatabase.Achternaam = AchternaamTextBox.Text;
+                        lidInDatabase.Email = EmailTextBox.Text;
+                        lidInDatabase.UserName = EmailTextBox.Text; // Update ook username
+                        lidInDatabase.Telefoon = TelefoonTextBox.Text;
+                        lidInDatabase.Geboortedatum = GeboortedatumPicker.SelectedDate.Value;
+
+                        if (AbonnementComboBox.SelectedValue is int abonnementId)
+                        {
+                            lidInDatabase.AbonnementId = abonnementId;
+                        }
 
                         context.SaveChanges();
-                        MessageBox.Show("Opgeslagen!");
+
+                        MessageBox.Show($"Lid {lidInDatabase.Voornaam} {lidInDatabase.Achternaam} succesvol bijgewerkt!", "Succes",
+                                      MessageBoxButton.OK, MessageBoxImage.Information);
+
+                        this.DialogResult = true;
                         this.Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Lid niet gevonden in database!", "Fout",
+                                      MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MessageBox.Show($"Fout: {ex.Message}");
+                MessageBox.Show($"Fout bij opslaan wijzigingen: {ex.Message}", "Fout",
+                              MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void AnnulerenClick(object sender, RoutedEventArgs e)
         {
+            this.DialogResult = false;
             this.Close();
         }
     }

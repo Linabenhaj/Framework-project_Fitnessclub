@@ -11,26 +11,23 @@ namespace FitnessClub.WPF
 
         private void AdminLogin_Click(object sender, RoutedEventArgs e)
         {
-            // Toon admin login scherm
-            var loginWindow = new LoginWindow("Admin");
+            var loginWindow = new LoginWindow();
             loginWindow.Show();
-            this.Hide();
+            this.Close();
+        }
+
+        private void LidRegistreer_Click(object sender, RoutedEventArgs e)
+        {
+            var registerWindow = new RegisterWindow();
+            registerWindow.Show();
+            this.Close();
         }
 
         private void LidLogin_Click(object sender, RoutedEventArgs e)
         {
-            // Toon lid login scherm
-            var loginWindow = new LoginWindow("Lid");
+            var loginWindow = new LoginWindow();
             loginWindow.Show();
-            this.Hide();
-        }
-
-        private void Registreer_Click(object sender, RoutedEventArgs e)
-        {
-            
-            var registerWindow = new RegisterWindow();
-            registerWindow.Show();
-            this.Hide();
+            this.Close();
         }
     }
 }

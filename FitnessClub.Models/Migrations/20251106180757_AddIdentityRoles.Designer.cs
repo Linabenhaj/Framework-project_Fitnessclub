@@ -4,6 +4,7 @@ using FitnessClub.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitnessClub.Models.Migrations
 {
     [DbContext(typeof(FitnessClubDbContext))]
-    partial class FitnessClubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251106180757_AddIdentityRoles")]
+    partial class AddIdentityRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,7 +66,7 @@ namespace FitnessClub.Models.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("AbonnementId")
+                    b.Property<int>("AbonnementId")
                         .HasColumnType("int");
 
                     b.Property<int>("AccessFailedCount")
@@ -361,7 +364,9 @@ namespace FitnessClub.Models.Migrations
                 {
                     b.HasOne("FitnessClub.Models.Abonnement", "Abonnement")
                         .WithMany("Gebruikers")
-                        .HasForeignKey("AbonnementId");
+                        .HasForeignKey("AbonnementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Abonnement");
                 });

@@ -1,45 +1,46 @@
 ﻿<Window x:Class="FitnessClub.WPF.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Inloggen - Fitness Club" Height="500" Width="700"
+        Title="Inloggen - Fitness Club" Height="450" Width="400"
         WindowStartupLocation="CenterScreen">
 
     <Grid Background="#f0f0f0">
         <Border Background="White" 
                 CornerRadius="10" 
-                Padding="40" 
+                Padding="30" 
                 VerticalAlignment="Center" 
                 HorizontalAlignment="Center"
                 BorderBrush="#ddd" 
                 BorderThickness="1">
             <StackPanel>
-                <TextBlock Text="Inloggen bij Fitness Club" 
+                <TextBlock Text="Inloggen" 
                            FontSize="28" 
                            FontWeight="Bold" 
                            HorizontalAlignment="Center"
                            Foreground="#2c3e50"
-                           Margin="0,0,0,40"/>
+                           Margin="0,0,0,30"/>
 
                 <TextBlock Text="E-mail:" FontWeight="Bold" Margin="0,0,0,5"/>
-                <TextBox x:Name="EmailTextBox" Height="35" FontSize="14" Padding="5" Margin="0,0,0,20"/>
+                <TextBox x:Name="EmailTextBox" Height="35" FontSize="14" Padding="5" Margin="0,0,0,15"/>
 
                 <TextBlock Text="Wachtwoord:" FontWeight="Bold" Margin="0,0,0,5"/>
-                <PasswordBox x:Name="PasswordBox" Height="35" FontSize="14" Padding="5" Margin="0,0,0,30"/>
+                <PasswordBox x:Name="PasswordBox" Height="35" FontSize="14" Padding="5" Margin="0,0,0,20"/>
 
                 <Button Content="Inloggen" 
                         Click="Login_Click" 
-                        Width="250" 
-                        Height="45"
+                        Width="200" 
+                        Height="40"
                         Margin="0,15"
                         FontSize="14"
                         Background="#3498db"
-                        Foreground="White"/>
+                        Foreground="White"
+                        FontWeight="Bold"/>
 
                 <Button Content="Terug naar Hoofdmenu" 
                         Click="Terug_Click" 
-                        Width="250" 
-                        Height="45"
-                        Margin="0,15"
+                        Width="200" 
+                        Height="40"
+                        Margin="0,10"
                         FontSize="14"
                         Background="#95a5a6"
                         Foreground="White"/>

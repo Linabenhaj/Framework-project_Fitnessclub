@@ -1,6 +1,7 @@
 ﻿<UserControl x:Class="FitnessClub.WPF.Views.AbonnementenOverzicht"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:FitnessClub.WPF.Controls"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
@@ -13,14 +14,15 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Abonnementen Beheer" Style="{StaticResource HeaderStyle}"/>
+        <TextBlock Grid.Row="0" Text="Abonnementen Beheer" FontSize="18" FontWeight="Bold" Margin="10"/>
 
         <DataGrid Grid.Row="1" x:Name="AbonnementenDataGrid" AutoGenerateColumns="False" Margin="10">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
                 <DataGridTextColumn Header="Naam" Binding="{Binding Naam}" Width="150"/>
-                <DataGridTextColumn Header="Prijs" Binding="{Binding Prijs}" Width="80"/>
+                <DataGridTextColumn Header="Prijs" Binding="{Binding Prijs, StringFormat=C}" Width="80"/>
                 <DataGridTextColumn Header="Looptijd" Binding="{Binding LooptijdMaanden}" Width="80"/>
+                <DataGridTextColumn Header="Omschrijving" Binding="{Binding Omschrijving}" Width="200"/>
                 <DataGridTemplateColumn Header="Acties" Width="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

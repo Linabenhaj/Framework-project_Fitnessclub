@@ -12,7 +12,6 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-   
         <Border Grid.Row="0" Background="#2c3e50" Padding="15">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -20,8 +19,12 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="Fitness Club Dashboard" 
-                           Foreground="White" FontSize="20" FontWeight="Bold"/>
+                <StackPanel Grid.Column="0" Orientation="Vertical">
+                    <TextBlock Text="Fitness Club Dashboard" 
+                               Foreground="White" FontSize="20" FontWeight="Bold"/>
+                    <TextBlock x:Name="EmailText" Foreground="#ecf0f1" FontSize="12"
+                               Margin="0,5,0,0"/>
+                </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <TextBlock Text="Welkom, " Foreground="White" VerticalAlignment="Center"/>
@@ -33,48 +36,48 @@
             </Grid>
         </Border>
 
-    
-        <TabControl Grid.Row="1" Margin="10">
-         
-            <TabItem Header="Profiel" x:Name="ProfielTab">
-                <StackPanel Margin="20">
-                    <TextBlock Text="Mijn Profiel" FontSize="18" FontWeight="Bold" Foreground="#2c3e50" Margin="0,0,0,20"/>
-                    <TextBlock Text="Hier komt profiel informatie..." Margin="10"/>
-                </StackPanel>
-            </TabItem>
-
-            
-            <TabItem Header="Leden Beheer" x:Name="LedenTab" Visibility="Collapsed">
-                <views:LedenOverzicht />
-            </TabItem>
-
-            <TabItem Header="Abonnementen" x:Name="AbonnementTab" Visibility="Collapsed">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Text="Mijn Abonnement" FontSize="18" FontWeight="Bold" Foreground="#2c3e50" Margin="10"/>
-                    <TextBlock Grid.Row="1" Text="Abonnement informatie..." 
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Grid>
-            </TabItem>
-
-            <TabItem Header="Instellingen" x:Name="InstellingenTab">
-                <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" Text="Instellingen" FontSize="18" FontWeight="Bold" Foreground="#2c3e50" Margin="10"/>
-                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Content="Opslaan" Padding="10,5" Margin="5" Background="#27ae60" Foreground="White"/>
-                        <Button Content="Reset" Padding="10,5" Margin="5" Background="#3498db" Foreground="White"/>
-                    </StackPanel>
-                    <TextBlock Text="Instellingen content..." HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </DockPanel>
-            </TabItem>
-        </TabControl>
+        
+<TabControl Grid.Row="1" Margin="10">
 
    
+    <TabItem Header="Profiel" x:Name="ProfielTab">
+        <StackPanel Margin="20">
+            <TextBlock Text="Mijn Profiel" FontSize="18" FontWeight="Bold"/>
+            <TextBlock x:Name="ProfileInfoText" Margin="0,10" TextWrapping="Wrap"/>
+        </StackPanel>
+    </TabItem>
+
+  
+    <TabItem Header="Leden Beheer" x:Name="LedenTab" Visibility="Collapsed">
+        <views:LedenOverzicht />
+    </TabItem>
+
+    <TabItem Header="Abonnementen" x:Name="AbonnementTab" Visibility="Collapsed">
+        <views:AbonnementenOverzicht />
+    </TabItem>
+
+    <TabItem Header="Inschrijvingen" x:Name="InschrijvingenTab" Visibility="Collapsed">
+        <views:InschrijvingenOverzicht />
+    </TabItem>
+
+   
+    <TabItem Header="Mijn Abonnement" x:Name="MijnAbonnementTab" Visibility="Collapsed">
+        <views:MijnAbonnement />
+    </TabItem>
+
+    <TabItem Header="Mijn Inschrijvingen" x:Name="MijnInschrijvingenTab" Visibility="Collapsed">
+        <views:MijnInschrijvingen />
+    </TabItem>
+
+    <TabItem Header="Lessen" x:Name="LessenTab" Visibility="Collapsed">
+        <views:LessenOverzicht />
+    </TabItem>
+
+</TabControl>
+
+     
         <Border Grid.Row="2" Background="#ecf0f1" Padding="10">
-            <TextBlock x:Name="RoleInfoText" Text="Rol: " HorizontalAlignment="Center"/>
+            <TextBlock x:Name="FooterRoleText" Text="Fitness Club Management Systeem" HorizontalAlignment="Center"/>
         </Border>
     </Grid>
 </Window>

@@ -1,10 +1,7 @@
-﻿using FitnessClub.Models.Models;
-using FitnessClub.Models.Data;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
+using FitnessClub.Models.Data;
+using System.Linq;
 
 namespace FitnessClub.WPF.Views
 {
@@ -20,27 +17,30 @@ namespace FitnessClub.WPF.Views
         {
             try
             {
-                // INQ query syntax en soft delete toegevoegd
                 using (var context = new FitnessClubDbContext())
-                {           
-                    var abonnementen = from abonnement in context.Abonnementen
-                                       where !abonnement.IsVerwijderd
-                                       select abonnement;
+                {
+                    var abonnementen = context.Abonnementen
+                        .Where(a => !a.IsVerwijderd)
+                        .OrderBy(a => a.Prijs)
+                        .ToList();
 
-                    AbonnementenDataGrid.ItemsSource = abonnementen.ToList();
+                    AbonnementenDataGrid.ItemsSource = abonnementen;
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MessageBox.Show($"Fout bij laden: {ex.Message}");
+                MessageBox.Show($"Fout bij laden abonnementen: {ex.Message}", "Fout",
+                              MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void ToevoegenClick(object sender, RoutedEventArgs e)
         {
             var window = new Windows.AbonnementToevoegenWindow();
-            window.Closed += (s, args) => LoadAbonnementen();
-            window.ShowDialog();
+            if (window.ShowDialog() == true)
+            {
+                LoadAbonnementen();
+            }
         }
 
         private void BewerkenClick(object sender, RoutedEventArgs e)
@@ -49,8 +49,10 @@ namespace FitnessClub.WPF.Views
             if (button?.Tag is int abonnementId)
             {
                 var window = new Windows.AbonnementBewerkenWindow(abonnementId);
-                window.Closed += (s, args) => LoadAbonnementen();
-                window.ShowDialog();
+                if (window.ShowDialog() == true)
+                {
+                    LoadAbonnementen();
+                }
             }
         }
 
@@ -61,24 +63,27 @@ namespace FitnessClub.WPF.Views
             {
                 try
                 {
-                    // Lambda expression
-                    using (var context = new FitnessClubDbContext())
+                    var result = MessageBox.Show("Weet u zeker dat u dit abonnement wilt verwijderen?",
+                        "Bevestiging", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Yes)
                     {
-                        var abonnement = context.Abonnementen.FirstOrDefault(x => x.Id == abonnementId);
-                        if (abonnement != null)
+                        using (var context = new FitnessClubDbContext())
                         {
-                            // SOFT DELETE
-                            abonnement.IsVerwijderd = true;
-                            abonnement.VerwijderdOp = DateTime.Now;
-                            context.SaveChanges();
-                            LoadAbonnementen();
-                            MessageBox.Show("Abonnement verwijderd!");
+                            var abonnement = context.Abonnementen.Find(abonnementId);
+                            if (abonnement != null)
+                            {
+                                context.Abonnementen.Remove(abonnement);
+                                context.SaveChanges();
+                                LoadAbonnementen();
+                                MessageBox.Show("Abonnement verwijderd!");
+                            }
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
-                    MessageBox.Show($"Fout: {ex.Message}");
+                    MessageBox.Show($"Fout bij verwijderen: {ex.Message}");
                 }
             }
         }

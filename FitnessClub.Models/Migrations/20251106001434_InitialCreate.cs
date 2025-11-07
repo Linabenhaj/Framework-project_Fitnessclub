@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FitnessClub.Models.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,10 +19,10 @@ namespace FitnessClub.Models.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Naam = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Prijs = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    LooptijdMaanden = table.Column<int>(type: "int", nullable: false),
-                    IsVerwijderd = table.Column<bool>(type: "bit", nullable: false),
+                    Omschrijving = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AangemaaktOp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    GewijzigdOp = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    BijgewerktOp = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsVerwijderd = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -44,6 +44,26 @@ namespace FitnessClub.Models.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Lessen",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Naam = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Beschrijving = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DatumTijd = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Duur = table.Column<int>(type: "int", nullable: false),
+                    MaxDeelnemers = table.Column<int>(type: "int", nullable: false),
+                    AangemaaktOp = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BijgewerktOp = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsVerwijderd = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Lessen", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetUsers",
                 columns: table => new
                 {
@@ -51,6 +71,8 @@ namespace FitnessClub.Models.Migrations
                     Voornaam = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Achternaam = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Geboortedatum = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Telefoon = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AbonnementId = table.Column<int>(type: "int", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -69,33 +91,12 @@ namespace FitnessClub.Models.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Leden",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Voornaam = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Achternaam = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Telefoon = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Geboortedatum = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LidSinds = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AbonnementId = table.Column<int>(type: "int", nullable: true),
-                    IsVerwijderd = table.Column<bool>(type: "bit", nullable: false),
-                    AangemaaktOp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    GewijzigdOp = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Leden", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Leden_Abonnementen_AbonnementId",
+                        name: "FK_AspNetUsers_Abonnementen_AbonnementId",
                         column: x => x.AbonnementId,
                         principalTable: "Abonnementen",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -210,60 +211,28 @@ namespace FitnessClub.Models.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    LidId = table.Column<int>(type: "int", nullable: false),
-                    AbonnementId = table.Column<int>(type: "int", nullable: false),
-                    StartDatum = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EindDatum = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsVerwijderd = table.Column<bool>(type: "bit", nullable: false),
+                    InschrijfDatum = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    GebruikerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    LesId = table.Column<int>(type: "int", nullable: false),
                     AangemaaktOp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    GewijzigdOp = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    BijgewerktOp = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsVerwijderd = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Inschrijvingen", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Inschrijvingen_Abonnementen_AbonnementId",
-                        column: x => x.AbonnementId,
-                        principalTable: "Abonnementen",
+                        name: "FK_Inschrijvingen_AspNetUsers_GebruikerId",
+                        column: x => x.GebruikerId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Inschrijvingen_Leden_LidId",
-                        column: x => x.LidId,
-                        principalTable: "Leden",
+                        name: "FK_Inschrijvingen_Lessen_LesId",
+                        column: x => x.LesId,
+                        principalTable: "Lessen",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Betalingen",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    InschrijvingId = table.Column<int>(type: "int", nullable: false),
-                    Bedrag = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Datum = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsBetaald = table.Column<bool>(type: "bit", nullable: false),
-                    LidId = table.Column<int>(type: "int", nullable: true),
-                    IsVerwijderd = table.Column<bool>(type: "bit", nullable: false),
-                    AangemaaktOp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    GewijzigdOp = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Betalingen", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Betalingen_Inschrijvingen_InschrijvingId",
-                        column: x => x.InschrijvingId,
-                        principalTable: "Inschrijvingen",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Betalingen_Leden_LidId",
-                        column: x => x.LidId,
-                        principalTable: "Leden",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -299,6 +268,11 @@ namespace FitnessClub.Models.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_AbonnementId",
+                table: "AspNetUsers",
+                column: "AbonnementId");
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
@@ -306,29 +280,14 @@ namespace FitnessClub.Models.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Betalingen_InschrijvingId",
-                table: "Betalingen",
-                column: "InschrijvingId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Betalingen_LidId",
-                table: "Betalingen",
-                column: "LidId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Inschrijvingen_AbonnementId",
+                name: "IX_Inschrijvingen_GebruikerId",
                 table: "Inschrijvingen",
-                column: "AbonnementId");
+                column: "GebruikerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Inschrijvingen_LidId",
+                name: "IX_Inschrijvingen_LesId",
                 table: "Inschrijvingen",
-                column: "LidId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Leden_AbonnementId",
-                table: "Leden",
-                column: "AbonnementId");
+                column: "LesId");
         }
 
         /// <inheritdoc />
@@ -350,7 +309,7 @@ namespace FitnessClub.Models.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Betalingen");
+                name: "Inschrijvingen");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -359,10 +318,7 @@ namespace FitnessClub.Models.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Inschrijvingen");
-
-            migrationBuilder.DropTable(
-                name: "Leden");
+                name: "Lessen");
 
             migrationBuilder.DropTable(
                 name: "Abonnementen");

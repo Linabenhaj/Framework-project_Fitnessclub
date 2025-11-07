@@ -1,69 +1,43 @@
-﻿using FitnessClub.Models;
+﻿using System.Windows;
 using FitnessClub.Models.Data;
-using FitnessClub.Models.Models;
-using Microsoft.EntityFrameworkCore;
+using FitnessClub.Models;
 using System.Linq;
-using System.Windows;
 
 namespace FitnessClub.WPF.Windows
 {
     public partial class InschrijvingToevoegenWindow : Window
     {
-        private FitnessClubDbContext _context = new FitnessClubDbContext();
-        private Inschrijving _teBewerkenInschrijving;
-
         public InschrijvingToevoegenWindow()
         {
             InitializeComponent();
-            LaadLedenEnAbonnementen();
-            dpStartDatum.SelectedDate = DateTime.Now;
-            dpEindDatum.SelectedDate = DateTime.Now.AddMonths(1);
+            LoadData();
         }
 
-        public InschrijvingToevoegenWindow(Inschrijving inschrijving) : this()
-        {
-            _teBewerkenInschrijving = inschrijving;
-            VulVelden();
-            Title = "Inschrijving Bewerken";
-        }
-
-        private void LaadLedenEnAbonnementen()
+        private void LoadData()
         {
             try
             {
-                // Laad leden
-                var leden = _context.Leden
-                    .Where(l => !l.IsVerwijderd)
-                    .ToList();
-                cmbLid.ItemsSource = leden;
-                if (leden.Any())
-                    cmbLid.SelectedIndex = 0;
+                using (var context = new FitnessClubDbContext())
+                {
+                    // Laad gebruikers
+                    cmbGebruiker.ItemsSource = context.Users
+                        .Where(u => !u.IsVerwijderd)
+                        .ToList();
 
-                //Laad abonnementen
-                var abonnementen = _context.Abonnementen
-                    .Where(a => !a.IsVerwijderd)
-                    .ToList();
-                cmbAbonnement.ItemsSource = abonnementen;
-                if (abonnementen.Any())
-                    cmbAbonnement.SelectedIndex = 0;
+                    // Laad lessen
+                    cmbLes.ItemsSource = context.Lessen
+                        .Where(l => !l.IsVerwijderd)
+                        .ToList();
+
+                    // Stel standaard datums in
+                    dpStartDatum.SelectedDate = DateTime.Today;
+                    dpEindDatum.SelectedDate = DateTime.Today.AddMonths(1);
+                }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MessageBox.Show($"Fout bij laden data: {ex.Message}");
-            }
-        }
-
-        private void VulVelden()
-        {
-            if (_teBewerkenInschrijving != null)
-            {
-                var lid = _context.Leden.FirstOrDefault(l => l.Id == _teBewerkenInschrijving.LidId);
-                var abonnement = _context.Abonnementen.FirstOrDefault(a => a.Id == _teBewerkenInschrijving.AbonnementId);
-
-                cmbLid.SelectedItem = lid;
-                cmbAbonnement.SelectedItem = abonnement;
-                dpStartDatum.SelectedDate = _teBewerkenInschrijving.StartDatum;
-                dpEindDatum.SelectedDate = _teBewerkenInschrijving.EindDatum;
+                MessageBox.Show($"Fout bij laden data: {ex.Message}", "Fout",
+                              MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -72,50 +46,53 @@ namespace FitnessClub.WPF.Windows
             try
             {
                 // Validatie
-                if (cmbLid.SelectedItem == null || cmbAbonnement.SelectedItem == null)
+                if (cmbGebruiker.SelectedItem == null)
                 {
-                    MessageBox.Show("Selecteer een lid en abonnement!", "Fout",
+                    MessageBox.Show("Selecteer een gebruiker!", "Fout",
                                   MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                var geselecteerdLid = (Lid)cmbLid.SelectedItem;
-                var geselecteerdAbonnement = (Abonnement)cmbAbonnement.SelectedItem;
-
-                if (_teBewerkenInschrijving == null)
+                if (cmbLes.SelectedItem == null)
                 {
-                    //Nieuwe inschrijving
-                    var nieuweInschrijving = new Inschrijving
-                    {
-                        LidId = geselecteerdLid.Id,
-                        AbonnementId = geselecteerdAbonnement.Id,
-                        StartDatum = dpStartDatum.SelectedDate ?? DateTime.Now,
-                        EindDatum = dpEindDatum.SelectedDate ?? DateTime.Now.AddMonths(1),
-                        IsVerwijderd = false
-                    };
-
-                    _context.Inschrijvingen.Add(nieuweInschrijving);
-                }
-                else
-                {
-                    // Bestaande inschrijving bijwerken
-                    _teBewerkenInschrijving.LidId = geselecteerdLid.Id;
-                    _teBewerkenInschrijving.AbonnementId = geselecteerdAbonnement.Id;
-                    _teBewerkenInschrijving.StartDatum = dpStartDatum.SelectedDate ?? DateTime.Now;
-                    _teBewerkenInschrijving.EindDatum = dpEindDatum.SelectedDate ?? DateTime.Now.AddMonths(1);
+                    MessageBox.Show("Selecteer een les!", "Fout",
+                                  MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
                 }
 
-                _context.SaveChanges();
+                if (dpStartDatum.SelectedDate == null)
+                {
+                    MessageBox.Show("Selecteer een start datum!", "Fout",
+                                  MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
 
-                MessageBox.Show("Inschrijving succesvol opgeslagen!", "Succes",
+                // Nieuwe inschrijving aanmaken
+                var nieuweInschrijving = new Inschrijving
+                {
+                    GebruikerId = ((Gebruiker)cmbGebruiker.SelectedItem).Id,
+                    LesId = ((Les)cmbLes.SelectedItem).Id,
+                    InschrijfDatum = DateTime.UtcNow,
+                    StartDatum = dpStartDatum.SelectedDate.Value,
+                    EindDatum = dpEindDatum.SelectedDate
+                };
+
+                // Opslaan in database
+                using (var context = new FitnessClubDbContext())
+                {
+                    context.Inschrijvingen.Add(nieuweInschrijving);
+                    context.SaveChanges();
+                }
+
+                MessageBox.Show("Inschrijving succesvol toegevoegd!", "Succes",
                               MessageBoxButton.OK, MessageBoxImage.Information);
 
                 this.DialogResult = true;
                 this.Close();
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MessageBox.Show($"Opslaan mislukt: {ex.Message}", "Fout",
+                MessageBox.Show($"Fout bij opslaan: {ex.Message}", "Fout",
                               MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

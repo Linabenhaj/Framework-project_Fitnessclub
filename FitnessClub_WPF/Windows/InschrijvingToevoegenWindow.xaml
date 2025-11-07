@@ -6,30 +6,49 @@
 
     <Grid Margin="20">
         <StackPanel>
-            <TextBlock Text="Inschrijving Toevoegen/Bewerken" FontSize="18" FontWeight="Bold" 
-                      HorizontalAlignment="Center" Margin="0,0,0,20"/>
+            <TextBlock Text="Inschrijving Toevoegen" 
+                      FontSize="18" 
+                      FontWeight="Bold" 
+                      HorizontalAlignment="Center" 
+                      Margin="0,0,0,20"/>
 
-            <TextBlock Text="Lid:" FontWeight="Bold"/>
-            <ComboBox x:Name="cmbLid" DisplayMemberPath="Voornaam" 
-                     Margin="0,5,0,15"/>
+            <TextBlock Text="Gebruiker:" FontWeight="Bold"/>
+            <ComboBox x:Name="cmbGebruiker" 
+                     DisplayMemberPath="Voornaam" 
+                     Margin="0,5,0,15"
+                     Height="30"/>
 
-            <TextBlock Text="Abonnement:" FontWeight="Bold"/>
-            <ComboBox x:Name="cmbAbonnement" DisplayMemberPath="Naam" 
-                     Margin="0,5,0,15"/>
+            <TextBlock Text="Les:" FontWeight="Bold"/>
+            <ComboBox x:Name="cmbLes" 
+                     DisplayMemberPath="Naam" 
+                     Margin="0,5,0,15"
+                     Height="30"/>
 
             <TextBlock Text="Start Datum:" FontWeight="Bold"/>
-            <DatePicker x:Name="dpStartDatum" Margin="0,5,0,15"/>
+            <DatePicker x:Name="dpStartDatum" 
+                       Margin="0,5,0,15"
+                       Height="30"/>
 
             <TextBlock Text="Eind Datum:" FontWeight="Bold"/>
-            <DatePicker x:Name="dpEindDatum" Margin="0,5,0,20"/>
+            <DatePicker x:Name="dpEindDatum" 
+                       Margin="0,5,0,20"
+                       Height="30"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Opslaan" Click="BtnOpslaan_Click" 
-                       Background="Green" Foreground="White" 
-                       Width="80" Margin="5"/>
-                <Button Content="Annuleren" Click="BtnAnnuleren_Click" 
-                       Background="Gray" Foreground="White"
-                       Width="80" Margin="5"/>
+                <Button Content="Opslaan" 
+                       Click="BtnOpslaan_Click" 
+                       Background="#27ae60" 
+                       Foreground="White" 
+                       Width="80" 
+                       Height="30"
+                       Margin="5"/>
+                <Button Content="Annuleren" 
+                       Click="BtnAnnuleren_Click" 
+                       Background="#e74c3c" 
+                       Foreground="White"
+                       Width="80" 
+                       Height="30"
+                       Margin="5"/>
             </StackPanel>
         </StackPanel>
     </Grid>

@@ -1,17 +1,13 @@
-﻿using FitnessClub.Models.Data;
-using FitnessClub.Models.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using FitnessClub.WPF.Windows;
+using FitnessClub.Models.Data;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessClub.WPF.Views
 {
     public partial class InschrijvingenOverzicht : UserControl
     {
-        private FitnessClubDbContext _context = new FitnessClubDbContext();
-
         public InschrijvingenOverzicht()
         {
             InitializeComponent();
@@ -22,76 +18,75 @@ namespace FitnessClub.WPF.Views
         {
             try
             {
-                //LINQ query + soft delete en joins
-                var actieveInschrijvingen = from inschrijving in _context.Inschrijvingen
-                                            where !inschrijving.IsVerwijderd
-                                            join lid in _context.Leden on inschrijving.LidId equals lid.Id
-                                            join abonnement in _context.Abonnementen on inschrijving.AbonnementId equals abonnement.Id
-                                            select new
-                                            {
-                                                inschrijving.Id,
-                                                inschrijving.LidId,
-                                                LidNaam = lid.Voornaam + " " + lid.Achternaam,
-                                                inschrijving.AbonnementId,
-                                                AbonnementNaam = abonnement.Naam,
-                                                inschrijving.StartDatum,
-                                                inschrijving.EindDatum
-                                            };
-
-                dgInschrijvingen.ItemsSource = actieveInschrijvingen.ToList();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Fout bij laden: {ex.Message}");
-            }
-        }
-
-        private void BtnToevoegen_Click(object sender, RoutedEventArgs e)
-        {
-            var window = new InschrijvingToevoegenWindow();
-            if (window.ShowDialog() == true)
-            {
-                LoadInschrijvingen();
-            }
-        }
-
-        private void BtnBewerken_Click(object sender, RoutedEventArgs e)
-        {
-         
-            dynamic inschrijving = ((Button)sender).DataContext;
-            var inschrijvingEntity = _context.Inschrijvingen.Find(inschrijving.Id);
-
-            var window = new InschrijvingToevoegenWindow(inschrijvingEntity);
-            if (window.ShowDialog() == true)
-            {
-                LoadInschrijvingen();
-            }
-        }
-
-        private void BtnVerwijderen_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                dynamic inschrijving = ((Button)sender).DataContext;
-                var inschrijvingEntity = _context.Inschrijvingen.Find(inschrijving.Id);
-
-                var result = MessageBox.Show($"Weet je zeker dat je deze inschrijving wilt verwijderen?",
-                                           "Bevestiging", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
+                using (var context = new FitnessClubDbContext())
                 {
-                    // SOFT DELETE
-                    inschrijvingEntity.IsVerwijderd = true;
-                    _context.SaveChanges();
-                    LoadInschrijvingen();
+                    var inschrijvingen = context.Inschrijvingen
+                        .Include(i => i.Gebruiker)
+                        .Include(i => i.Les)
+                        .Where(i => !i.IsVerwijderd)
+                        .OrderByDescending(i => i.InschrijfDatum)
+                        .ToList();
 
-                    MessageBox.Show("Inschrijving succesvol verwijderd!");
+                    InschrijvingenDataGrid.ItemsSource = inschrijvingen;
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                MessageBox.Show($"Fout bij verwijderen: {ex.Message}");
+                MessageBox.Show($"Fout bij laden inschrijvingen: {ex.Message}", "Fout",
+                              MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void ToevoegenClick(object sender, RoutedEventArgs e)
+        {
+            var window = new Windows.InschrijvingToevoegenWindow();
+            if (window.ShowDialog() == true)
+            {
+                LoadInschrijvingen();
+            }
+        }
+
+        private void BewerkenClick(object sender, RoutedEventArgs e)
+        {
+            // Bewerkingslogica hier
+            MessageBox.Show("Bewerken functionaliteit komt later");
+        }
+
+        private void VerwijderenClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.DataContext is Models.Inschrijving inschrijving)
+            {
+                try
+                {
+                    var result = MessageBox.Show("Weet u zeker dat u deze inschrijving wilt verwijderen?",
+                        "Bevestiging", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        using (var context = new FitnessClubDbContext())
+                        {
+                            var inschrijvingInDb = context.Inschrijvingen.Find(inschrijving.Id);
+                            if (inschrijvingInDb != null)
+                            {
+                                context.Inschrijvingen.Remove(inschrijvingInDb);
+                                context.SaveChanges();
+                                LoadInschrijvingen();
+                                MessageBox.Show("Inschrijving verwijderd!");
+                            }
+                        }
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    MessageBox.Show($"Fout bij verwijderen: {ex.Message}");
+                }
+            }
+        }
+
+        private void RefreshClick(object sender, RoutedEventArgs e)
+        {
+            LoadInschrijvingen();
         }
     }
 }

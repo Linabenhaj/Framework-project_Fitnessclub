@@ -1,37 +1,65 @@
 ﻿using System.Windows;
+using FitnessClub.Models.Data;
+using FitnessClub.Models;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace FitnessClub.WPF
 {
     public partial class LoginWindow : Window
     {
-        private readonly string _rol;
-
-        public LoginWindow(string rol = "")
+        public LoginWindow()
         {
             InitializeComponent();
-            _rol = rol;
-            Title = $"Inloggen als {rol} - Fitness Club";
         }
 
         private void Login_Click(object sender, RoutedEventArgs e)
         {
-            // DEMO: Simpele login voor testing
-            if (_rol == "Admin" && EmailTextBox.Text == "admin@fitness.com" && PasswordBox.Password == "Admin123!")
+            try
             {
-                var dashboard = new DashboardWindow(null, new System.Collections.Generic.List<string> { "Admin" });
-                dashboard.Show();
-                this.Close();
+                if (string.IsNullOrWhiteSpace(EmailTextBox.Text) ||
+                    string.IsNullOrWhiteSpace(PasswordBox.Password))
+                {
+                    MessageBox.Show("Vul alle velden in!", "Fout",
+                                  MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                using (var context = new FitnessClubDbContext())
+                {
+                    // Zoek gebruiker in database
+                    var user = context.Users
+                        .FirstOrDefault(u => u.Email == EmailTextBox.Text);
+
+                    if (user != null)
+                    {
+                        // DEMO: Simpele login voor testing
+                       
+                        if (EmailTextBox.Text == "admin@fitness.com" && PasswordBox.Password == "Admin123!")
+                        {
+                            var dashboard = new DashboardWindow(new List<string> { "Admin" }, user);
+                            dashboard.Show();
+                            this.Close();
+                        }
+                        else
+                        {
+                            // Voor demo  accepteer elke login als lid
+                            var dashboard = new DashboardWindow(new List<string> { "Lid" }, user);
+                            dashboard.Show();
+                            this.Close();
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Gebruiker niet gevonden! Registreer eerst.", "Fout",
+                                      MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
             }
-            else if (_rol == "Lid")
+            catch (System.Exception ex)
             {
-                // Voor demo - accepteer elke login als lid
-                var dashboard = new DashboardWindow(null, new System.Collections.Generic.List<string> { "Lid" });
-                dashboard.Show();
-                this.Close();
-            }
-            else
-            {
-                MessageBox.Show("Ongeldige inloggegevens! Gebruik admin@fitness.com / Admin123! voor Admin");
+                MessageBox.Show($"Inlogfout: {ex.Message}", "Fout",
+                              MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
