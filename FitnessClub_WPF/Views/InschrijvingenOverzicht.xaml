@@ -13,7 +13,13 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Inschrijvingen Beheer" FontSize="18" FontWeight="Bold" Margin="10"/>
+        <!-- Header met knoppen -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+            <TextBlock Text="Inschrijvingen Beheer" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+            <Button Content="Lid Inschrijven voor Les" Click="InschrijvenClick" 
+                    Background="#27ae60" Foreground="White" 
+                    Padding="15,8" Margin="20,0,0,0" FontWeight="Bold"/>
+        </StackPanel>
 
         <DataGrid Grid.Row="1" x:Name="InschrijvingenDataGrid" AutoGenerateColumns="False" Margin="10">
             <DataGrid.Columns>
