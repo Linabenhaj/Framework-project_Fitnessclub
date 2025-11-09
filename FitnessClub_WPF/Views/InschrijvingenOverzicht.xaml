@@ -13,21 +13,13 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header met knoppen -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
-            <TextBlock Text="Inschrijvingen Beheer" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
-            <Button Content="Lid Inschrijven voor Les" Click="InschrijvenClick" 
-                    Background="#27ae60" Foreground="White" 
-                    Padding="15,8" Margin="20,0,0,0" FontWeight="Bold"/>
-        </StackPanel>
+        <TextBlock Grid.Row="0" Text="Inschrijvingen Beheer" FontSize="18" FontWeight="Bold" Margin="10"/>
 
         <DataGrid Grid.Row="1" x:Name="InschrijvingenDataGrid" AutoGenerateColumns="False" Margin="10">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Gebruiker" Binding="{Binding Gebruiker.Voornaam}" Width="120"/>
                 <DataGridTextColumn Header="Les" Binding="{Binding Les.Naam}" Width="150"/>
                 <DataGridTextColumn Header="Inschrijf Datum" Binding="{Binding InschrijfDatum, StringFormat=d}" Width="120"/>
-                <DataGridTextColumn Header="Start Datum" Binding="{Binding StartDatum, StringFormat=d}" Width="120"/>
-                <DataGridTextColumn Header="Eind Datum" Binding="{Binding EindDatum, StringFormat=d}" Width="120"/>
                 <DataGridTemplateColumn Header="Acties" Width="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

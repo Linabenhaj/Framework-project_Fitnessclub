@@ -1,7 +1,6 @@
 ﻿<UserControl x:Class="FitnessClub.WPF.Views.AbonnementenOverzicht"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:controls="clr-namespace:FitnessClub.WPF.Controls"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
@@ -40,8 +39,10 @@
         </DataGrid>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Content="Nieuw Abonnement" Click="ToevoegenClick" Style="{StaticResource SuccessButtonStyle}"/>
-            <Button Content="Refresh" Click="RefreshClick" Style="{StaticResource ButtonStyle}"/>
+            <Button Content="Nieuw Abonnement" Click="ToevoegenClick" 
+                    Background="#27ae60" Foreground="White" Padding="10,5" Margin="5"/>
+            <Button Content="Refresh" Click="RefreshClick" 
+                    Background="#3498db" Foreground="White" Padding="10,5" Margin="5"/>
         </StackPanel>
     </Grid>
 </UserControl>

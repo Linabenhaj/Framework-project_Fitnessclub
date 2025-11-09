@@ -1,54 +1,93 @@
-﻿using System.Windows;
+﻿using FitnessClub.Models;
 using FitnessClub.Models.Data;
-using FitnessClub.Models;
-using System.Linq;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace FitnessClub.WPF
 {
     public partial class RegisterWindow : Window
     {
+        private List<Abonnement> _beschikbareAbonnementen;
+        private Abonnement _geselecteerdAbonnement;
+
         public RegisterWindow()
         {
             InitializeComponent();
+            LaadAbonnementen();
         }
 
-        private void Registreer_Click(object sender, RoutedEventArgs e)
+        private void LaadAbonnementen()
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(VoornaamTextBox.Text) ||
-                    string.IsNullOrWhiteSpace(AchternaamTextBox.Text) ||
-                    string.IsNullOrWhiteSpace(EmailTextBox.Text) ||
-                    string.IsNullOrWhiteSpace(PasswordBox.Password))
-                {
-                    MessageBox.Show("Vul alle verplichte velden in!", "Fout",
-                                  MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                if (PasswordBox.Password != ConfirmPasswordBox.Password)
-                {
-                    MessageBox.Show("Wachtwoorden komen niet overeen!", "Fout",
-                                  MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                if (GeboortedatumPicker.SelectedDate == null)
-                {
-                    MessageBox.Show("Selecteer een geboortedatum!", "Fout",
-                                  MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                // Controleer of gebruiker al bestaat
                 using (var context = new FitnessClubDbContext())
                 {
-                    var existingUser = context.Users.FirstOrDefault(u => u.Email == EmailTextBox.Text);
+                    _beschikbareAbonnementen = context.Abonnementen
+                        .Where(a => !a.IsVerwijderd)
+                        .OrderBy(a => a.Prijs)
+                        .ToList();
+
+                    ToonAbonnementKeuzes();
+                }
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"Fout bij laden abonnementen: {ex.Message}", "Fout");
+            }
+        }
+
+        private void ToonAbonnementKeuzes()
+        {
+            AbonnementenPanel.Children.Clear();
+
+            foreach (var abonnement in _beschikbareAbonnementen)
+            {
+                var radioButton = new RadioButton
+                {
+                    Content = $"{abonnement.Naam} - €{abonnement.Prijs:0.00}/maand",
+                    Tag = abonnement,
+                    Margin = new Thickness(0, 5, 0, 5),
+                    FontSize = 14
+                };
+
+                radioButton.Checked += (s, e) =>
+                {
+                    _geselecteerdAbonnement = (Abonnement)radioButton.Tag;
+                    GekozenAbonnementText.Text = $"Gekozen: {_geselecteerdAbonnement.Naam}";
+                };
+
+                AbonnementenPanel.Children.Add(radioButton);
+            }
+
+            if (_beschikbareAbonnementen.Any())
+            {
+                var eersteRadioButton = AbonnementenPanel.Children[0] as RadioButton;
+                if (eersteRadioButton != null)
+                {
+                    eersteRadioButton.IsChecked = true;
+                }
+            }
+        }
+
+        private async void Registreer_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                
+
+                using (var context = new FitnessClubDbContext())
+                {
+                    var userManager = CreateUserManager(context);
+
+                    // Controleer of gebruiker al bestaat
+                    var existingUser = await userManager.FindByEmailAsync(EmailTextBox.Text);
                     if (existingUser != null)
                     {
-                        MessageBox.Show("Er bestaat al een gebruiker met dit e-mailadres!", "Fout",
-                                      MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Er bestaat al een gebruiker met dit e-mailadres!", "Fout");
                         return;
                     }
 
@@ -60,26 +99,42 @@ namespace FitnessClub.WPF
                         Email = EmailTextBox.Text,
                         UserName = EmailTextBox.Text,
                         Telefoon = TelefoonTextBox.Text,
-                        Geboortedatum = GeboortedatumPicker.SelectedDate.Value
+                        Geboortedatum = GeboortedatumPicker.SelectedDate.Value,
+                        AbonnementId = _geselecteerdAbonnement.Id
                     };
 
-                    context.Users.Add(user);
-                    context.SaveChanges();
+                    // GEBRUIK IDENTITY VOOR REGISTRATIE
+                    var result = await userManager.CreateAsync(user, PasswordBox.Password);
 
-                    MessageBox.Show("Registratie succesvol! Gebruiker opgeslagen in database.", "Succes",
-                                  MessageBoxButton.OK, MessageBoxImage.Information);
+                    if (result.Succeeded)
+                    {
+                        // Voeg toe aan Lid rol
+                        await userManager.AddToRoleAsync(user, "Lid");
 
-                    // Ga naar dashboard als Lid
-                    var dashboard = new DashboardWindow(new List<string> { "Lid" }, user);
-                    dashboard.Show();
-                    this.Close();
+                        MessageBox.Show($"Registratie succesvol! Je kan nu inloggen.", "Succes");
+
+                        LoginWindow loginWindow = new LoginWindow();
+                        loginWindow.Show();
+                        this.Close();
+                    }
+                    else
+                    {
+                        var errors = string.Join("\n", result.Errors.Select(err => err.Description));
+                        MessageBox.Show($"Registratiefout: {errors}", "Fout");
+                    }
                 }
             }
             catch (System.Exception ex)
             {
-                MessageBox.Show($"Registratiefout: {ex.Message}", "Fout",
-                              MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Registratiefout: {ex.Message}", "Fout");
             }
+        }
+
+        private UserManager<Gebruiker> CreateUserManager(FitnessClubDbContext context)
+        {
+            var userStore = new UserStore<Gebruiker>(context);
+            return new UserManager<Gebruiker>(
+                userStore, null, new PasswordHasher<Gebruiker>(), null, null, null, null, null, null);
         }
 
         private void Terug_Click(object sender, RoutedEventArgs e)

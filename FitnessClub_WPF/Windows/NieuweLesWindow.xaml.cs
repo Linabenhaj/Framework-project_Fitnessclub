@@ -1,0 +1,136 @@
+﻿using System;
+using System.Windows;
+using FitnessClub.Models;
+using FitnessClub.Models.Data;
+
+namespace FitnessClub.WPF.Windows
+{
+    public partial class NieuweLesWindow : Window
+    {
+        public NieuweLesWindow()
+        {
+            InitializeComponent();
+
+            // Standaard datums instellen
+            StartDatumPicker.SelectedDate = DateTime.Today.AddDays(1);
+            EindDatumPicker.SelectedDate = DateTime.Today.AddDays(1);
+
+            // Event handlers voor real-time validatie
+            StartDatumPicker.SelectedDateChanged += (s, e) => ValideerFormulier();
+            EindDatumPicker.SelectedDateChanged += (s, e) => ValideerFormulier();
+            StartUurComboBox.SelectionChanged += (s, e) => ValideerFormulier();
+            EindUurComboBox.SelectionChanged += (s, e) => ValideerFormulier();
+        }
+
+        private void Annuleren_Click(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = false;
+            this.Close();
+        }
+
+        private void Toevoegen_Click(object sender, RoutedEventArgs e)
+        {
+            if (!ValideerFormulier())
+                return;
+
+            try
+            {
+                // Datum en tijd combineren
+                var startTijd = CombineDateTime(StartDatumPicker.SelectedDate.Value, StartUurComboBox);
+                var eindTijd = CombineDateTime(EindDatumPicker.SelectedDate.Value, EindUurComboBox);
+
+                // Nieuwe les aanmaken
+                var nieuweLes = new Les
+                {
+                    Naam = NaamTextBox.Text.Trim(),
+                    Beschrijving = BeschrijvingTextBox.Text.Trim(),
+                    StartTijd = startTijd,
+                    EindTijd = eindTijd,
+                    MaxDeelnemers = int.Parse(MaxDeelnemersTextBox.Text),
+                    IsVerwijderd = false
+                };
+
+                // Opslaan in database
+                using (var context = new FitnessClubDbContext())
+                {
+                    context.Lessen.Add(nieuweLes);
+                    context.SaveChanges();
+                }
+
+                this.DialogResult = true;
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                ValidatieText.Text = $"Fout bij aanmaken les: {ex.Message}";
+            }
+        }
+
+        private bool ValideerFormulier()
+        {
+            // Reset validatie bericht
+            ValidatieText.Text = "";
+
+            // Naam validatie
+            if (string.IsNullOrWhiteSpace(NaamTextBox.Text))
+            {
+                ValidatieText.Text = "Les naam is verplicht!";
+                return false;
+            }
+
+            // Datum validatie
+            if (StartDatumPicker.SelectedDate == null || EindDatumPicker.SelectedDate == null)
+            {
+                ValidatieText.Text = "Selecteer zowel start- als einddatum!";
+                return false;
+            }
+
+            // Tijd validatie
+            if (StartUurComboBox.SelectedItem == null || EindUurComboBox.SelectedItem == null)
+            {
+                ValidatieText.Text = "Selecteer zowel start- als eindtijd!";
+                return false;
+            }
+
+            // Max deelnemers validatie
+            if (!int.TryParse(MaxDeelnemersTextBox.Text, out int maxDeelnemers) || maxDeelnemers <= 0)
+            {
+                ValidatieText.Text = "Voer een geldig aantal deelnemers in!";
+                return false;
+            }
+
+            // Datum/tijd combinatie validatie
+            try
+            {
+                var startTijd = CombineDateTime(StartDatumPicker.SelectedDate.Value, StartUurComboBox);
+                var eindTijd = CombineDateTime(EindDatumPicker.SelectedDate.Value, EindUurComboBox);
+
+                if (startTijd >= eindTijd)
+                {
+                    ValidatieText.Text = "Eindtijd moet na starttijd liggen!";
+                    return false;
+                }
+
+                if (startTijd < DateTime.Now)
+                {
+                    ValidatieText.Text = "Starttijd moet in de toekomst liggen!";
+                    return false;
+                }
+            }
+            catch
+            {
+                ValidatieText.Text = "Ongeldige datum/tijd combinatie!";
+                return false;
+            }
+
+            return true;
+        }
+
+        private DateTime CombineDateTime(DateTime date, System.Windows.Controls.ComboBox uurComboBox)
+        {
+            var selectedUur = ((System.Windows.Controls.ComboBoxItem)uurComboBox.SelectedItem).Content.ToString();
+            var tijd = TimeSpan.Parse(selectedUur);
+            return date.Date + tijd;
+        }
+    }
+}

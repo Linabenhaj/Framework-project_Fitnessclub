@@ -1,8 +1,11 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using FitnessClub.Models.Data;
 using FitnessClub.Models;
 using System.Linq;
-using FitnessClub.Models.Data;
+using Microsoft.EntityFrameworkCore;
+using FitnessClub.WPF.Windows;
+
 namespace FitnessClub.WPF.Views
 {
     public partial class LessenOverzicht : UserControl
@@ -21,7 +24,7 @@ namespace FitnessClub.WPF.Views
                 {
                     var lessen = context.Lessen
                         .Where(l => !l.IsVerwijderd)
-                        .OrderBy(l => l.DatumTijd)
+                        .OrderBy(l => l.StartTijd)
                         .ToList();
 
                     LessenDataGrid.ItemsSource = lessen;
@@ -33,55 +36,84 @@ namespace FitnessClub.WPF.Views
             }
         }
 
-        private void Inschrijven_Click(object sender, RoutedEventArgs e)
+        // gebruikt jouw bestaande NieuweLesWindow
+        private void ToevoegenClick(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.Tag is int lesId)
+            try
+            {
+                var nieuweLesWindow = new NieuweLesWindow();
+                if (nieuweLesWindow.ShowDialog() == true)
+                {
+                    LaadLessen();
+                    MessageBox.Show("Les succesvol toegevoegd!", "Succes");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"Fout bij toevoegen les: {ex.Message}", "Fout");
+            }
+        }
+
+        // BEWERKEN METHODE
+        private void BewerkenClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.DataContext is Les les)
             {
                 try
                 {
-                    using (var context = new FitnessClubDbContext())
+                    MessageBox.Show($"Les bewerken: {les.Naam}\n\nDeze functionaliteit kan later worden toegevoegd.", "Info");
+
+          
+                }
+                catch (System.Exception ex)
+                {
+                    MessageBox.Show($"Fout bij bewerken les: {ex.Message}", "Fout");
+                }
+            }
+        }
+
+        // VERWIJDEREN METHODE
+        private void VerwijderenClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.DataContext is Les les)
+            {
+                try
+                {
+                    var result = MessageBox.Show(
+                        $"Weet u zeker dat u de les '{les.Naam}' wilt verwijderen?\n\n" +
+                        $"Start: {les.StartTijd:dd/MM/yyyy HH:mm}\n" +
+                        $"Eind: {les.EindTijd:dd/MM/yyyy HH:mm}",
+                        "Bevestig verwijdering",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Yes)
                     {
-                        var les = context.Lessen.Find(lesId);
-                        if (les != null)
+                        using (var context = new FitnessClubDbContext())
                         {
-                            var result = MessageBox.Show($"Weet u zeker dat u zich wilt inschrijven voor:\n\n" +
-                                                       $"• {les.Naam}\n" +
-                                                       $"• {les.DatumTijd:dd/MM/yyyy HH:mm}\n" +
-                                                       $"• {les.Duur} minuten",
-                                                       "Bevestig inschrijving",
-                                                       MessageBoxButton.YesNo,
-                                                       MessageBoxImage.Question);
-
-                            if (result == MessageBoxResult.Yes)
+                            var lesInDb = context.Lessen.Find(les.Id);
+                            if (lesInDb != null)
                             {
-                                var inschrijving = new Inschrijving
-                                {
-                                    LesId = lesId,
-                                    GebruikerId = context.Users.First().Id,
-                                    InschrijfDatum = DateTime.Now
-                                };
-
-                                context.Inschrijvingen.Add(inschrijving);
+                                // Soft delete
+                                lesInDb.IsVerwijderd = true;
                                 context.SaveChanges();
-
-                                MessageBox.Show($"Succesvol ingeschreven voor {les.Naam}!", "Inschrijving Gelukt");
+                                LaadLessen();
+                                MessageBox.Show("Les succesvol verwijderd!", "Succes");
                             }
                         }
                     }
                 }
                 catch (System.Exception ex)
                 {
-                    MessageBox.Show($"Fout bij inschrijven: {ex.Message}", "Fout");
+                    MessageBox.Show($"Fout bij verwijderen: {ex.Message}", "Fout");
                 }
             }
         }
 
-        private void ToonInschrijvingen_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Ga naar het tabblad 'Mijn Inschrijvingen' om uw inschrijvingen te bekijken.", "Info");
-        }
-
-        private void Refresh_Click(object sender, RoutedEventArgs e)
+        //REFRESH METHODE
+        private void RefreshClick(object sender, RoutedEventArgs e)
         {
             LaadLessen();
         }

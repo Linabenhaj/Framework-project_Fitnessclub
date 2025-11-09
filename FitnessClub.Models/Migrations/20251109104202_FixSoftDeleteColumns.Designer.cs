@@ -4,6 +4,7 @@ using FitnessClub.Models.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitnessClub.Models.Migrations
 {
     [DbContext(typeof(FitnessClubDbContext))]
-    partial class FitnessClubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251109104202_FixSoftDeleteColumns")]
+    partial class FixSoftDeleteColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,9 +70,6 @@ namespace FitnessClub.Models.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("AangemaaktOp")
-                        .HasColumnType("datetime2");
-
                     b.Property<int?>("AbonnementId")
                         .HasColumnType("int");
 
@@ -92,9 +92,6 @@ namespace FitnessClub.Models.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("Geboortedatum")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("GewijzigdOp")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsVerwijderd")
@@ -122,10 +119,6 @@ namespace FitnessClub.Models.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
-
-                    b.Property<string>("Rol")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");

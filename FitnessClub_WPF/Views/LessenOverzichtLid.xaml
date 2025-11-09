@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="FitnessClub.WPF.Views.LessenOverzicht"
+﻿<UserControl x:Class="FitnessClub.WPF.Views.LessenOverzichtLid"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -13,15 +13,19 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-       
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
-            <TextBlock Text="Lessen Beheer" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
-            <Button Content="Les Toevoegen" Click="ToevoegenClick" 
-                    Background="#27ae60" Foreground="White" 
-                    Padding="15,8" Margin="20,0,0,0" FontWeight="Bold"/>
-        </StackPanel>
+        <!-- Header met contact info -->
+        <Border Background="#f8f9fa" Padding="15" Margin="10" CornerRadius="5" BorderBrush="#dee2e6" BorderThickness="1">
+            <StackPanel>
+                <TextBlock Text="Beschikbare Lessen" 
+                           FontSize="18" FontWeight="Bold" Margin="0,0,0,5" Foreground="#2c3e50"/>
+                <TextBlock Text="Wil je je inschrijven voor een les? Neem contact op met de fitness manager:" 
+                           FontStyle="Italic" Foreground="#666" FontSize="12" TextWrapping="Wrap"/>
+                <TextBlock Text="📞 +32 458 57 57 57" 
+                           FontSize="14" FontWeight="Bold" Foreground="#27ae60" Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
 
-       
+        <!-- DataGrid voor lessen (alleen lezen) -->
         <DataGrid Grid.Row="1" x:Name="LessenDataGrid" 
                   AutoGenerateColumns="False" Margin="10"
                   CanUserAddRows="False" IsReadOnly="True"
@@ -32,24 +36,10 @@
                 <DataGridTextColumn Header="Start Tijd" Binding="{Binding StartTijd, StringFormat='dd/MM/yyyy HH:mm'}" Width="120"/>
                 <DataGridTextColumn Header="Eind Tijd" Binding="{Binding EindTijd, StringFormat='dd/MM/yyyy HH:mm'}" Width="120"/>
                 <DataGridTextColumn Header="Max Deelnemers" Binding="{Binding MaxDeelnemers}" Width="100"/>
-                <DataGridTemplateColumn Header="Acties" Width="200">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="Bewerken" Click="BewerkenClick" 
-                                        Margin="5,0" Padding="10,2" 
-                                        Background="#3498db" Foreground="White"/>
-                                <Button Content="Verwijderen" Click="VerwijderenClick" 
-                                        Margin="5,0" Padding="10,2" 
-                                        Background="#e74c3c" Foreground="White"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
 
-     
+        <!-- Refresh knop -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
             <Button Content="Vernieuwen" Click="RefreshClick" 
                     Background="#3498db" Foreground="White" 

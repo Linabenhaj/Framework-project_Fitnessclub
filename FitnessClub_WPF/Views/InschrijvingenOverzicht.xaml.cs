@@ -49,7 +49,7 @@ namespace FitnessClub.WPF.Views
         private void BewerkenClick(object sender, RoutedEventArgs e)
         {
             // Bewerkingslogica hier
-            MessageBox.Show("Bewerken functionaliteit komt later");
+            MessageBox.Show("Bewerken functionaliteit komt later", "Info");
         }
 
         private void VerwijderenClick(object sender, RoutedEventArgs e)
@@ -69,7 +69,8 @@ namespace FitnessClub.WPF.Views
                             var inschrijvingInDb = context.Inschrijvingen.Find(inschrijving.Id);
                             if (inschrijvingInDb != null)
                             {
-                                context.Inschrijvingen.Remove(inschrijvingInDb);
+                                // Soft delete
+                                inschrijvingInDb.IsVerwijderd = true;
                                 context.SaveChanges();
                                 LoadInschrijvingen();
                                 MessageBox.Show("Inschrijving verwijderd!");

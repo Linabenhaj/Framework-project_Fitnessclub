@@ -1,8 +1,8 @@
 ﻿using FitnessClub.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Threading;
-using System.Threading.Tasks;
+using System;
+using System.Linq;
 
 namespace FitnessClub.Models.Data
 {
@@ -24,15 +24,10 @@ namespace FitnessClub.Models.Data
             }
         }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // SOFT-DELETE QUERY FILTERS
-            modelBuilder.Entity<Abonnement>().HasQueryFilter(a => !a.IsVerwijderd);
-            modelBuilder.Entity<Les>().HasQueryFilter(l => !l.IsVerwijderd);
-            modelBuilder.Entity<Inschrijving>().HasQueryFilter(i => !i.IsVerwijderd);
-            modelBuilder.Entity<Gebruiker>().HasQueryFilter(g => !g.IsVerwijderd);
 
             // RELATIONSHIPS
             modelBuilder.Entity<Inschrijving>()
@@ -53,46 +48,48 @@ namespace FitnessClub.Models.Data
                 .HasPrecision(10, 2);
         }
 
-        public override int SaveChanges()
+        // LOGIN METHODE VOOR DEMO TESTEN
+        public Gebruiker SimpleLogin(string email, string password)
         {
-            UpdateSoftDeleteStatuses();
-            return base.SaveChanges();
-        }
-
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            UpdateSoftDeleteStatuses();
-            return await base.SaveChangesAsync(cancellationToken);
-        }
-
-        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
-        {
-            UpdateSoftDeleteStatuses();
-            return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-        }
-
-        private void UpdateSoftDeleteStatuses()
-        {
-            foreach (var entry in ChangeTracker.Entries())
+            try
             {
-                if (entry.Entity is BasisEntiteit entity)
+                var user = Users.FirstOrDefault(u => u.Email == email);
+
+                if (user != null)
                 {
-                    switch (entry.State)
-                    {
-                        case EntityState.Deleted:
-                            entry.State = EntityState.Modified;
-                            entity.IsVerwijderd = true;
-                            entity.VerwijderdOp = DateTime.UtcNow;
-                            break;
-                        case EntityState.Added:
-                            entity.AangemaaktOp = DateTime.UtcNow;
-                            entity.IsVerwijderd = false;
-                            break;
-                        case EntityState.Modified:
-                            entity.GewijzigdOp = DateTime.UtcNow;
-                            break;
-                    }
+                    
+                    if (email == "admin@fitness.com" && password == "Admin123!") return user;
+                    if (email == "demo@fitness.com" && password == "demo123") return user;
+                    if (email == "lid@fitness.com" && password == "Lid123!") return user;
+
+                    
+                    if (password == "wachtwoord") return user;
                 }
+
+                return null;
+            }
+            catch (Exception ex)
+
+            {
+                // error logging
+                System.Diagnostics.Debug.WriteLine($"Login error: {ex.Message}");
+                return null;
+            }
+        }
+
+
+        public bool EmailExists(string email)
+        {
+            try
+            {
+                return Users.Any(u => u.Email == email);
+            }
+
+
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"EmailExists error: {ex.Message}");
+                return false;
             }
         }
     }

@@ -1,8 +1,10 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using FitnessClub.Models;
 using FitnessClub.Models.Data;
-using System.Linq;
+using FitnessClub.WPF.Windows;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace FitnessClub.WPF.Views
 {
@@ -38,28 +40,28 @@ namespace FitnessClub.WPF.Views
 
         private void ToevoegenClick(object sender, RoutedEventArgs e)
         {
-            var window = new Windows.LidToevoegenWindow();
-            window.Closed += (s, args) => LoadLeden();
-            window.ShowDialog();
+            MessageBox.Show("Lid toevoegen functionaliteit komt hier");
+            LoadLeden();
         }
 
         private void BewerkenClick(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
-            if (button?.Tag is string gebruikerId)
+            if (button?.DataContext is Gebruiker gebruiker)
             {
-                using (var context = new FitnessClubDbContext())
+                try
                 {
-                    var gebruiker = context.Users
-                        .Include(u => u.Abonnement)
-                        .FirstOrDefault(u => u.Id == gebruikerId);
-
-                    if (gebruiker != null)
+                    // Open popup window voor bewerken lid
+                    var bewerkLidWindow = new BewerkLidWindow(gebruiker.Id);
+                    if (bewerkLidWindow.ShowDialog() == true)
                     {
-                        var window = new Windows.LidBewerkenWindow(gebruiker);
-                        window.Closed += (s, args) => LoadLeden();
-                        window.ShowDialog();
+                        LoadLeden();
+                        MessageBox.Show("Lid succesvol bijgewerkt!", "Succes");
                     }
+                }
+                catch (System.Exception ex)
+                {
+                    MessageBox.Show($"Fout bij bewerken lid: {ex.Message}", "Fout");
                 }
             }
         }
@@ -67,31 +69,31 @@ namespace FitnessClub.WPF.Views
         private void VerwijderClick(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
-            if (button?.Tag is string gebruikerId)
+            if (button?.DataContext is Gebruiker gebruiker)
             {
                 try
                 {
-                    var result = MessageBox.Show("Weet u zeker dat u dit lid wilt verwijderen?",
+                    var result = MessageBox.Show($"Weet u zeker dat u {gebruiker.Voornaam} {gebruiker.Achternaam} wilt verwijderen?",
                         "Bevestiging", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                     if (result == MessageBoxResult.Yes)
                     {
                         using (var context = new FitnessClubDbContext())
                         {
-                            var gebruiker = context.Users.Find(gebruikerId);
-                            if (gebruiker != null)
+                            var gebruikerInDb = context.Users.Find(gebruiker.Id);
+                            if (gebruikerInDb != null)
                             {
-                                context.Users.Remove(gebruiker);
+                                context.Users.Remove(gebruikerInDb);
                                 context.SaveChanges();
                                 LoadLeden();
-                                MessageBox.Show("Lid verwijderd!");
+                                MessageBox.Show("Lid succesvol verwijderd!", "Succes");
                             }
                         }
                     }
                 }
                 catch (System.Exception ex)
                 {
-                    MessageBox.Show($"Fout bij verwijderen: {ex.Message}");
+                    MessageBox.Show($"Fout bij verwijderen: {ex.Message}", "Fout");
                 }
             }
         }

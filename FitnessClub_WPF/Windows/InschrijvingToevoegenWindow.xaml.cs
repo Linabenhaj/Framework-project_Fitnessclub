@@ -2,6 +2,8 @@
 using FitnessClub.Models.Data;
 using FitnessClub.Models;
 using System.Linq;
+using System;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessClub.WPF.Windows
 {
@@ -20,18 +22,18 @@ namespace FitnessClub.WPF.Windows
                 using (var context = new FitnessClubDbContext())
                 {
                     // Laad gebruikers
-                    cmbGebruiker.ItemsSource = context.Users
+                    var gebruikers = context.Users
                         .Where(u => !u.IsVerwijderd)
                         .ToList();
+                    cmbGebruiker.ItemsSource = gebruikers;
 
                     // Laad lessen
-                    cmbLes.ItemsSource = context.Lessen
+                    var lessen = context.Lessen
                         .Where(l => !l.IsVerwijderd)
                         .ToList();
+                    cmbLes.ItemsSource = lessen;
 
-                    // Stel standaard datums in
-                    dpStartDatum.SelectedDate = DateTime.Today;
-                    dpEindDatum.SelectedDate = DateTime.Today.AddMonths(1);
+                   
                 }
             }
             catch (System.Exception ex)
@@ -60,26 +62,35 @@ namespace FitnessClub.WPF.Windows
                     return;
                 }
 
-                if (dpStartDatum.SelectedDate == null)
-                {
-                    MessageBox.Show("Selecteer een start datum!", "Fout",
-                                  MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+              
 
-                // Nieuwe inschrijving aanmaken
-                var nieuweInschrijving = new Inschrijving
-                {
-                    GebruikerId = ((Gebruiker)cmbGebruiker.SelectedItem).Id,
-                    LesId = ((Les)cmbLes.SelectedItem).Id,
-                    InschrijfDatum = DateTime.UtcNow,
-                    StartDatum = dpStartDatum.SelectedDate.Value,
-                    EindDatum = dpEindDatum.SelectedDate
-                };
+                var geselecteerdeGebruiker = (Gebruiker)cmbGebruiker.SelectedItem;
+                var geselecteerdeLes = (Les)cmbLes.SelectedItem;
 
-                // Opslaan in database
+                // Controleer of gebruiker al ingeschreven is voor deze les
                 using (var context = new FitnessClubDbContext())
                 {
+                    var bestaandeInschrijving = context.Inschrijvingen
+                        .FirstOrDefault(i => i.GebruikerId == geselecteerdeGebruiker.Id &&
+                                           i.LesId == geselecteerdeLes.Id &&
+                                           !i.IsVerwijderd);
+
+                    if (bestaandeInschrijving != null)
+                    {
+                        MessageBox.Show("Deze gebruiker is al ingeschreven voor deze les!", "Fout",
+                                      MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    // Nieuwe inschrijving aanmaken
+                    var nieuweInschrijving = new Inschrijving
+                    {
+                        GebruikerId = geselecteerdeGebruiker.Id,
+                        LesId = geselecteerdeLes.Id,
+                        InschrijfDatum = DateTime.Now
+                        
+                    };
+
                     context.Inschrijvingen.Add(nieuweInschrijving);
                     context.SaveChanges();
                 }

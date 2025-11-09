@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using FitnessClub.Models.Data;
 using System.Linq;
+using FitnessClub.WPF.Windows; // Voeg deze using toe
 
 namespace FitnessClub.WPF.Views
 {
@@ -36,11 +37,10 @@ namespace FitnessClub.WPF.Views
 
         private void ToevoegenClick(object sender, RoutedEventArgs e)
         {
-            var window = new Windows.AbonnementToevoegenWindow();
-            if (window.ShowDialog() == true)
-            {
-                LoadAbonnementen();
-            }
+            
+            MessageBox.Show("Abonnement toevoegen functionaliteit komt hier", "Info");
+            // Later: var window = new AbonnementToevoegenWindow();
+            // if (window.ShowDialog() == true) LoadAbonnementen();
         }
 
         private void BewerkenClick(object sender, RoutedEventArgs e)
@@ -48,10 +48,12 @@ namespace FitnessClub.WPF.Views
             var button = sender as Button;
             if (button?.Tag is int abonnementId)
             {
-                var window = new Windows.AbonnementBewerkenWindow(abonnementId);
+                // ✅ ECHT BEWERKINGSVENSTER
+                var window = new AbonnementBewerkenWindow(abonnementId);
                 if (window.ShowDialog() == true)
                 {
                     LoadAbonnementen();
+                    MessageBox.Show("Abonnement succesvol bijgewerkt!", "Succes");
                 }
             }
         }
@@ -73,7 +75,8 @@ namespace FitnessClub.WPF.Views
                             var abonnement = context.Abonnementen.Find(abonnementId);
                             if (abonnement != null)
                             {
-                                context.Abonnementen.Remove(abonnement);
+                                // Soft delete
+                                abonnement.IsVerwijderd = true;
                                 context.SaveChanges();
                                 LoadAbonnementen();
                                 MessageBox.Show("Abonnement verwijderd!");

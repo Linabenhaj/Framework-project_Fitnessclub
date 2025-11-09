@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitnessClub.Models
 {
     public class Les : BasisEntiteit
     {
+        [NotMapped]
+        public string DisplayInfo { get; set; }
+
         public string Naam { get; set; }
         public string Beschrijving { get; set; }
         public DateTime StartTijd { get; set; }

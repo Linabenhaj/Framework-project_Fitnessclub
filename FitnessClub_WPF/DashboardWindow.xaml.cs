@@ -9,6 +9,7 @@ namespace FitnessClub.WPF
         private readonly Gebruiker _user;
         private readonly List<string> _roles;
 
+        // alleen roles en user
         public DashboardWindow(List<string> roles, Gebruiker user)
         {
             InitializeComponent();
@@ -49,14 +50,14 @@ namespace FitnessClub.WPF
                 LedenTab.Visibility = Visibility.Visible;
                 AbonnementTab.Visibility = Visibility.Visible;
                 InschrijvingenTab.Visibility = Visibility.Visible;
-                LessenTab.Visibility = Visibility.Visible;
+                LessenTab.Visibility = Visibility.Visible; // ✅ Lessen Beheer voor Admin
             }
             else if (_roles.Contains("Lid"))
             {
                 // Lid: Persoonlijke tabs
                 MijnAbonnementTab.Visibility = Visibility.Visible;
                 MijnInschrijvingenTab.Visibility = Visibility.Visible;
-                LessenTab.Visibility = Visibility.Visible;
+                // Lid krijgt een andere view voor lessen (beschikbare lessen)
             }
 
             // Profiel altijd zichtbaar

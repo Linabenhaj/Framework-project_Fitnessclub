@@ -13,19 +13,28 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Mijn Inschrijvingen" 
-                   FontSize="18" FontWeight="Bold" Margin="10"/>
+      
+        <Border Background="#f8f9fa" Padding="15" Margin="10" CornerRadius="5" BorderBrush="#dee2e6" BorderThickness="1">
+            <StackPanel>
+                <TextBlock Text="Mijn Inschrijvingen" 
+                           FontSize="18" FontWeight="Bold" Margin="0,0,0,5" Foreground="#2c3e50"/>
+                <TextBlock Text="Hier zie je de lessen waar je voor ingeschreven bent door de fitness manager." 
+                           FontStyle="Italic" Foreground="#666" FontSize="12" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
 
+      
         <DataGrid Grid.Row="1" x:Name="MijnInschrijvingenDataGrid" 
                   AutoGenerateColumns="False" Margin="10"
-                  CanUserAddRows="False" IsReadOnly="True">
+                  CanUserAddRows="False" IsReadOnly="True"
+                  Background="White">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Les" Binding="{Binding Les.Naam}" Width="120"/>
                 <DataGridTextColumn Header="Beschrijving" Binding="{Binding Les.Beschrijving}" Width="200"/>
-                <DataGridTextColumn Header="Datum/Tijd" Binding="{Binding Les.DatumTijd, StringFormat=dd/MM/yyyy HH:mm}" Width="120"/>
-                <DataGridTextColumn Header="Duur" Binding="{Binding Les.Duur}" Width="80"/>
+                <DataGridTextColumn Header="Start Tijd" Binding="{Binding Les.StartTijd, StringFormat=dd/MM/yyyy HH:mm}" Width="120"/>
+                <DataGridTextColumn Header="Eind Tijd" Binding="{Binding Les.EindTijd, StringFormat=dd/MM/yyyy HH:mm}" Width="120"/>
                 <DataGridTextColumn Header="Ingeschreven op" Binding="{Binding InschrijfDatum, StringFormat=dd/MM/yyyy}" Width="100"/>
-                <DataGridTemplateColumn Header="Acties" Width="100">
+                <DataGridTemplateColumn Header="Actie" Width="100">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Button Content="Uitschrijven" Click="Uitschrijven_Click"
@@ -37,10 +46,22 @@
             </DataGrid.Columns>
         </DataGrid>
 
+       
+        <Border Grid.Row="1" x:Name="GeenInschrijvingenBorder" Background="#f8f9fa" 
+                Visibility="Collapsed" Margin="10" CornerRadius="5" 
+                BorderBrush="#dee2e6" BorderThickness="1">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
+                <TextBlock Text="📝" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                <TextBlock Text="Nog geen inschrijvingen" 
+                           FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                <TextBlock Text="De fitness manager heeft je nog niet ingeschreven voor lessen." 
+                           FontSize="12" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Refresh knop -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
-            <Button Content="Nieuwe Inschrijving" Click="NieuweInschrijving_Click"
-                    Background="#27ae60" Foreground="White" Padding="15,8" Margin="5"/>
-            <Button Content="Refresh" Click="Refresh_Click"
+            <Button Content="Vernieuwen" Click="Refresh_Click"
                     Background="#3498db" Foreground="White" Padding="15,8" Margin="5"/>
         </StackPanel>
     </Grid>
