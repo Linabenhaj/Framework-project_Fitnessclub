@@ -6,15 +6,13 @@ Dit project is een desktopapplicatie ontwikkeld in C Sharp met .NET WPF voor het
 
 De applicatie biedt een compleet systeem voor het beheren van leden, lessen, abonnementen, inschrijvingen, gebruikersrollen en toegangsrechten. Ze maakt gebruik van Entity Framework Core en ASP.NET Identity voor veilige authenticatie en autorisatie op basis van rollen.
 
-De admin heeft volledige controle over de fitnessclub. De admin kan lessen toevoegen, bewerken en verwijderen, leden koppelen aan lessen, abonnementen beheren door prijzen aan te passen of te verwijderen, ledenprofielen bekijken en aanpassen en via het dashboard een overzicht krijgen van alle leden, lessen en abonnementen.
+De admin heeft volledige controle over de fitnessclub. De admin kan lessen toevoegen, bewerken en verwijderen, leden koppelen aan lessen, abonnementen beheren door prijzen aan te passen of te verwijderen, ledenprofielen bekijken en via het dashboard een overzicht krijgen van alle leden, lessen en abonnementen.
 
-De medewerker kan leden inschrijven voor lessen en lessen en inschrijvingen beheren, maar heeft geen toegang tot systeeminstellingen of rolbeheer.
-
-Het lid kan beschikbare lessen bekijken via het lessenoverzicht voor leden, kan eigen abonnementen bekijken en persoonlijke informatie inzien via het profielgedeelte.
+Het lid kan beschikbare lessen bekijken via het lessenoverzicht voor leden, kan eigen abonnementen bekijken en persoonlijke informatie zien via het profielgedeelte.
 
 De belangrijkste vensters in de applicatie zijn het loginvenster, het registratievenster, het dashboard, het lessenoverzicht voor leden, het venster om nieuwe lessen toe te voegen en het venster om leden te bewerken. Het loginvenster wordt gebruikt voor het aanmelden via ASP.NET Identity, het registratievenster voor het aanmaken van een nieuwe gebruiker met keuze van abonnement, en het dashboard toont verschillende tabbladen afhankelijk van de gebruikersrol. Het lessenoverzicht voor leden laat alle beschikbare lessen zien, het venster voor nieuwe lessen laat de admin nieuwe lessen aanmaken en het bewerkvenster laat de admin leden aanpassen.
 
-De gebruikte technologieën in dit project zijn .NET 8 met WPF, Entity Framework Core, ASP.NET Identity, SQL Server en het MVVM-ontwerppatroon. De applicatie ondersteunt soft delete functionaliteit en toegangsbeheer op basis van rollen.
+De gebruikte technologieÃ«n in dit project zijn .NET 9 met WPF,Class Library, Entity Framework Core, ASP.NET Identity, SQL Server en het MVVM-ontwerppatroon. De applicatie ondersteunt soft delete functionaliteit en toegangsbeheer op basis van rollen.
 
 Om de applicatie te installeren moet de repository worden gedownload of gekloond, vervolgens geopend in Visual Studio, daarna moet de SQL Server-verbinding in FitnessClubDbContext.cs gecontroleerd worden. Vervolgens voer je de migraties uit via de Package Manager Console met het commando Update-Database en kun je de applicatie starten met F5.
 
@@ -22,15 +20,47 @@ Bij het eerste opstarten worden standaardrollen en testgebruikers aangemaakt via
 
 
 # Screenshots applicatie
-
+Voor de screenshots van de applicatie gebruikte ik de user "Wesley" die hiervoor aangemaakt was en dus even niet lid@fitness.com. Maar deze werkt uiteraard ook.
 
 ## Welkom ventser
 
+<img width="973" height="611" alt="image" src="https://github.com/user-attachments/assets/450203a8-cdd1-4158-99d6-cc00a3bd87d4" />
 
 ## loginvenster
 
+<img width="581" height="657" alt="image" src="https://github.com/user-attachments/assets/0cf68fed-961e-4ebb-bbb7-e364f0d859a4" />
+
+## registratieformulier
+
+<img width="858" height="1017" alt="image" src="https://github.com/user-attachments/assets/eee411f7-12db-4643-b581-ec05054ec958" />
 
 ## Dashbaord admin
+<img width="1099" height="733" alt="image" src="https://github.com/user-attachments/assets/ae6948f8-42f2-45f5-8fbc-df1d4c826c17" />
+
+<img width="1105" height="728" alt="image" src="https://github.com/user-attachments/assets/8ba0593e-cc39-4c53-9ba9-6195f03582fe" />
+
+<img width="1097" height="733" alt="image" src="https://github.com/user-attachments/assets/231a25b0-a033-44e6-a751-f08e1fbf8085" />
+
+<img width="1094" height="733" alt="image" src="https://github.com/user-attachments/assets/6023c3e9-2459-4983-9994-0454cb32b540" />
+
+<img width="1091" height="730" alt="image" src="https://github.com/user-attachments/assets/0c949e16-4cda-4a6f-8342-3078663390b8" />
+
+## Pop-up vensters
+## les toevoegen 
+<img width="1918" height="1020" alt="image" src="https://github.com/user-attachments/assets/cdc63b19-3b9f-4637-a73a-e1018928ed4a" />
+## abonnement bewerken
+<img width="1916" height="1015" alt="image" src="https://github.com/user-attachments/assets/3d58022c-56d4-456b-91da-ecaaecfa6120" />
+## Nieuwe inschrijving toevoegen
+<img width="471" height="483" alt="image" src="https://github.com/user-attachments/assets/b69f2592-d2b5-4be8-937e-52de32f9fc1f" />
 
 
 ## Dashbaord user
+<img width="1096" height="736" alt="image" src="https://github.com/user-attachments/assets/7509471f-f21a-4261-91ca-74181cbed608" />
+
+<img width="1093" height="732" alt="image" src="https://github.com/user-attachments/assets/f2f7658d-0e27-4aa6-8abc-8504a955bcb9" />
+
+<img width="1098" height="735" alt="image" src="https://github.com/user-attachments/assets/64f41bec-66ea-4e58-a2d5-162b031dad3e" />
+
+<img width="1098" height="731" alt="image" src="https://github.com/user-attachments/assets/a5ace6c6-52b9-4504-9c42-a4aaf9bbe5e5" />
+
+
