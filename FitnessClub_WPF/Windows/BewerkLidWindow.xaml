@@ -55,9 +55,14 @@
                         <StackPanel>
                             <TextBlock Text="Abonnement:" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" Foreground="#2c3e50"/>
 
-                            <StackPanel x:Name="AbonnementenPanel" MaxHeight="300">
-                                <!-- Abonnement keuzes worden hier dynamisch geladen -->
-                            </StackPanel>
+                            
+                            <ComboBox x:Name="AbonnementenComboBox" 
+                                      Height="40" 
+                                      FontSize="14"
+                                      Padding="10"
+                                      Margin="0,0,0,10"
+                                      SelectionChanged="AbonnementenComboBox_SelectionChanged">
+                            </ComboBox>
 
                             <TextBlock x:Name="GekozenAbonnementText" FontWeight="Bold" Foreground="#27ae60" Margin="0,10,0,0"/>
                         </StackPanel>

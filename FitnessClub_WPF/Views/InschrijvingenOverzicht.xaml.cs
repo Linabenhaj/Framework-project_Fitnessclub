@@ -46,11 +46,7 @@ namespace FitnessClub.WPF.Views
             }
         }
 
-        private void BewerkenClick(object sender, RoutedEventArgs e)
-        {
-            // Bewerkingslogica hier
-            MessageBox.Show("Bewerken functionaliteit komt later", "Info");
-        }
+ 
 
         private void VerwijderenClick(object sender, RoutedEventArgs e)
         {

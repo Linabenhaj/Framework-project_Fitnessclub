@@ -15,25 +15,15 @@ namespace FitnessClub.WPF.Views
         public MijnInschrijvingen()
         {
             InitializeComponent();
-            // Niet meer automatisch laden in constructor
-            // Laad wordt nu aangeroepen via SetHuidigeGebruiker
+
+            
         }
 
-        private void LaadHuidigeGebruiker()
+        
+        public void SetHuidigeGebruiker(string gebruikerId)
         {
-            try
-            {
-                using (var context = new FitnessClubDbContext())
-                {
-                    //gebruik eerste gebruiker met rol 
-                    var gebruiker = context.Users.FirstOrDefault(u => u.Rol == "Lid");
-                    _huidigeGebruikerId = gebruiker?.Id;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Fout bij laden gebruiker: {ex.Message}", "Fout");
-            }
+            _huidigeGebruikerId = gebruikerId;
+            LaadMijnInschrijvingen();
         }
 
         private void LaadMijnInschrijvingen()
@@ -42,7 +32,8 @@ namespace FitnessClub.WPF.Views
             {
                 if (string.IsNullOrEmpty(_huidigeGebruikerId))
                 {
-                    MessageBox.Show("Geen gebruiker gevonden. Log opnieuw in.", "Fout");
+                    GeenInschrijvingenBorder.Visibility = Visibility.Visible;
+                    MijnInschrijvingenDataGrid.Visibility = Visibility.Collapsed;
                     return;
                 }
 
@@ -57,7 +48,6 @@ namespace FitnessClub.WPF.Views
 
                     MijnInschrijvingenDataGrid.ItemsSource = mijnInschrijvingen;
 
-                   
                     if (!mijnInschrijvingen.Any())
                     {
                         GeenInschrijvingenBorder.Visibility = Visibility.Visible;
@@ -73,10 +63,11 @@ namespace FitnessClub.WPF.Views
             catch (System.Exception ex)
             {
                 MessageBox.Show($"Fout bij laden inschrijvingen: {ex.Message}", "Fout");
+                GeenInschrijvingenBorder.Visibility = Visibility.Visible;
+                MijnInschrijvingenDataGrid.Visibility = Visibility.Collapsed;
             }
         }
 
-        // UITSCHRIJVEN_CLICK METHOD 
         private void Uitschrijven_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is int inschrijvingId)
@@ -101,14 +92,13 @@ namespace FitnessClub.WPF.Views
 
                             if (result == MessageBoxResult.Yes)
                             {
-                                // DIRECTE SOFT-DELETE
                                 inschrijving.IsVerwijderd = true;
                                 inschrijving.VerwijderdOp = DateTime.UtcNow;
 
                                 context.SaveChanges();
 
                                 MessageBox.Show("Succesvol uitgeschreven!", "Uitschrijving Gelukt");
-                                LaadMijnInschrijvingen(); // Refresh
+                                LaadMijnInschrijvingen();
                             }
                         }
                         else

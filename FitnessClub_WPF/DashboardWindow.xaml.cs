@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
 using FitnessClub.Models;
+using FitnessClub.WPF.Views;
 
 namespace FitnessClub.WPF
 {
@@ -9,7 +10,6 @@ namespace FitnessClub.WPF
         private readonly Gebruiker _user;
         private readonly List<string> _roles;
 
-        // alleen roles en user
         public DashboardWindow(List<string> roles, Gebruiker user)
         {
             InitializeComponent();
@@ -19,13 +19,17 @@ namespace FitnessClub.WPF
             SetupRoleBasedTabs();
         }
 
+        public string GetCurrentUserId()
+        {
+            return _user?.Id;
+        }
+
         private void LoadUserInfo()
         {
             UserNameText.Text = $"{_user.Voornaam} {_user.Achternaam}";
             EmailText.Text = $"E-mail: {_user.Email}";
             FooterRoleText.Text = $"Rol: {string.Join(", ", _roles)}";
 
-            // Toon uitgebreide profiel info
             ProfileInfoText.Text = $"Naam: {_user.Voornaam} {_user.Achternaam}\n" +
                                   $"E-mail: {_user.Email}\n" +
                                   $"Telefoon: {_user.Telefoon}\n" +
@@ -43,6 +47,7 @@ namespace FitnessClub.WPF
             MijnAbonnementTab.Visibility = Visibility.Collapsed;
             MijnInschrijvingenTab.Visibility = Visibility.Collapsed;
             LessenTab.Visibility = Visibility.Collapsed;
+            LessenLidTab.Visibility = Visibility.Collapsed;
 
             if (_roles.Contains("Admin"))
             {
@@ -50,18 +55,35 @@ namespace FitnessClub.WPF
                 LedenTab.Visibility = Visibility.Visible;
                 AbonnementTab.Visibility = Visibility.Visible;
                 InschrijvingenTab.Visibility = Visibility.Visible;
-                LessenTab.Visibility = Visibility.Visible; // ✅ Lessen Beheer voor Admin
+                LessenTab.Visibility = Visibility.Visible;
             }
             else if (_roles.Contains("Lid"))
             {
-                // Lid: Persoonlijke tabs
+                // Lid: Persoonlijke tabs + beschikbare lessen
                 MijnAbonnementTab.Visibility = Visibility.Visible;
                 MijnInschrijvingenTab.Visibility = Visibility.Visible;
-                // Lid krijgt een andere view voor lessen (beschikbare lessen)
+                LessenLidTab.Visibility = Visibility.Visible;
+
+                // DYNAMISCH CONTENT TOEVOEGEN
+                SetupLidTabs();
             }
 
             // Profiel altijd zichtbaar
             ProfielTab.Visibility = Visibility.Visible;
+        }
+
+        private void SetupLidTabs()
+        {
+            // Mijn Abonnement tab
+            var mijnAbonnementView = new MijnAbonnement();
+            MijnAbonnementTab.Content = mijnAbonnementView;
+
+            // Mijn Inschrijvingen tab
+            var mijnInschrijvingenView = new MijnInschrijvingen();
+            mijnInschrijvingenView.SetHuidigeGebruiker(_user.Id);
+            MijnInschrijvingenTab.Content = mijnInschrijvingenView;
+
+            
         }
 
         private void Logout_Click(object sender, RoutedEventArgs e)

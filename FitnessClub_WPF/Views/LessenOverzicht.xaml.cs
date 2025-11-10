@@ -36,40 +36,24 @@ namespace FitnessClub.WPF.Views
             }
         }
 
-        // gebruikt jouw bestaande NieuweLesWindow
+        // zonder dubbele success message
         private void ToevoegenClick(object sender, RoutedEventArgs e)
         {
             try
             {
                 var nieuweLesWindow = new NieuweLesWindow();
-                if (nieuweLesWindow.ShowDialog() == true)
+                var result = nieuweLesWindow.ShowDialog();
+
+                // Alleen refreshen als er effectief iets is toegevoegd
+                if (result == true)
                 {
                     LaadLessen();
-                    MessageBox.Show("Les succesvol toegevoegd!", "Succes");
+                    
                 }
             }
             catch (System.Exception ex)
             {
                 MessageBox.Show($"Fout bij toevoegen les: {ex.Message}", "Fout");
-            }
-        }
-
-        // BEWERKEN METHODE
-        private void BewerkenClick(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button?.DataContext is Les les)
-            {
-                try
-                {
-                    MessageBox.Show($"Les bewerken: {les.Naam}\n\nDeze functionaliteit kan later worden toegevoegd.", "Info");
-
-          
-                }
-                catch (System.Exception ex)
-                {
-                    MessageBox.Show($"Fout bij bewerken les: {ex.Message}", "Fout");
-                }
             }
         }
 
@@ -112,7 +96,7 @@ namespace FitnessClub.WPF.Views
             }
         }
 
-        //REFRESH METHODE
+        // REFRESH METHODE
         private void RefreshClick(object sender, RoutedEventArgs e)
         {
             LaadLessen();

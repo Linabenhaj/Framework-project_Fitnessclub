@@ -27,7 +27,8 @@
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="Bewerken" Click="BewerkenClick" 
-                                        Tag="{Binding Id}" Margin="2" Padding="5"/>
+                                        Tag="{Binding Id}" Margin="2" Padding="5"
+                                        Background="#3498db" Foreground="White"/>
                                 <Button Content="Verwijder" Click="VerwijderClick" 
                                         Tag="{Binding Id}" Margin="2" Padding="5"
                                         Background="#e74c3c" Foreground="White"/>
@@ -39,8 +40,7 @@
         </DataGrid>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Content="Nieuw Abonnement" Click="ToevoegenClick" 
-                    Background="#27ae60" Foreground="White" Padding="10,5" Margin="5"/>
+           
             <Button Content="Refresh" Click="RefreshClick" 
                     Background="#3498db" Foreground="White" Padding="10,5" Margin="5"/>
         </StackPanel>

@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using FitnessClub.Models.Data;
 using System.Linq;
-using FitnessClub.WPF.Windows; // Voeg deze using toe
+using FitnessClub.WPF.Windows;
 
 namespace FitnessClub.WPF.Views
 {
@@ -37,10 +37,8 @@ namespace FitnessClub.WPF.Views
 
         private void ToevoegenClick(object sender, RoutedEventArgs e)
         {
-            
-            MessageBox.Show("Abonnement toevoegen functionaliteit komt hier", "Info");
-            // Later: var window = new AbonnementToevoegenWindow();
-            // if (window.ShowDialog() == true) LoadAbonnementen();
+            // ✅ TOEVOEGEN KNOP GEDISABLED - alleen bewerken mogelijk
+            MessageBox.Show("Abonnementen kunnen alleen bewerkt worden. Nieuwe abonnementen moeten via de database toegevoegd worden.", "Info");
         }
 
         private void BewerkenClick(object sender, RoutedEventArgs e)

@@ -38,33 +38,6 @@ namespace FitnessClub.WPF.Views
             }
         }
 
-        private void ToevoegenClick(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Lid toevoegen functionaliteit komt hier");
-            LoadLeden();
-        }
-
-        private void BewerkenClick(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button?.DataContext is Gebruiker gebruiker)
-            {
-                try
-                {
-                    // Open popup window voor bewerken lid
-                    var bewerkLidWindow = new BewerkLidWindow(gebruiker.Id);
-                    if (bewerkLidWindow.ShowDialog() == true)
-                    {
-                        LoadLeden();
-                        MessageBox.Show("Lid succesvol bijgewerkt!", "Succes");
-                    }
-                }
-                catch (System.Exception ex)
-                {
-                    MessageBox.Show($"Fout bij bewerken lid: {ex.Message}", "Fout");
-                }
-            }
-        }
 
         private void VerwijderClick(object sender, RoutedEventArgs e)
         {

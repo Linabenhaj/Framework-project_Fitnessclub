@@ -1,7 +1,7 @@
 ﻿using FitnessClub.Models;
 using FitnessClub.Models.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -28,21 +28,20 @@ namespace FitnessClub.WPF
 
                 using (var context = new FitnessClubDbContext())
                 {
-                    // Gebruik Identity voor login
-                    var userManager = CreateUserManager(context);
-                    var user = await userManager.FindByEmailAsync(EmailTextBox.Text);
+                    // Eenvoudige login
+                    var user = await context.Users
+                        .FirstOrDefaultAsync(u => u.Email == EmailTextBox.Text);
 
                     if (user != null)
                     {
-                        // Check wachtwoord via Identity
-                        var isPasswordCorrect = await userManager.CheckPasswordAsync(user, PasswordBox.Password);
-                        if (isPasswordCorrect)
-                        {
-                            var roles = (await userManager.GetRolesAsync(user)).ToList();
-                            if (roles.Count == 0) roles.Add("Lid");
+                        // Controleer welk wachtwoordveld beschikbaar is
+                        var passwordToCheck = GetPasswordFromUser(user);
 
+                        if (passwordToCheck == PasswordBox.Password)
+                        {
+                            var roles = new List<string> { user.Rol ?? "Lid" };
                             MessageBox.Show($"Welkom {user.Voornaam} ({string.Join(", ", roles)})!");
-                            OpenDashboard(user, userManager, roles);
+                            OpenDashboard(user, roles);
                         }
                         else
                         {
@@ -61,20 +60,35 @@ namespace FitnessClub.WPF
             }
         }
 
-        private UserManager<Gebruiker> CreateUserManager(FitnessClubDbContext context)
+        //  om wachtwoord te vinden
+        private string GetPasswordFromUser(Gebruiker user)
         {
-            var userStore = new UserStore<Gebruiker>(context);
-            return new UserManager<Gebruiker>(
-                userStore, null, new PasswordHasher<Gebruiker>(), null, null, null, null, null, null);
+            // Probeer verschillende mogelijke veldnamen
+            var userType = user.GetType();
+
+            // Controleer verschillende mogelijke wachtwoord veldnamen
+            var possiblePasswordFields = new[] { "PasswordHash", "Wachtwoord", "Password", "Passwoord", "WachtwoordHash" };
+
+            foreach (var fieldName in possiblePasswordFields)
+            {
+                var property = userType.GetProperty(fieldName);
+                if (property != null)
+                {
+                    var value = property.GetValue(user) as string;
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        return value;
+                    }
+                }
+            }
+
+            return string.Empty;
         }
 
-        private void OpenDashboard(Gebruiker user, UserManager<Gebruiker> userManager, System.Collections.Generic.List<string> roles)
+        private void OpenDashboard(Gebruiker user, List<string> roles)
         {
-            // alleen roles en user
             var dashboard = new DashboardWindow(roles, user);
             dashboard.Show();
-
-         
             this.Close();
         }
 

@@ -36,9 +36,7 @@
             </Grid>
         </Border>
 
-
-        <TabControl Grid.Row="1" Margin="10">
-
+        <TabControl Grid.Row="1" Margin="10" x:Name="MainTabControl">
 
             <TabItem Header="Profiel" x:Name="ProfielTab">
                 <StackPanel Margin="20">
@@ -47,7 +45,7 @@
                 </StackPanel>
             </TabItem>
 
-
+            <!-- Admin Tabs -->
             <TabItem Header="Leden Beheer" x:Name="LedenTab" Visibility="Collapsed">
                 <views:LedenOverzicht />
             </TabItem>
@@ -60,22 +58,24 @@
                 <views:InschrijvingenOverzicht />
             </TabItem>
 
-
-            <TabItem Header="Mijn Abonnement" x:Name="MijnAbonnementTab" Visibility="Collapsed">
-                <views:MijnAbonnement />
-            </TabItem>
-
-            <TabItem Header="Mijn Inschrijvingen" x:Name="MijnInschrijvingenTab" Visibility="Collapsed">
-                <views:MijnInschrijvingen />
-            </TabItem>
-
-            <!-- ✅ DIT MOET "Lessen Beheer" ZIJN VOOR ADMIN -->
             <TabItem Header="Lessen" x:Name="LessenTab" Visibility="Collapsed">
                 <views:LessenOverzicht />
             </TabItem>
 
-        </TabControl>
+           
+            <TabItem Header="Mijn Abonnement" x:Name="MijnAbonnementTab" Visibility="Collapsed">
+               
+            </TabItem>
 
+            <TabItem Header="Mijn Inschrijvingen" x:Name="MijnInschrijvingenTab" Visibility="Collapsed">
+                <!-- Content wordt dynamisch ingesteld -->
+            </TabItem>
+
+            <TabItem Header="Beschikbare Lessen" x:Name="LessenLidTab" Visibility="Collapsed">
+                <views:LessenOverzichtLid />
+            </TabItem>
+
+        </TabControl>
 
         <Border Grid.Row="2" Background="#ecf0f1" Padding="10">
             <TextBlock x:Name="FooterRoleText" Text="Fitness Club Management Systeem" HorizontalAlignment="Center"/>

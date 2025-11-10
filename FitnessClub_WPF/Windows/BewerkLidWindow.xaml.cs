@@ -5,6 +5,8 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Windows.Controls;
 using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 
 namespace FitnessClub.WPF.Windows
 {
@@ -12,7 +14,6 @@ namespace FitnessClub.WPF.Windows
     {
         private readonly string _gebruikerId;
         private readonly FitnessClubDbContext _context;
-        private Abonnement _huidigGekozenAbonnement;
 
         public BewerkLidWindow(string gebruikerId)
         {
@@ -40,12 +41,14 @@ namespace FitnessClub.WPF.Windows
                     TelefoonTextBox.Text = gebruiker.Telefoon ?? "";
                     GeboortedatumPicker.SelectedDate = gebruiker.Geboortedatum;
 
-                    // Huidig abonnement onthouden
-                    _huidigGekozenAbonnement = gebruiker.Abonnement;
-                    UpdateGekozenAbonnementText();
+                    // Stel huidig abonnement in
+                    if (gebruiker.Abonnement != null)
+                    {
+                        AbonnementenComboBox.SelectedValue = gebruiker.Abonnement.Id;
+                    }
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 ValidatieText.Text = $"Fout bij laden gegevens: {ex.Message}";
             }
@@ -60,134 +63,27 @@ namespace FitnessClub.WPF.Windows
                     .OrderBy(a => a.Prijs)
                     .ToList();
 
-                AbonnementenPanel.Children.Clear();
-
-                foreach (var abonnement in abonnementen)
-                {
-                    var border = new Border
-                    {
-                        Background = System.Windows.Media.Brushes.White,
-                        BorderBrush = System.Windows.Media.Brushes.LightGray,
-                        BorderThickness = new Thickness(1),
-                        CornerRadius = new CornerRadius(5),
-                        Padding = new Thickness(15),
-                        Margin = new Thickness(0, 5, 0, 5),
-                        Cursor = System.Windows.Input.Cursors.Hand
-                    };
-
-                    var stackPanel = new StackPanel();
-
-                    var naamText = new TextBlock
-                    {
-                        Text = abonnement.Naam,
-                        FontSize = 16,
-                        FontWeight = FontWeights.Bold,
-                        Foreground = System.Windows.Media.Brushes.DarkSlateBlue
-                    };
-
-                    var prijsText = new TextBlock
-                    {
-                        Text = $"€{abonnement.Prijs:0.00} per maand",
-                        FontSize = 14,
-                        FontWeight = FontWeights.SemiBold,
-                        Foreground = System.Windows.Media.Brushes.ForestGreen
-                    };
-
-                    var omschrijvingText = new TextBlock
-                    {
-                        Text = abonnement.Omschrijving,
-                        FontSize = 12,
-                        TextWrapping = TextWrapping.Wrap,
-                        Margin = new Thickness(0, 5, 0, 0)
-                    };
-
-                    stackPanel.Children.Add(naamText);
-                    stackPanel.Children.Add(prijsText);
-                    stackPanel.Children.Add(omschrijvingText);
-
-                    border.Child = stackPanel;
-
-                    // Click event voor abonnement selectie
-                    border.MouseLeftButtonDown += (s, e) =>
-                    {
-                        _huidigGekozenAbonnement = abonnement;
-                        UpdateGekozenAbonnementText();
-
-                      
-
-
-                        foreach (var child in AbonnementenPanel.Children)
-                        {
-                            if (child is Border otherBorder)
-                            {
-                                otherBorder.BorderBrush = System.Windows.Media.Brushes.LightGray;
-                                otherBorder.Background = System.Windows.Media.Brushes.White;
-                            }
-                        }
-
-                        border.BorderBrush = System.Windows.Media.Brushes.Green;
-                        border.Background = System.Windows.Media.Brushes.LightGreen;
-                    };
-
-                    // Markeer huidig geselecteerd abonnement
-
-
-                    if (_huidigGekozenAbonnement != null && _huidigGekozenAbonnement.Id == abonnement.Id)
-                    {
-                        border.BorderBrush = System.Windows.Media.Brushes.Green;
-                        border.Background = System.Windows.Media.Brushes.LightGreen;
-                    }
-
-                    AbonnementenPanel.Children.Add(border);
-                }
-
                 // Voeg "Geen abonnement" optie toe
-                var geenAbonnementBorder = new Border
+                var keuzes = new List<AbonnementKeuze>
                 {
-                    Background = System.Windows.Media.Brushes.White,
-                    BorderBrush = _huidigGekozenAbonnement == null ? System.Windows.Media.Brushes.Green : System.Windows.Media.Brushes.LightGray,
-                    BorderThickness = new Thickness(1),
-                    CornerRadius = new CornerRadius(5),
-                    Padding = new Thickness(15),
-                    Margin = new Thickness(0, 5, 0, 5),
-                    Cursor = System.Windows.Input.Cursors.Hand
+                    new AbonnementKeuze { Id = null, Naam = "Geen abonnement", Prijs = 0 }
                 };
 
-                var geenAbonnementStack = new StackPanel();
-                var geenAbonnementText = new TextBlock
+                keuzes.AddRange(abonnementen.Select(a => new AbonnementKeuze
                 {
-                    Text = "Geen abonnement",
-                    FontSize = 16,
-                    FontWeight = FontWeights.Bold,
-                    Foreground = System.Windows.Media.Brushes.Gray,
-                    FontStyle = FontStyles.Italic
-                };
+                    Id = a.Id,
+                    Naam = a.Naam,
+                    Prijs = a.Prijs,
+                    Omschrijving = a.Omschrijving
+                }));
 
-                geenAbonnementStack.Children.Add(geenAbonnementText);
-                geenAbonnementBorder.Child = geenAbonnementStack;
+                AbonnementenComboBox.ItemsSource = keuzes;
+                AbonnementenComboBox.DisplayMemberPath = "DisplayText";
+                AbonnementenComboBox.SelectedValuePath = "Id";
 
-                geenAbonnementBorder.MouseLeftButtonDown += (s, e) =>
-                {
-                    _huidigGekozenAbonnement = null;
-                    UpdateGekozenAbonnementText();
-
-                    foreach (var child in AbonnementenPanel.Children)
-                    {
-                        if (child is Border otherBorder)
-                        {
-                            otherBorder.BorderBrush = System.Windows.Media.Brushes.LightGray;
-                            otherBorder.Background = System.Windows.Media.Brushes.White;
-                        }
-                    }
-
-                    geenAbonnementBorder.BorderBrush = System.Windows.Media.Brushes.Green;
-                    geenAbonnementBorder.Background = System.Windows.Media.Brushes.LightGreen;
-                };
-
-                AbonnementenPanel.Children.Insert(0, geenAbonnementBorder);
-
+                UpdateGekozenAbonnementText();
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 ValidatieText.Text = $"Fout bij laden abonnementen: {ex.Message}";
             }
@@ -195,13 +91,17 @@ namespace FitnessClub.WPF.Windows
 
         private void UpdateGekozenAbonnementText()
         {
-            if (_huidigGekozenAbonnement != null)
+            var geselecteerd = AbonnementenComboBox.SelectedItem as AbonnementKeuze;
+            if (geselecteerd != null)
             {
-                GekozenAbonnementText.Text = $"Geselecteerd: {_huidigGekozenAbonnement.Naam} - €{_huidigGekozenAbonnement.Prijs:0.00}/maand";
-            }
-            else
-            {
-                GekozenAbonnementText.Text = "Geselecteerd: Geen abonnement";
+                if (geselecteerd.Id == null)
+                {
+                    GekozenAbonnementText.Text = "Geselecteerd: Geen abonnement";
+                }
+                else
+                {
+                    GekozenAbonnementText.Text = $"Geselecteerd: {geselecteerd.Naam} - €{geselecteerd.Prijs:0.00}/maand";
+                }
             }
         }
 
@@ -218,35 +118,39 @@ namespace FitnessClub.WPF.Windows
 
             try
             {
-                var gebruiker = _context.Users
-                    .Include(u => u.Abonnement)
-                    .FirstOrDefault(u => u.Id == _gebruikerId);
+                var gebruiker = _context.Users.FirstOrDefault(u => u.Id == _gebruikerId);
 
                 if (gebruiker != null)
                 {
+                    var oudeEmail = gebruiker.Email;
+                    var nieuweEmail = EmailTextBox.Text.Trim();
+
+                    // Update basisgegevens
                     gebruiker.Voornaam = VoornaamTextBox.Text.Trim();
                     gebruiker.Achternaam = AchternaamTextBox.Text.Trim();
-                    gebruiker.Email = EmailTextBox.Text.Trim();
+                    gebruiker.Email = nieuweEmail;
                     gebruiker.Telefoon = TelefoonTextBox.Text.Trim();
                     gebruiker.Geboortedatum = GeboortedatumPicker.SelectedDate.Value;
 
-                    if (_huidigGekozenAbonnement != null)
+                    // BELANGRIJK: Update ook de genormaliseerde email voor Identity
+                    if (oudeEmail != nieuweEmail)
                     {
-                        gebruiker.AbonnementId = _huidigGekozenAbonnement.Id;
-                    }
-                    else
-                    {
-                        gebruiker.AbonnementId = null;
+                        gebruiker.NormalizedEmail = nieuweEmail.ToUpper();
+                        gebruiker.NormalizedUserName = nieuweEmail.ToUpper();
                     }
 
+                    // Update abonnement
+                    var geselecteerd = AbonnementenComboBox.SelectedItem as AbonnementKeuze;
+                    gebruiker.AbonnementId = geselecteerd?.Id;
+
                     _context.SaveChanges();
+
+                    MessageBox.Show("Gebruiker succesvol bijgewerkt!", "Succes");
                     this.DialogResult = true;
                     this.Close();
                 }
-
-
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 ValidatieText.Text = $"Fout bij opslaan: {ex.Message}";
             }
@@ -259,42 +163,55 @@ namespace FitnessClub.WPF.Windows
             if (string.IsNullOrWhiteSpace(VoornaamTextBox.Text))
             {
                 ValidatieText.Text = "Voornaam is verplicht!";
-                VoornaamTextBox.Focus();
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(AchternaamTextBox.Text))
             {
                 ValidatieText.Text = "Achternaam is verplicht!";
-                AchternaamTextBox.Focus();
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(EmailTextBox.Text))
             {
                 ValidatieText.Text = "E-mail is verplicht!";
-                EmailTextBox.Focus();
-                return false;
-            }
-
-            if (GeboortedatumPicker.SelectedDate == null)
-            {
-                ValidatieText.Text = "Geboortedatum is verplicht!";
-                GeboortedatumPicker.Focus();
-                return false;
-            }
-
-            if (GeboortedatumPicker.SelectedDate.Value > DateTime.Now.AddYears(-16))
-            {
-                ValidatieText.Text = "Je moet minimaal 16 jaar oud zijn!";
-                GeboortedatumPicker.Focus();
                 return false;
             }
 
             if (!IsValidEmail(EmailTextBox.Text))
             {
                 ValidatieText.Text = "Voer een geldig e-mailadres in!";
-                EmailTextBox.Focus();
+                return false;
+            }
+
+            // Controleer of email al bestaat bij een andere gebruiker
+            try
+            {
+                var nieuweEmail = EmailTextBox.Text.Trim();
+                var bestaandeGebruiker = _context.Users
+                    .FirstOrDefault(u => u.Email == nieuweEmail && u.Id != _gebruikerId);
+
+                if (bestaandeGebruiker != null)
+                {
+                    ValidatieText.Text = "Dit e-mailadres is al in gebruik door een andere gebruiker!";
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                ValidatieText.Text = $"Fout bij controle e-mail: {ex.Message}";
+                return false;
+            }
+
+            if (GeboortedatumPicker.SelectedDate == null)
+            {
+                ValidatieText.Text = "Geboortedatum is verplicht!";
+                return false;
+            }
+
+            if (GeboortedatumPicker.SelectedDate.Value > DateTime.Now.AddYears(-16))
+            {
+                ValidatieText.Text = "Je moet minimaal 16 jaar oud zijn!";
                 return false;
             }
 
@@ -312,6 +229,21 @@ namespace FitnessClub.WPF.Windows
             {
                 return false;
             }
+        }
+
+        private void AbonnementenComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateGekozenAbonnementText();
+        }
+
+        // Hulpklasse voor abonnement keuzes
+        private class AbonnementKeuze
+        {
+            public int? Id { get; set; }
+            public string Naam { get; set; }
+            public decimal Prijs { get; set; }
+            public string Omschrijving { get; set; }
+            public string DisplayText => Id == null ? "Geen abonnement" : $"{Naam} - €{Prijs:0.00}/maand";
         }
     }
 }

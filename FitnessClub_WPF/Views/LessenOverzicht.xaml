@@ -36,9 +36,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="Bewerken" Click="BewerkenClick" 
-                                        Margin="5,0" Padding="10,2" 
-                                        Background="#3498db" Foreground="White"/>
+                                
                                 <Button Content="Verwijderen" Click="VerwijderenClick" 
                                         Margin="5,0" Padding="10,2" 
                                         Background="#e74c3c" Foreground="White"/>
