@@ -15,8 +15,8 @@ namespace FitnessClub.WPF.Views
         public MijnInschrijvingen()
         {
             InitializeComponent();
-            LaadHuidigeGebruiker();
-            LaadMijnInschrijvingen();
+            // Niet meer automatisch laden in constructor
+            // Laad wordt nu aangeroepen via SetHuidigeGebruiker
         }
 
         private void LaadHuidigeGebruiker()
