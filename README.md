@@ -63,4 +63,6 @@ Voor de screenshots van de applicatie gebruikte ik de user "Wesley" die hiervoor
 
 <img width="1098" height="731" alt="image" src="https://github.com/user-attachments/assets/a5ace6c6-52b9-4504-9c42-a4aaf9bbe5e5" />
 
+## Gebruik van AI
 
+Github Copilot en ChatGPT technologieën werden gebruikt bij het debuggen van errors en hierdoor ook voor aanvulling om deze errors op te lossen als laatste optie. 
