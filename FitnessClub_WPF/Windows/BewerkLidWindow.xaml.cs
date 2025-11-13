@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace FitnessClub.WPF.Windows
 {
@@ -14,6 +15,7 @@ namespace FitnessClub.WPF.Windows
     {
         private readonly string _gebruikerId;
         private readonly FitnessClubDbContext _context;
+        private Gebruiker _gebruiker;
 
         public BewerkLidWindow(string gebruikerId)
         {
@@ -23,28 +25,42 @@ namespace FitnessClub.WPF.Windows
 
             LaadGebruikerData();
             LaadAbonnementen();
+            VulRollenComboBox();
         }
 
         private void LaadGebruikerData()
         {
             try
             {
-                var gebruiker = _context.Users
+                _gebruiker = _context.Users
                     .Include(u => u.Abonnement)
                     .FirstOrDefault(u => u.Id == _gebruikerId);
 
-                if (gebruiker != null)
+                if (_gebruiker != null)
                 {
-                    VoornaamTextBox.Text = gebruiker.Voornaam;
-                    AchternaamTextBox.Text = gebruiker.Achternaam;
-                    EmailTextBox.Text = gebruiker.Email;
-                    TelefoonTextBox.Text = gebruiker.Telefoon ?? "";
-                    GeboortedatumPicker.SelectedDate = gebruiker.Geboortedatum;
+                    VoornaamTextBox.Text = _gebruiker.Voornaam;
+                    AchternaamTextBox.Text = _gebruiker.Achternaam;
+                    EmailTextBox.Text = _gebruiker.Email;
+                    TelefoonTextBox.Text = _gebruiker.Telefoon ?? "";
+                    GeboortedatumPicker.SelectedDate = _gebruiker.Geboortedatum;
+
+                    // Toon huidige rol
+                    HuidigeRolText.Text = $"Huidige rol: {_gebruiker.Rol ?? "Lid"}";
+
+                    // Selecteer huidige rol in combobox
+                    if (!string.IsNullOrEmpty(_gebruiker.Rol))
+                    {
+                        RolComboBox.SelectedItem = _gebruiker.Rol;
+                    }
+
+                    // Toon blokkeer status
+                    IsGeblokkeerdCheckBox.IsChecked = _gebruiker.IsVerwijderd;
+                    UpdateBlokkeerStatusText();
 
                     // Stel huidig abonnement in
-                    if (gebruiker.Abonnement != null)
+                    if (_gebruiker.Abonnement != null)
                     {
-                        AbonnementenComboBox.SelectedValue = gebruiker.Abonnement.Id;
+                        AbonnementenComboBox.SelectedValue = _gebruiker.Abonnement.Id;
                     }
                 }
             }
@@ -52,6 +68,14 @@ namespace FitnessClub.WPF.Windows
             {
                 ValidatieText.Text = $"Fout bij laden gegevens: {ex.Message}";
             }
+        }
+
+        private void VulRollenComboBox()
+        {
+            // Vul rollen combobox
+            RolComboBox.Items.Add("Lid");
+            RolComboBox.Items.Add("Admin");
+            RolComboBox.SelectedIndex = 0; // Standaard "Lid"
         }
 
         private void LaadAbonnementen()
@@ -105,43 +129,72 @@ namespace FitnessClub.WPF.Windows
             }
         }
 
-        private void Annuleren_Click(object sender, RoutedEventArgs e)
+        private void UpdateBlokkeerStatusText()
         {
-            this.DialogResult = false;
-            this.Close();
+            if (_gebruiker != null)
+            {
+                if (_gebruiker.IsVerwijderd)
+                {
+                    BlokkeerStatusText.Text = "Status: GEBLOKKEERD (kan niet inloggen)";
+                    BlokkeerStatusText.Foreground = System.Windows.Media.Brushes.Red;
+                }
+                else
+                {
+                    BlokkeerStatusText.Text = "Status: Actief (kan inloggen)";
+                    BlokkeerStatusText.Foreground = System.Windows.Media.Brushes.Green;
+                }
+            }
         }
 
-        private void Opslaan_Click(object sender, RoutedEventArgs e)
+        private async void Opslaan_Click(object sender, RoutedEventArgs e)
         {
             if (!ValideerFormulier())
                 return;
 
             try
             {
-                var gebruiker = _context.Users.FirstOrDefault(u => u.Id == _gebruikerId);
-
-                if (gebruiker != null)
+                if (_gebruiker != null)
                 {
-                    var oudeEmail = gebruiker.Email;
+                    var oudeEmail = _gebruiker.Email;
                     var nieuweEmail = EmailTextBox.Text.Trim();
 
                     // Update basisgegevens
-                    gebruiker.Voornaam = VoornaamTextBox.Text.Trim();
-                    gebruiker.Achternaam = AchternaamTextBox.Text.Trim();
-                    gebruiker.Email = nieuweEmail;
-                    gebruiker.Telefoon = TelefoonTextBox.Text.Trim();
-                    gebruiker.Geboortedatum = GeboortedatumPicker.SelectedDate.Value;
+                    _gebruiker.Voornaam = VoornaamTextBox.Text.Trim();
+                    _gebruiker.Achternaam = AchternaamTextBox.Text.Trim();
+                    _gebruiker.Email = nieuweEmail;
+                    _gebruiker.Telefoon = TelefoonTextBox.Text.Trim();
+                    _gebruiker.Geboortedatum = GeboortedatumPicker.SelectedDate.Value;
 
-                    // BELANGRIJK: Update ook de genormaliseerde email voor Identity
+                    // Update ook de genormaliseerde email voor Identity
                     if (oudeEmail != nieuweEmail)
                     {
-                        gebruiker.NormalizedEmail = nieuweEmail.ToUpper();
-                        gebruiker.NormalizedUserName = nieuweEmail.ToUpper();
+                        _gebruiker.NormalizedEmail = nieuweEmail.ToUpper();
+                        _gebruiker.NormalizedUserName = nieuweEmail.ToUpper();
                     }
 
                     // Update abonnement
                     var geselecteerd = AbonnementenComboBox.SelectedItem as AbonnementKeuze;
-                    gebruiker.AbonnementId = geselecteerd?.Id;
+                    _gebruiker.AbonnementId = geselecteerd?.Id;
+
+                    // Rol bijwerken als deze gewijzigd is
+                    var nieuweRol = RolComboBox.SelectedItem?.ToString();
+                    if (!string.IsNullOrEmpty(nieuweRol) && nieuweRol != _gebruiker.Rol)
+                    {
+                        await UpdateGebruikerRol(_gebruiker, nieuweRol);
+                    }
+
+                    // Blokkeer status bijwerken
+                    var wasGeblokkeerd = _gebruiker.IsVerwijderd;
+                    _gebruiker.IsVerwijderd = IsGeblokkeerdCheckBox.IsChecked ?? false;
+
+                    if (_gebruiker.IsVerwijderd && !wasGeblokkeerd)
+                    {
+                        _gebruiker.VerwijderdOp = DateTime.Now;
+                    }
+                    else if (!_gebruiker.IsVerwijderd && wasGeblokkeerd)
+                    {
+                        _gebruiker.VerwijderdOp = null;
+                    }
 
                     _context.SaveChanges();
 
@@ -154,6 +207,47 @@ namespace FitnessClub.WPF.Windows
             {
                 ValidatieText.Text = $"Fout bij opslaan: {ex.Message}";
             }
+        }
+
+        private async System.Threading.Tasks.Task UpdateGebruikerRol(Gebruiker gebruiker, string nieuweRol)
+        {
+            try
+            {
+                var userManager = CreateUserManager();
+
+                // Verwijder uit alle bestaande rollen
+                var huidigeRoles = await userManager.GetRolesAsync(gebruiker);
+                if (huidigeRoles.Any())
+                {
+                    await userManager.RemoveFromRolesAsync(gebruiker, huidigeRoles);
+                }
+
+                // Voeg toe aan nieuwe rol
+                await userManager.AddToRoleAsync(gebruiker, nieuweRol);
+
+                // Update ook de custom Rol property
+                gebruiker.Rol = nieuweRol;
+
+                MessageBox.Show($"Rol gewijzigd naar: {nieuweRol}", "Rol bijgewerkt");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fout bij wijzigen rol: {ex.Message}\n" +
+                              $"De basisgegevens zijn opgeslagen, maar de rol moet handmatig worden aangepast.", "Waarschuwing");
+            }
+        }
+
+        private UserManager<Gebruiker> CreateUserManager()
+        {
+            var userStore = new UserStore<Gebruiker>(_context);
+            return new UserManager<Gebruiker>(
+                userStore, null, new PasswordHasher<Gebruiker>(), null, null, null, null, null, null);
+        }
+
+        private void Annuleren_Click(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = false;
+            this.Close();
         }
 
         private bool ValideerFormulier()
@@ -234,6 +328,11 @@ namespace FitnessClub.WPF.Windows
         private void AbonnementenComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             UpdateGekozenAbonnementText();
+        }
+
+        private void IsGeblokkeerdCheckBox_Changed(object sender, RoutedEventArgs e)
+        {
+            UpdateBlokkeerStatusText();
         }
 
         // Hulpklasse voor abonnement keuzes

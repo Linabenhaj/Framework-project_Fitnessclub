@@ -38,6 +38,31 @@ namespace FitnessClub.WPF.Views
             }
         }
 
+        //  Bewerken button click (nieuw)
+        private void BewerkenClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.DataContext is Gebruiker gebruiker)
+            {
+                try
+                {
+                    // Open BewerkLidWindow met de gebruiker ID
+                    var bewerkWindow = new BewerkLidWindow(gebruiker.Id);
+                    var result = bewerkWindow.ShowDialog(); //wacht ops luiting
+
+                    // Refresh de lijst als er wijzigingen zijn opgeslagen
+                    if (result == true) 
+                    {
+                        LoadLeden();
+                        MessageBox.Show("Gebruiker succesvol bijgewerkt!", "Succes");
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    MessageBox.Show($"Fout bij openen bewerkvenster: {ex.Message}", "Fout");
+                }
+            }
+        }
 
         private void VerwijderClick(object sender, RoutedEventArgs e)
         {

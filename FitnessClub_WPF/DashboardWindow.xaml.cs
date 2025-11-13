@@ -15,13 +15,9 @@ namespace FitnessClub.WPF
             InitializeComponent();
             _user = user;
             _roles = roles;
+
             LoadUserInfo();
             SetupRoleBasedTabs();
-        }
-
-        public string GetCurrentUserId()
-        {
-            return _user?.Id;
         }
 
         private void LoadUserInfo()
@@ -49,41 +45,83 @@ namespace FitnessClub.WPF
             LessenTab.Visibility = Visibility.Collapsed;
             LessenLidTab.Visibility = Visibility.Collapsed;
 
-            if (_roles.Contains("Admin"))
-            {
-                // Admin: Beheer tabs
-                LedenTab.Visibility = Visibility.Visible;
-                AbonnementTab.Visibility = Visibility.Visible;
-                InschrijvingenTab.Visibility = Visibility.Visible;
-                LessenTab.Visibility = Visibility.Visible;
-            }
-            else if (_roles.Contains("Lid"))
-            {
-                // Lid: Persoonlijke tabs + beschikbare lessen
-                MijnAbonnementTab.Visibility = Visibility.Visible;
-                MijnInschrijvingenTab.Visibility = Visibility.Visible;
-                LessenLidTab.Visibility = Visibility.Visible;
+            bool isAdmin = _roles.Contains("Admin");
+            bool isLid = _roles.Contains("Lid");
 
-                // DYNAMISCH CONTENT TOEVOEGEN
+            // Toon welke rollen gedetecteerd worden
+            System.Diagnostics.Debug.WriteLine($"Dashboard - Rollen: {string.Join(", ", _roles)}, IsAdmin: {isAdmin}, IsLid: {isLid}");
+
+            if (isAdmin)
+            {
+                SetupAdminTabs();
+            }
+            else if (isLid)
+            {
+                SetupLidTabs();
+            }
+            else
+            {
+                // Fallback - toon lid tabs
                 SetupLidTabs();
             }
 
-            // Profiel altijd zichtbaar
+            // Profiel altijd zichtbaar (zonder speciale ProfielView)
             ProfielTab.Visibility = Visibility.Visible;
+            // ProfielTab.Content wordt al geladen via XAML met de ProfileInfoText
+        }
+
+        private void SetupAdminTabs()
+        {
+            // TOON Admin beheer tabs
+            LedenTab.Visibility = Visibility.Visible;
+            AbonnementTab.Visibility = Visibility.Visible;
+            InschrijvingenTab.Visibility = Visibility.Visible;
+            LessenTab.Visibility = Visibility.Visible;
+
+            // LAAD Admin views met volledige functionaliteit
+            LedenTab.Content = new LedenOverzicht();         
+            AbonnementTab.Content = new AbonnementenOverzicht(); 
+            InschrijvingenTab.Content = new InschrijvingenOverzicht(); 
+            LessenTab.Content = new LessenOverzicht();         
+
+            // VERBERG Lid tabs
+            MijnAbonnementTab.Visibility = Visibility.Collapsed;
+            MijnInschrijvingenTab.Visibility = Visibility.Collapsed;
+            LessenLidTab.Visibility = Visibility.Collapsed;
+
+            // Selecteer eerste admin tab
+            MainTabControl.SelectedItem = LedenTab;
         }
 
         private void SetupLidTabs()
         {
-            // Mijn Abonnement tab
-            var mijnAbonnementView = new MijnAbonnement();
-            MijnAbonnementTab.Content = mijnAbonnementView;
+            // TOON Lid functionaliteit tabs
+            MijnAbonnementTab.Visibility = Visibility.Visible;
+            MijnInschrijvingenTab.Visibility = Visibility.Visible;
+            LessenLidTab.Visibility = Visibility.Visible;
 
-            // Mijn Inschrijvingen tab
-            var mijnInschrijvingenView = new MijnInschrijvingen();
-            mijnInschrijvingenView.SetHuidigeGebruiker(_user.Id);
-            MijnInschrijvingenTab.Content = mijnInschrijvingenView;
+            // LAAD Lid views
+            MijnAbonnementTab.Content = new MijnAbonnement();
 
-            
+            var mijnInschrijvingen = new MijnInschrijvingen();
+            mijnInschrijvingen.SetHuidigeGebruiker(_user.Id);
+            MijnInschrijvingenTab.Content = mijnInschrijvingen;
+
+            LessenLidTab.Content = new LessenOverzichtLid();
+
+            // VERBERG Admin tabs
+            LedenTab.Visibility = Visibility.Collapsed;
+            AbonnementTab.Visibility = Visibility.Collapsed;
+            InschrijvingenTab.Visibility = Visibility.Collapsed;
+            LessenTab.Visibility = Visibility.Collapsed;
+
+            // Selecteer eerste lid tab
+            MainTabControl.SelectedItem = MijnAbonnementTab;
+        }
+
+        public string GetCurrentUserId()
+        {
+            return _user?.Id;
         }
 
         private void Logout_Click(object sender, RoutedEventArgs e)

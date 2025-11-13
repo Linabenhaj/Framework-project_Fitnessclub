@@ -53,7 +53,7 @@ namespace FitnessClub.Models.Data
         {
             try
             {
-                var user = Users.FirstOrDefault(u => u.Email == email);
+                var user = Users.FirstOrDefault(u => u.Email == email); //lamda
 
                 if (user != null)
                 {

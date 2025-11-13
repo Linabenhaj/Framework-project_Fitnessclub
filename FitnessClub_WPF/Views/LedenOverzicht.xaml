@@ -23,10 +23,15 @@
                 <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="150"/>
                 <DataGridTextColumn Header="Telefoon" Binding="{Binding Telefoon}" Width="100"/>
                 <DataGridTextColumn Header="Abonnement" Binding="{Binding Abonnement.Naam}" Width="120"/>
-                <DataGridTemplateColumn Header="Acties" Width="150">
+                <DataGridTemplateColumn Header="Acties" Width="200">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
+                                <!-- BEWERKEN Button extra -->
+                                <Button Content="Bewerken" Click="BewerkenClick" 
+                                        Tag="{Binding Id}" Margin="2" Padding="5"
+                                        Background="#3498db" Foreground="White"/>
+
                                 
                                 <Button Content="Verwijder" Click="VerwijderClick" 
                                         Tag="{Binding Id}" Margin="2" Padding="5"
@@ -39,7 +44,6 @@
         </DataGrid>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-           
             <Button Content="Refresh" Click="RefreshClick" 
                     Background="#3498db" Foreground="White" Padding="10,5" Margin="5"/>
         </StackPanel>

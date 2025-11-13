@@ -21,7 +21,6 @@ namespace FitnessClub.Models.Data
         }
 
 
-
         public async Task SeedAsync()
         {
             await SeedRolesAndAdmin();
