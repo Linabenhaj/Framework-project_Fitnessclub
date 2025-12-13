@@ -1,22 +1,28 @@
-﻿using System.Collections.Generic;
+// FitnessClub.Models/Models/Abonnement.cs
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace FitnessClub.Models
+namespace FitnessClub.Models.Models
 {
     public class Abonnement : BasisEntiteit
     {
-        [Required]
-        public string Naam { get; set; }
+        [Required(ErrorMessage = "Naam is verplicht")]
+        [Display(Name = "Naam")]
+        public string Naam { get; set; } = string.Empty;
 
-        [Range(0, 999.99)]
+        [Display(Name = "Prijs")]
+        [DataType(DataType.Currency)]
         public decimal Prijs { get; set; }
 
-        public string Omschrijving { get; set; }
+        [Display(Name = "Omschrijving")]
+        public string Omschrijving { get; set; } = string.Empty;
 
-        // Looptijd in maanden
+        [Display(Name = "Looptijd (maanden)")]
         public int LooptijdMaanden { get; set; } = 1;
 
-        // Relatie met Gebruikers
-        public ICollection<Gebruiker> Gebruikers { get; set; } = new List<Gebruiker>();
+        [Display(Name = "Actief")]
+        public bool IsActief { get; set; } = true;
+
+        
     }
 }

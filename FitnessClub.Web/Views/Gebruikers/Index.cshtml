@@ -1,0 +1,89 @@
+@model FitnessClub.Web.PaginatedList<FitnessClub.Models.Models.Gebruiker>
+@{
+    ViewData["Title"] = "Gebruikers";
+}
+
+<h1>Gebruikers</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Nieuwe gebruiker</a>
+</p>
+
+<form asp-action="Index" method="get">
+    <div class="form-actions no-color">
+        <p>
+            Zoek: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+            <input type="submit" value="Zoeken" class="btn btn-default" /> |
+            <a asp-action="Index">Terug naar volledige lijst</a>
+        </p>
+    </div>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["NaamSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                    Naam
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["EmailSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                    Email
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["RolSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                    Rol
+                </a>
+            </th>
+            <th>Telefoon</th>
+            <th>Abonnement</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.DisplayNaam)</td>
+                <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                <td>@Html.DisplayFor(modelItem => item.Rol)</td>
+                <td>@Html.DisplayFor(modelItem => item.Telefoon)</td>
+                <td>@(item.Abonnement?.Naam ?? "Geen")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Details</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Bewerken</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Verwijderen</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<div class="pagination-container">
+    <a asp-action="Index"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       class="btn btn-default @prevDisabled">
+        Vorige
+    </a>
+
+    <span class="page-info">
+        Pagina @Model.PageIndex van @Model.TotalPages
+    </span>
+
+    <a asp-action="Index"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       class="btn btn-default @nextDisabled">
+        Volgende
+    </a>
+</div>

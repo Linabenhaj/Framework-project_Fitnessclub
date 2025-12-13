@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FitnessClub.MAUI.Views.LoginPage"
+             Title="FitnessClub Login">
+
+    <VerticalStackLayout Spacing="20" Padding="30">
+
+        <!-- Header -->
+        <Label Text="FitnessClub" 
+               FontSize="32" 
+               FontAttributes="Bold" 
+               HorizontalOptions="Center"
+               TextColor="#3498db" />
+
+        <!-- Email Input -->
+        <VerticalStackLayout Spacing="5">
+            <Label Text="Email" FontSize="14" />
+            <Entry x:Name="EmailEntry" 
+                   Placeholder="email@voorbeeld.com"
+                   Keyboard="Email" />
+        </VerticalStackLayout>
+
+        <!-- Password Input -->
+        <VerticalStackLayout Spacing="5">
+            <Label Text="Wachtwoord" FontSize="14" />
+            <Entry x:Name="PasswordEntry" 
+                   Placeholder="Je wachtwoord"
+                   IsPassword="True" />
+        </VerticalStackLayout>
+
+        <!-- Error Message -->
+        <Label x:Name="ErrorLabel" 
+               TextColor="Red" 
+               IsVisible="False"
+               FontSize="12" />
+
+        <!-- Login Button -->
+        <Button Text="Inloggen" 
+                Clicked="OnLoginClicked"
+                BackgroundColor="#3498db"
+                TextColor="White"
+                HeightRequest="50"
+                CornerRadius="10" />
+
+        <!-- Activity Indicator -->
+        <ActivityIndicator x:Name="LoadingIndicator"
+                           IsRunning="False"
+                           IsVisible="False"
+                           HorizontalOptions="Center" />
+
+        <!-- Demo Info -->
+        <Frame BackgroundColor="#f8f9fa" 
+               Padding="15"
+               CornerRadius="10">
+            <VerticalStackLayout>
+                <Label Text="Demo Accounts:" 
+                       FontAttributes="Bold"
+                       FontSize="14"/>
+                <Label Text="• admin@fitness.com / Admin123!" 
+                       FontSize="12"/>
+                <Label Text="• lid@fitness.com / Lid123!" 
+                       FontSize="12"/>
+            </VerticalStackLayout>
+        </Frame>
+
+    </VerticalStackLayout>
+
+</ContentPage>

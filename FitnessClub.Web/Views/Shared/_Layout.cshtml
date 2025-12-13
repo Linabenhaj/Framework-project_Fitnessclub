@@ -1,0 +1,307 @@
+@using FitnessClub.Models.Models
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<Gebruiker> UserManager
+@inject SignInManager<Gebruiker> SignInManager
+
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - FitnessClub</title>
+
+    <!-- Bootstrap  -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+   
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <!-- Mijn CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        :root {
+            --primary-dark: #2c3e50;
+            --secondary-dark: #34495e;
+            --admin-red: #e74c3c;
+            --register-green: #27ae60;
+            --login-blue: #3498db;
+            --about-gray: #95a5a6;
+            --light-gray: #ecf0f1;
+        }
+
+        body {
+            background-color: var(--primary-dark);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .fitness-header {
+            background-color: var(--secondary-dark);
+            padding: 15px 0;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .welcome-card {
+            background-color: rgba(52, 73, 94, 0.9);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .main-title {
+            font-size: 42px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .action-buttons {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .fitness-btn {
+            display: block;
+            width: 100%;
+            height: 55px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            text-align: center;
+            line-height: 55px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .fitness-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            opacity: 0.95;
+        }
+
+        .fitness-btn i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .btn-admin {
+            background-color: var(--admin-red);
+        }
+
+        .btn-register {
+            background-color: var(--register-green);
+        }
+
+        .btn-login {
+            background-color: var(--login-blue);
+        }
+
+        .btn-about {
+            background-color: var(--about-gray);
+            height: 45px;
+            line-height: 45px;
+            font-size: 16px;
+            margin-top: 25px;
+        }
+
+        .fitness-footer {
+            background-color: var(--secondary-dark);
+            padding: 15px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--light-gray);
+            margin-top: auto;
+        }
+
+        /* Voor andere pagina's dan Home */
+        .content-container {
+            flex: 1;
+            padding: 30px 20px;
+        }
+
+        /* Navigation voor ingelogde gebruikers */
+        .navbar-dark.bg-primary {
+            background-color: var(--secondary-dark) !important;
+        }
+
+        .navbar-brand {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .navbar-brand i {
+            color: var(--admin-red);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .welcome-card {
+                padding: 25px;
+                margin: 20px;
+            }
+
+            .main-title {
+                font-size: 32px;
+                margin-bottom: 30px;
+            }
+
+            .fitness-btn {
+                height: 50px;
+                line-height: 50px;
+                font-size: 16px;
+            }
+        }
+
+        /* Specifiek voor Home pagina */
+        .home-body {
+            padding: 0;
+        }
+
+        .home-body .navbar {
+            display: none;
+        }
+
+        .home-body .container {
+            max-width: 100%;
+            padding: 0;
+        }
+    </style>
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Index" && ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "home-body" : "")">
+
+    @if (!(ViewContext.RouteData.Values["action"]?.ToString() == "Index" && ViewContext.RouteData.Values["controller"]?.ToString() == "Home"))
+    {
+        <!-- Header met navigatie voor andere pagina's -->
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+                <div class="container">
+                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-activity"></i> FitnessClub
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                    <i class="bi bi-house"></i> Home
+                                </a>
+                            </li>
+
+
+
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                <!-- Dropdown voor Beheer -->
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-gear"></i> Beheer
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                                        {
+                                            <li><a class="dropdown-item" asp-controller="Gebruiker" asp-action="Index">Gebruikers</a></li>
+                                            <li><a class="dropdown-item" asp-controller="Abonnement" asp-action="Index">Abonnementen</a></li>
+                                            <li><a class="dropdown-item" asp-controller="Les" asp-action="Index">Lessen</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" asp-controller="Betaling" asp-action="Index">Betalingen</a></li>
+                                        }
+                                        @if (User.IsInRole("Trainer"))
+                                        {
+                                            <li><a class="dropdown-item" asp-controller="Trainer" asp-action="Index">Mijn Lessen</a></li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                        </ul>
+
+                        <!-- Login/Logout -->
+                        <partial name="_LoginPartial" />
+                    </div>
+                </div>
+            </nav>
+        </header>
+    }
+
+    @if (ViewContext.RouteData.Values["action"]?.ToString() == "Index" && ViewContext.RouteData.Values["controller"]?.ToString() == "Home")
+    {
+        <!--  layout voor Home pagina -->
+        <div class="fitness-header">
+            Fitness Club Management System
+        </div>
+
+        <div class="main-container">
+            @RenderBody()
+        </div>
+
+        <footer class="fitness-footer">
+            .NET ASP.NET Core Web Applicatie - Fitness Club © 2024
+        </footer>
+    }
+    else
+    {
+        <!-- Normale layout voor andere pagina's -->
+        <main class="content-container container">
+            @RenderBody()
+        </main>
+
+        <footer class="fitness-footer">
+            <div class="container">
+                &copy; 2024 - FitnessClub -
+                <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-light">Privacy</a> -
+                <a asp-area="" asp-controller="Home" asp-action="About" class="text-light">Over</a>
+            </div>
+        </footer>
+    }
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+
+
+        // Initialize DataTables
+        $(document).ready(function() {
+            $('.data-table').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/nl-NL.json'
+                }
+            });
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

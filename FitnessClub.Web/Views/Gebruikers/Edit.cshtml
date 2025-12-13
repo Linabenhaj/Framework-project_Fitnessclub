@@ -1,0 +1,98 @@
+@model FitnessClub.Models.Models.Gebruiker
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Gebruiker Bewerken"];
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil-square"></i> @Localizer["Gebruiker Bewerken"]
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Voornaam" class="form-label"></label>
+                                <input asp-for="Voornaam" class="form-control" />
+                                <span asp-validation-for="Voornaam" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Achternaam" class="form-label"></label>
+                                <input asp-for="Achternaam" class="form-control" />
+                                <span asp-validation-for="Achternaam" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" type="email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Telefoon" class="form-label"></label>
+                            <input asp-for="Telefoon" class="form-control" />
+                            <span asp-validation-for="Telefoon" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Geboortedatum" class="form-label"></label>
+                            <input asp-for="Geboortedatum" class="form-control" type="date" />
+                            <span asp-validation-for="Geboortedatum" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AbonnementId" class="form-label">@Localizer["Abonnement"]</label>
+                            <select asp-for="AbonnementId" class="form-control"
+                                    asp-items="ViewBag.Abonnementen">
+                                <option value="">@Localizer["-- Selecteer abonnement --"]</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer["Rollen"]</label>
+                            @if (ViewData["AllRoles"] is SelectList roles)
+                            {
+                                <select name="selectedRoles" class="form-select" multiple>
+                                    @foreach (var role in roles)
+                                    {
+                                        <option value="@role.Text"
+                                                selected="@(ViewData["UserRoles"] is List<string> userRoles && userRoles.Contains(role.Text))">
+                                            @role.Text
+                                        </option>
+                                    }
+                                </select>
+                            }
+                            <small class="text-muted">@Localizer["Hou Ctrl ingedrukt om meerdere rollen te selecteren"]</small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> @Localizer["Opslaan"]
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> @Localizer["Terug"]
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

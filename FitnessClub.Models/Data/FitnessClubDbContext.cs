@@ -1,17 +1,23 @@
-﻿using FitnessClub.Models;
+// FitnessClub.Models/Data/FitnessClubDbContext.cs
+using FitnessClub.Models.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FitnessClub.Models.Data
 {
     public class FitnessClubDbContext : IdentityDbContext<Gebruiker>
     {
-        public FitnessClubDbContext() { }
+        public FitnessClubDbContext(DbContextOptions<FitnessClubDbContext> options)
+            : base(options)
+        {
+        }
 
-        public FitnessClubDbContext(DbContextOptions<FitnessClubDbContext> options) : base(options) { }
-
+        // DbSets
         public DbSet<Abonnement> Abonnementen { get; set; }
         public DbSet<Les> Lessen { get; set; }
         public DbSet<Inschrijving> Inschrijvingen { get; set; }
@@ -20,76 +26,127 @@ namespace FitnessClub.Models.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=FitnessClubDb;Trusted_Connection=true;TrustServerCertificate=true;");
+                optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=FitnessClubDb;Trusted_Connection=true;TrustServerCertificate=true;MultipleActiveResultSets=true");
             }
         }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // RELATIONSHIPS
-            modelBuilder.Entity<Inschrijving>()
-                .HasOne(i => i.Gebruiker)
-                .WithMany(g => g.Inschrijvingen)
-                .HasForeignKey(i => i.GebruikerId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // Configure Gebruiker
+            modelBuilder.Entity<Gebruiker>(entity =>
+            {
+                entity.Property(g => g.Voornaam).IsRequired().HasMaxLength(100);
+                entity.Property(g => g.Achternaam).IsRequired().HasMaxLength(100);
+                entity.Property(g => g.Rol).HasMaxLength(50);
+                entity.Property(g => g.Geboortedatum).IsRequired();
 
-            modelBuilder.Entity<Inschrijving>()
-                .HasOne(i => i.Les)
-                .WithMany(l => l.Inschrijvingen)
-                .HasForeignKey(i => i.LesId)
-                .OnDelete(DeleteBehavior.Cascade);
+                // Ignore calculated properties
+                entity.Ignore(g => g.DisplayNaam);
+                entity.Ignore(g => g.KorteNaam);
+                entity.Ignore(g => g.Leeftijd);
+                entity.Ignore(g => g.IsVolwassen);
+                entity.Ignore(g => g.IsEmailBevestigd);
+            });
 
-            // DECIMAL PRECISION 
-            modelBuilder.Entity<Abonnement>()
-                .Property(a => a.Prijs)
-                .HasPrecision(10, 2);
+            // Configure Abonnement
+            modelBuilder.Entity<Abonnement>(entity =>
+            {
+                entity.Property(a => a.Naam).IsRequired().HasMaxLength(100);
+                entity.Property(a => a.Omschrijving).HasMaxLength(500);
+                entity.Property(a => a.Prijs).HasPrecision(10, 2);
+            });
+
+            // Configure Les
+            modelBuilder.Entity<Les>(entity =>
+            {
+                entity.Property(l => l.Naam).IsRequired().HasMaxLength(100);
+                entity.Property(l => l.Beschrijving).HasMaxLength(1000);
+                entity.Property(l => l.Locatie).HasMaxLength(200);
+                entity.Property(l => l.Trainer).HasMaxLength(100);
+
+                // Ignore calculated properties
+                entity.Ignore(l => l.DisplayInfo);
+                entity.Ignore(l => l.KorteInfo);
+                entity.Ignore(l => l.Duur);
+                entity.Ignore(l => l.IsToekomstig);
+                entity.Ignore(l => l.IsBezig);
+                entity.Ignore(l => l.IsVerleden);
+                entity.Ignore(l => l.BeschikbarePlaatsen);
+                entity.Ignore(l => l.IsVol);
+                entity.Ignore(l => l.DagVanWeek);
+                entity.Ignore(l => l.TijdRange);
+            });
+
+            // Configure Inschrijving
+            modelBuilder.Entity<Inschrijving>(entity =>
+            {
+                entity.Property(i => i.Status).HasMaxLength(50);
+
+                entity.HasOne(i => i.Gebruiker)
+                    .WithMany(g => g.Inschrijvingen)
+                    .HasForeignKey(i => i.GebruikerId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(i => i.Les)
+                    .WithMany(l => l.Inschrijvingen)
+                    .HasForeignKey(i => i.LesId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Relationships
+            modelBuilder.Entity<Gebruiker>()
+                .HasOne(g => g.Abonnement)
+                .WithMany()
+                .HasForeignKey(g => g.AbonnementId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Soft delete query filters
+            modelBuilder.Entity<Abonnement>().HasQueryFilter(a => !a.IsVerwijderd);
+            modelBuilder.Entity<Les>().HasQueryFilter(l => !l.IsVerwijderd);
+            modelBuilder.Entity<Inschrijving>().HasQueryFilter(i => !i.IsVerwijderd);
+            modelBuilder.Entity<Gebruiker>().HasQueryFilter(g => !g.IsVerwijderd);
         }
 
-        // LOGIN METHODE VOOR DEMO TESTEN
-        public Gebruiker SimpleLogin(string email, string password)
+        // Override SaveChanges for automatic timestamps
+        public override int SaveChanges()
         {
-            try
+            UpdateTimestamps();
+            return base.SaveChanges();
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            UpdateTimestamps();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            UpdateTimestamps();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        private void UpdateTimestamps()
+        {
+            var entries = ChangeTracker.Entries()
+                .Where(e => e.Entity is BasisEntiteit &&
+                    (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+            foreach (var entry in entries)
             {
-                var user = Users.FirstOrDefault(u => u.Email == email); //lamda
+                var entity = (BasisEntiteit)entry.Entity;
 
-                if (user != null)
+                if (entry.State == EntityState.Added)
                 {
-                    
-                    if (email == "admin@fitness.com" && password == "Admin123!") return user;
-                    if (email == "demo@fitness.com" && password == "demo123") return user;
-                    if (email == "lid@fitness.com" && password == "Lid123!") return user;
-
-                    
-                    if (password == "wachtwoord") return user;
+                    entity.AangemaaktOp = DateTime.UtcNow;
                 }
 
-                return null;
-            }
-            catch (Exception ex)
-
-            {
-                // error logging
-                System.Diagnostics.Debug.WriteLine($"Login error: {ex.Message}");
-                return null;
-            }
-        }
-
-
-        public bool EmailExists(string email)
-        {
-            try
-            {
-                return Users.Any(u => u.Email == email);
-            }
-
-
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"EmailExists error: {ex.Message}");
-                return false;
+                if (entry.State == EntityState.Modified)
+                {
+                    entity.GewijzigdOp = DateTime.UtcNow;
+                }
             }
         }
     }

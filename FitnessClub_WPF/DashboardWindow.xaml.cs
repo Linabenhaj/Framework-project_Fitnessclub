@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using FitnessClub.Models.Models;
+using System.Collections.Generic;
 using System.Windows;
-using FitnessClub.Models;
+
 using FitnessClub.WPF.Views;
 
 namespace FitnessClub.WPF

@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using FitnessClub.WPF.Windows;
+using System.Windows;
 
 namespace FitnessClub.WPF
 {
@@ -28,6 +29,13 @@ namespace FitnessClub.WPF
             var loginWindow = new LoginWindow();
             loginWindow.Show();
             this.Close();
+        }
+
+        private void About_Click(object sender, RoutedEventArgs e)
+        {
+            var aboutWindow = new AboutWindow();
+            aboutWindow.Owner = this;
+            aboutWindow.ShowDialog();
         }
     }
 }

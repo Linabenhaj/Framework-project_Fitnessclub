@@ -4,8 +4,6 @@ C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\bin\De
 C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\bin\Debug\net9.0\FitnessClub.Models.pdb
 C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.csproj.AssemblyReference.cache
 C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.AssemblyInfoInputs.cache
-C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.AssemblyInfo.cs
 C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.csproj.CoreCompileInputs.cache
 C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.sourcelink.json
 C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.dll

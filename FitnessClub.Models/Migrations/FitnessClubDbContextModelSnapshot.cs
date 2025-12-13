@@ -22,7 +22,7 @@ namespace FitnessClub.Models.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("FitnessClub.Models.Abonnement", b =>
+            modelBuilder.Entity("FitnessClub.Models.Models.Abonnement", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -36,6 +36,9 @@ namespace FitnessClub.Models.Migrations
                     b.Property<DateTime?>("GewijzigdOp")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsActief")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsVerwijderd")
                         .HasColumnType("bit");
 
@@ -44,11 +47,13 @@ namespace FitnessClub.Models.Migrations
 
                     b.Property<string>("Naam")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Omschrijving")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<decimal>("Prijs")
                         .HasPrecision(10, 2)
@@ -62,7 +67,7 @@ namespace FitnessClub.Models.Migrations
                     b.ToTable("Abonnementen");
                 });
 
-            modelBuilder.Entity("FitnessClub.Models.Gebruiker", b =>
+            modelBuilder.Entity("FitnessClub.Models.Models.Gebruiker", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -78,7 +83,8 @@ namespace FitnessClub.Models.Migrations
 
                     b.Property<string>("Achternaam")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -125,7 +131,8 @@ namespace FitnessClub.Models.Migrations
 
                     b.Property<string>("Rol")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -146,7 +153,8 @@ namespace FitnessClub.Models.Migrations
 
                     b.Property<string>("Voornaam")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -163,7 +171,7 @@ namespace FitnessClub.Models.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("FitnessClub.Models.Inschrijving", b =>
+            modelBuilder.Entity("FitnessClub.Models.Models.Inschrijving", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -190,6 +198,15 @@ namespace FitnessClub.Models.Migrations
                     b.Property<int>("LesId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Opmerkingen")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<DateTime?>("VerwijderdOp")
                         .HasColumnType("datetime2");
 
@@ -202,7 +219,7 @@ namespace FitnessClub.Models.Migrations
                     b.ToTable("Inschrijvingen");
                 });
 
-            modelBuilder.Entity("FitnessClub.Models.Les", b =>
+            modelBuilder.Entity("FitnessClub.Models.Models.Les", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -215,13 +232,8 @@ namespace FitnessClub.Models.Migrations
 
                     b.Property<string>("Beschrijving")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DatumTijd")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Duur")
-                        .HasColumnType("int");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<DateTime>("EindTijd")
                         .HasColumnType("datetime2");
@@ -229,18 +241,32 @@ namespace FitnessClub.Models.Migrations
                     b.Property<DateTime?>("GewijzigdOp")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsActief")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsVerwijderd")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Locatie")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("MaxDeelnemers")
                         .HasColumnType("int");
 
                     b.Property<string>("Naam")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("StartTijd")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Trainer")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("VerwijderdOp")
                         .HasColumnType("datetime2");
@@ -383,24 +409,25 @@ namespace FitnessClub.Models.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("FitnessClub.Models.Gebruiker", b =>
+            modelBuilder.Entity("FitnessClub.Models.Models.Gebruiker", b =>
                 {
-                    b.HasOne("FitnessClub.Models.Abonnement", "Abonnement")
-                        .WithMany("Gebruikers")
-                        .HasForeignKey("AbonnementId");
+                    b.HasOne("FitnessClub.Models.Models.Abonnement", "Abonnement")
+                        .WithMany()
+                        .HasForeignKey("AbonnementId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Abonnement");
                 });
 
-            modelBuilder.Entity("FitnessClub.Models.Inschrijving", b =>
+            modelBuilder.Entity("FitnessClub.Models.Models.Inschrijving", b =>
                 {
-                    b.HasOne("FitnessClub.Models.Gebruiker", "Gebruiker")
+                    b.HasOne("FitnessClub.Models.Models.Gebruiker", "Gebruiker")
                         .WithMany("Inschrijvingen")
                         .HasForeignKey("GebruikerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FitnessClub.Models.Les", "Les")
+                    b.HasOne("FitnessClub.Models.Models.Les", "Les")
                         .WithMany("Inschrijvingen")
                         .HasForeignKey("LesId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -422,7 +449,7 @@ namespace FitnessClub.Models.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("FitnessClub.Models.Gebruiker", null)
+                    b.HasOne("FitnessClub.Models.Models.Gebruiker", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -431,7 +458,7 @@ namespace FitnessClub.Models.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("FitnessClub.Models.Gebruiker", null)
+                    b.HasOne("FitnessClub.Models.Models.Gebruiker", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -446,7 +473,7 @@ namespace FitnessClub.Models.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FitnessClub.Models.Gebruiker", null)
+                    b.HasOne("FitnessClub.Models.Models.Gebruiker", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -455,24 +482,19 @@ namespace FitnessClub.Models.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("FitnessClub.Models.Gebruiker", null)
+                    b.HasOne("FitnessClub.Models.Models.Gebruiker", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("FitnessClub.Models.Abonnement", b =>
-                {
-                    b.Navigation("Gebruikers");
-                });
-
-            modelBuilder.Entity("FitnessClub.Models.Gebruiker", b =>
+            modelBuilder.Entity("FitnessClub.Models.Models.Gebruiker", b =>
                 {
                     b.Navigation("Inschrijvingen");
                 });
 
-            modelBuilder.Entity("FitnessClub.Models.Les", b =>
+            modelBuilder.Entity("FitnessClub.Models.Models.Les", b =>
                 {
                     b.Navigation("Inschrijvingen");
                 });
