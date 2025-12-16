@@ -1,4 +1,4 @@
-using Microsoft.Maui.Controls;
+using FitnessClub.MAUI.Views.Admin;
 
 namespace FitnessClub.MAUI.Views
 {
@@ -9,34 +9,22 @@ namespace FitnessClub.MAUI.Views
             InitializeComponent();
         }
 
-        private async void OnLoginClicked(object sender, System.EventArgs e)
+        private async void OnAdminLoginClicked(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(EmailEntry.Text) ||
-                string.IsNullOrWhiteSpace(PasswordEntry.Text))
-            {
-                ErrorLabel.Text = "Vul email en wachtwoord in";
-                ErrorLabel.IsVisible = true;
-                return;
-            }
+            // Direct naar admin dashboard
+            await Navigation.PushAsync(new AdminDashboardPage());
+        }
 
-            LoadingIndicator.IsRunning = true;
-            LoadingIndicator.IsVisible = true;
+        private async void OnTrainerLoginClicked(object sender, EventArgs e)
+        {
+            // Naar home page
+            await Navigation.PushAsync(new HomePage());
+        }
 
-            await Task.Delay(1000);
-
-            if ((EmailEntry.Text == "admin@fitness.com" && PasswordEntry.Text == "Admin123!") ||
-                (EmailEntry.Text == "lid@fitness.com" && PasswordEntry.Text == "Lid123!"))
-            {
-                await DisplayAlert("Succes", "Login geslaagd! (Demo)", "OK");
-            }
-            else
-            {
-                ErrorLabel.Text = "Ongeldige login gegevens. Gebruik demo accounts.";
-                ErrorLabel.IsVisible = true;
-            }
-
-            LoadingIndicator.IsRunning = false;
-            LoadingIndicator.IsVisible = false;
+        private async void OnUserLoginClicked(object sender, EventArgs e)
+        {
+            // Naar home page
+            await Navigation.PushAsync(new HomePage());
         }
     }
 }

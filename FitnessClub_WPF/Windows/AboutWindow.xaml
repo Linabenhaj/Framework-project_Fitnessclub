@@ -75,12 +75,6 @@
                                     <TextBlock Text="Lessen planning en inschrijvingen"/>
                                 </StackPanel>
                             </ListBoxItem>
-                            <ListBoxItem>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="✅ " FontWeight="Bold"/>
-                                    <TextBlock Text="Identity Framework voor authenticatie"/>
-                                </StackPanel>
-                            </ListBoxItem>
                         </ListBox>
                     </StackPanel>
                 </Border>

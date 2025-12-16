@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FitnessClub.MAUI.Views.ProfielPage"
+             Title="Mijn Profiel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="30">
+
+            <Label Text="👤 Mijn Profiel" 
+                   FontSize="24" 
+                   FontAttributes="Bold"/>
+
+            <VerticalStackLayout Spacing="15" BackgroundColor="#F5F5F5" Padding="20">
+                <Label Text="Naam: John Doe" FontSize="16"/>
+                <Label Text="Email: gebruiker@fitness.com" FontSize="16"/>
+                <Label Text="Abonnement: Premium" FontSize="16"/>
+                <Label Text="Lid sinds: 1 januari 2024" FontSize="16"/>
+            </VerticalStackLayout>
+
+            <Button Text="✏️ Profiel bewerken" 
+                    BackgroundColor="#2196F3"
+                    TextColor="White"
+                    CornerRadius="10"
+                    HeightRequest="50"/>
+
+            <Button Text="🔙 Terug" 
+                    Clicked="OnBackClicked"
+                    Margin="0,20,0,0"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

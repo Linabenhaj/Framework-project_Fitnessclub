@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FitnessClub.Models.Data;     
+using FitnessClub.Models.Models;  
+using Microsoft.AspNetCore.Mvc;
+
 
 namespace FitnessClub.Web.Controllers
 {

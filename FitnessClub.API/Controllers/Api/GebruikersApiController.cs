@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FitnessClub.Models.Data;
-using FitnessClub.Models;
+using FitnessClub.Models.Models;
 using Microsoft.AspNetCore.Identity;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -29,8 +29,6 @@ namespace FitnessClub.API.Controllers.Api
             _configuration = configuration;
         }
 
-
-
         // GET api/gebruikers
         [HttpGet]
         [Authorize]
@@ -47,7 +45,7 @@ namespace FitnessClub.API.Controllers.Api
                     u.Email,
                     u.Voornaam,
                     u.Achternaam,
-                    u.Telefoon,
+                    Telefoon = u.PhoneNumber, // Gebruik PhoneNumber i.p.v. Telefoon
                     u.Geboortedatum,
                     u.Rol,
                     Abonnement = u.Abonnement != null ? new
@@ -69,9 +67,7 @@ namespace FitnessClub.API.Controllers.Api
             return Ok(gebruikers);
         }
 
-
-
-        // GET api/gebruikers
+        // GET api/gebruikers/{id}
         [HttpGet("{id}")]
         [Authorize]
         public async Task<ActionResult<object>> GetGebruiker(string id)
@@ -93,7 +89,7 @@ namespace FitnessClub.API.Controllers.Api
                 gebruiker.Email,
                 gebruiker.Voornaam,
                 gebruiker.Achternaam,
-                gebruiker.Telefoon,
+                Telefoon = gebruiker.PhoneNumber, // Gebruik PhoneNumber i.p.v. Telefoon
                 gebruiker.Geboortedatum,
                 gebruiker.Rol,
                 Abonnement = gebruiker.Abonnement != null ? new
@@ -133,8 +129,6 @@ namespace FitnessClub.API.Controllers.Api
                 return Unauthorized(new { message = "Account is gedeactiveerd" });
             }
 
-
-
             var result = await _userManager.CheckPasswordAsync(user, request.Password);
             if (!result)
             {
@@ -150,14 +144,12 @@ namespace FitnessClub.API.Controllers.Api
                 user.Email,
                 user.Voornaam,
                 user.Achternaam,
-                user.Telefoon,
+                Telefoon = user.PhoneNumber, // Gebruik PhoneNumber i.p.v. Telefoon
                 Roles = roles,
                 Token = token,
                 Expires = DateTime.UtcNow.AddHours(3)
             });
         }
-
-
 
         // POST api/gebruikers/register
         [HttpPost("register")]
@@ -175,7 +167,7 @@ namespace FitnessClub.API.Controllers.Api
                 Email = request.Email,
                 Voornaam = request.Voornaam,
                 Achternaam = request.Achternaam,
-                Telefoon = request.Telefoon,
+                PhoneNumber = request.Telefoon, // Gebruik PhoneNumber
                 Geboortedatum = request.Geboortedatum ?? DateTime.Now.AddYears(-20),
                 Rol = "Lid",
                 AangemaaktOp = DateTime.UtcNow
@@ -202,6 +194,7 @@ namespace FitnessClub.API.Controllers.Api
                 user.Email,
                 user.Voornaam,
                 user.Achternaam,
+                Telefoon = user.PhoneNumber, // Gebruik PhoneNumber
                 Token = token,
                 Message = "Registratie succesvol"
             });
@@ -214,14 +207,12 @@ namespace FitnessClub.API.Controllers.Api
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, gebruiker.Id ?? string.Empty)
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim("voornaam", user.Voornaam),
                 new Claim("achternaam", user.Achternaam)
             };
-
-
 
             foreach (var role in roles)
             {
@@ -243,17 +234,17 @@ namespace FitnessClub.API.Controllers.Api
     // DTO klassen
     public class LoginRequest
     {
-        public string Email { get; set; }
-        public string Password { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
     }
-    
+
     public class RegisterRequest
     {
-        public string Email { get; set; }
-        public string Password { get; set; }
-        public string Voornaam { get; set; }
-        public string Achternaam { get; set; }
-        public string Telefoon { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string Voornaam { get; set; } = string.Empty;
+        public string Achternaam { get; set; } = string.Empty;
+        public string Telefoon { get; set; } = string.Empty;
         public DateTime? Geboortedatum { get; set; }
     }
 }

@@ -14,7 +14,7 @@
 
             <TextBlock Text="Gebruiker:" FontWeight="Bold"/>
             <ComboBox x:Name="cmbGebruiker"  
-                DisplayMemberPath="Voornaam" 
+                DisplayMemberPath="DisplayNaam" 
                      Margin="0,5,0,15"
                      Height="30"/>
 
@@ -25,15 +25,15 @@
                      Height="30"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Opslaan" 
-                       Click="BtnOpslaan_Click" 
+                <Button Content="Toevoegen" 
+                       Click="ToevoegenButton_Click" 
                        Background="#27ae60" 
                        Foreground="White" 
                        Width="80" 
                        Height="30"
                        Margin="5"/>
                 <Button Content="Annuleren" 
-                       Click="BtnAnnuleren_Click" 
+                       Click="AnnulerenButton_Click" 
                        Background="#e74c3c" 
                        Foreground="White"
                        Width="80" 

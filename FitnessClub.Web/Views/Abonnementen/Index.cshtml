@@ -1,0 +1,121 @@
+﻿@model FitnessClub.Web.PaginatedList<FitnessClub.Models.Models.Les>
+
+@{
+    ViewData["Title"] = "Lessen";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4"><i class="bi bi-calendar3"></i> @ViewData["Title"]</h1>
+
+    <!--  ZOEKBALK -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form method="get" class="input-group">
+                <input type="text" class="form-control" name="searchString"
+                       value="@ViewData["CurrentFilter"]" placeholder="Zoek op naam of trainer...">
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search"></i> Zoeken
+                </button>
+            </form>
+        </div>
+        <div class="col-md-6 text-end">
+            @if (User.IsInRole("Admin") || User.IsInRole("Trainer"))
+            {
+                <a asp-action="Create" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Nieuwe Les
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- Lessen tabel -->
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>
+                            <a asp-action="Index"
+                               asp-route-sortOrder="@(ViewData["CurrentSort"]?.ToString() == "naam" ? "naam_desc" : "naam")"
+                               asp-route-searchString="@ViewData["CurrentFilter"]">
+                                Naam @(ViewData["CurrentSort"]?.ToString() == "naam" ? "↑" : ViewData["CurrentSort"]?.ToString() == "naam_desc" ? "↓" : "")
+                            </a>
+                        </th>
+                        <th>Beschrijving</th>
+                        <th>
+                            <a asp-action="Index"
+                               asp-route-sortOrder="@(ViewData["CurrentSort"]?.ToString() == "datum" ? "datum_desc" : "datum")"
+                               asp-route-searchString="@ViewData["CurrentFilter"]">
+                                Datum @(ViewData["CurrentSort"]?.ToString() == "datum" ? "↑" : ViewData["CurrentSort"]?.ToString() == "datum_desc" ? "↓" : "")
+                            </a>
+                        </th>
+                        <th>Trainer</th>
+                        <th>Acties</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var les in Model)
+                    {
+                        <tr>
+                            <td>@les.Naam</td>
+                            <td>@les.Beschrijving</td>
+                            <td>@les.StartTijd.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@les.Trainer</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@les.Id" class="btn btn-info btn-sm">
+                                    <i class="bi bi-eye"></i> Details
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!--  PAGINATIE -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                @if (Model.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-pageNumber="@(Model.PageIndex - 1)"
+                           asp-route-searchString="@ViewData["CurrentFilter"]"
+                           asp-route-sortOrder="@ViewData["CurrentSort"]">
+                            Vorige
+                        </a>
+                    </li>
+                }
+
+                <li class="page-item active">
+                    <span class="page-link">Pagina @Model.PageIndex van @Model.TotalPages</span>
+                </li>
+
+                @if (Model.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-pageNumber="@(Model.PageIndex + 1)"
+                           asp-route-searchString="@ViewData["CurrentFilter"]"
+                           asp-route-sortOrder="@ViewData["CurrentSort"]">
+                            Volgende
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Geen lessen gevonden.
+            @if (User.IsInRole("Admin") || User.IsInRole("Trainer"))
+            {
+                <a asp-action="Create" class="alert-link">Maak een nieuwe les aan</a>
+            }
+        </div>
+    }
+</div>

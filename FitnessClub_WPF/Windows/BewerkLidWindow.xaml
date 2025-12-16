@@ -107,8 +107,7 @@
                                       Height="40" 
                                       FontSize="14"
                                       Padding="10"
-                                      Margin="0,0,0,10"
-                                      SelectionChanged="AbonnementenComboBox_SelectionChanged">
+                                      Margin="0,0,0,10">
                             </ComboBox>
 
                             <TextBlock x:Name="GekozenAbonnementText" 
@@ -133,7 +132,7 @@
                     <!-- Buttons -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Button Content="Annuleren" 
-                                Click="Annuleren_Click" 
+                                Click="AnnulerenButton_Click" 
                                 Width="200" 
                                 Height="45"
                                 Margin="0,0,20,0"
@@ -144,7 +143,7 @@
                                 Cursor="Hand"/>
 
                         <Button Content="Opslaan Wijzigingen" 
-                                Click="Opslaan_Click" 
+                                Click="OpslaanButton_Click" 
                                 Width="200" 
                                 Height="45"
                                 FontSize="14"

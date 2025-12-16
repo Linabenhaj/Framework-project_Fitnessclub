@@ -1,86 +1,78 @@
-@model FitnessClub.Models.Models.Gebruiker 
-@using Microsoft.AspNetCore.Mvc.Localization
-@inject IViewLocalizer Localizer
+@model FitnessClub.Models.Models.Gebruiker
 
 @{
-    ViewData["Title"] = Localizer["Gebruiker Details"];
+    ViewData["Title"] = "Details";
 }
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="bi bi-person-badge"></i> @Localizer["Gebruiker Details"]</h4>
-                </div>
-                <div class="card-body">
-                    <dl class="row">
-                        <dt class="col-sm-4">@Localizer["Naam"]:</dt>
-                        <dd class="col-sm-8">@Model.Voornaam @Model.Achternaam</dd>
+<h1>Details</h1>
 
-                        <dt class="col-sm-4">@Localizer["Email"]:</dt>
-                        <dd class="col-sm-8">@Model.Email</dd>
+<div>
+    <h4>Gebruiker</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Voornaam</dt>
+        <dd class="col-sm-10">@Model.Voornaam</dd>
 
-                        <dt class="col-sm-4">@Localizer["Telefoon"]:</dt>
-                        <dd class="col-sm-8">@Model.Telefoon</dd>
+        <dt class="col-sm-2">Achternaam</dt>
+        <dd class="col-sm-10">@Model.Achternaam</dd>
 
-                        <dt class="col-sm-4">@Localizer["Geboortedatum"]:</dt>
-                        <dd class="col-sm-8">@Model.Geboortedatum.ToShortDateString()</dd>
+        <dt class="col-sm-2">Email</dt>
+        <dd class="col-sm-10">@Model.Email</dd>
 
-                        <dt class="col-sm-4">@Localizer["Rol"]:</dt>
-                        <dd class="col-sm-8"><span class="badge bg-info">@Model.Rol</span></dd>
+        <dt class="col-sm-2">Telefoon</dt>
+        <dd class="col-sm-10">@Model.PhoneNumber</dd>
 
-                        <dt class="col-sm-4">@Localizer["Abonnement"]:</dt>
-                        <dd class="col-sm-8">
-                            @if (Model.Abonnement != null)
-                            {
-                                <span class="badge bg-success">@Model.Abonnement.Naam</span>
-                                <small class="text-muted">(@Model.Abonnement.Prijs.ToString("C")/maand)</small>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">@Localizer["Geen abonnement"]</span>
-                            }
-                        </dd>
-                    </dl>
-                </div>
-                <div class="card-footer">
-                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
-                        <i class="bi bi-pencil"></i> @Localizer["Bewerken"]
-                    </a>
-                    <a asp-action="Index" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> @Localizer["Terug naar overzicht"]
-                    </a>
-                </div>
-            </div>
-        </div>
+        <dt class="col-sm-2">Geboortedatum</dt>
+        <dd class="col-sm-10">
+            @if (Model.Geboortedatum.HasValue)
+            {
+                @Model.Geboortedatum.Value.ToShortDateString()
+            }
+            else
+            {
+                <span>Niet opgegeven</span>
+            }
+        </dd>
 
-        <!-- Inschrijvingen panel -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="bi bi-calendar-check"></i> @Localizer["Inschrijvingen"]</h5>
-                </div>
-                <div class="card-body">
-                    @if (Model.Inschrijvingen != null && Model.Inschrijvingen.Any())
-                    {
-                        <div class="list-group">
-                            @foreach (var inschrijving in Model.Inschrijvingen.Take(5))
-                            {
-                                <div class="list-group-item">
-                                    <h6 class="mb-1">@inschrijving.Les?.Naam</h6>
-                                    <small class="text-muted">@inschrijving.Les?.StartTijd.ToString("dd/MM/yyyy HH:mm")</small>
-                                    <span class="badge bg-@(inschrijving.Status == "Actief" ? "success" : "warning") float-end">@inschrijving.Status</span>
-                                </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted">@Localizer["Geen inschrijvingen"]</p>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
+        <dt class="col-sm-2">Leeftijd</dt>
+        <dd class="col-sm-10">@Model.Leeftijd jaar</dd>
+
+        <dt class="col-sm-2">Adres</dt>
+        <dd class="col-sm-10">@Model.Adres</dd>
+
+        <dt class="col-sm-2">Abonnement</dt>
+        <dd class="col-sm-10">
+            @if (Model.Abonnement != null)
+            {
+                <span>@Model.Abonnement.Naam - @Model.Abonnement.Prijs.ToString("C") / maand</span>
+            }
+            else
+            {
+                <span>Geen abonnement</span>
+            }
+        </dd>
+
+        <dt class="col-sm-2">Rollen</dt>
+        <dd class="col-sm-10">
+            @if (ViewBag.Rollen != null && ((List<string>)ViewBag.Rollen).Any())
+            {
+                @string.Join(", ", ViewBag.Rollen)
+            }
+            else
+            {
+                <span>Geen rollen toegewezen</span>
+            }
+        </dd>
+
+        <dt class="col-sm-2">Aangemaakt op</dt>
+        <dd class="col-sm-10">@Model.AangemaaktOp.ToString("dd/MM/yyyy HH:mm")</dd>
+
+        <dt class="col-sm-2">Laatst gewijzigd</dt>
+        <dd class="col-sm-10">@((Model.GewijzigdOp.HasValue ? Model.GewijzigdOp.Value.ToString("dd/MM/yyyy HH:mm") : "Nog niet gewijzigd"))</dd>
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
 </div>

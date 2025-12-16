@@ -1,5 +1,5 @@
-﻿using FitnessClub.Models;
-using FitnessClub.Models.Data;
+﻿using FitnessClub.Models.Data;
+using FitnessClub.Models.Models;
 using FitnessClub.WPF.Windows;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -10,95 +10,75 @@ namespace FitnessClub.WPF.Views
 {
     public partial class LedenOverzicht : UserControl
     {
+        private readonly FitnessClubDbContext _context;
+
         public LedenOverzicht()
         {
             InitializeComponent();
-            LoadLeden();
+
+            var optionsBuilder = new DbContextOptionsBuilder<FitnessClubDbContext>();
+            optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=FitnessClubDb;Trusted_Connection=true;TrustServerCertificate=true;MultipleActiveResultSets=true");
+
+            _context = new FitnessClubDbContext(optionsBuilder.Options);
+
+            LaadLeden();
         }
 
-        private void LoadLeden()
+        private void LaadLeden()
         {
             try
             {
-                using (var context = new FitnessClubDbContext())
-                {
-                    var leden = context.Users
-                        .Include(u => u.Abonnement)
-                        .Where(u => !u.IsVerwijderd)
-                        .OrderBy(u => u.Achternaam)
-                        .ToList();
+                // Gebruik Users in plaats van Gebruikers
+                var leden = _context.Users
+                    .Include(u => u.Abonnement)
+                    .Where(u => u.Rol == "Lid" || u.Rol == "PremiumLid")
+                    .ToList();
 
-                    LedenDataGrid.ItemsSource = leden;
-                }
+                LedenDataGrid.ItemsSource = leden;
             }
             catch (System.Exception ex)
             {
-                MessageBox.Show($"Fout bij laden leden: {ex.Message}", "Fout",
-                              MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Fout bij laden leden: {ex.Message}");
             }
         }
 
-        //  Bewerken button click (nieuw)
-        private void BewerkenClick(object sender, RoutedEventArgs e)
+        private void BewerkLid_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            if (button?.DataContext is Gebruiker gebruiker)
+            if (LedenDataGrid.SelectedItem is Gebruiker geselecteerdLid)
+            {
+                // Roep parameterloze constructor aan
+                var bewerkWindow = new BewerkLidWindow();
+                // Je kunt eventueel de gebruiker doorgeven via een property
+                bewerkWindow.ShowDialog();
+                LaadLeden();
+            }
+        }
+
+        private void VerwijderLid_Click(object sender, RoutedEventArgs e)
+        {
+            if (LedenDataGrid.SelectedItem is Gebruiker geselecteerdLid)
             {
                 try
                 {
-                    // Open BewerkLidWindow met de gebruiker ID
-                    var bewerkWindow = new BewerkLidWindow(gebruiker.Id);
-                    var result = bewerkWindow.ShowDialog(); //wacht ops luiting
-
-                    // Refresh de lijst als er wijzigingen zijn opgeslagen
-                    if (result == true) 
+                    // Gebruik Users in plaats van Gebruikers
+                    var lid = _context.Users.Find(geselecteerdLid.Id);
+                    if (lid != null)
                     {
-                        LoadLeden();
-                        MessageBox.Show("Gebruiker succesvol bijgewerkt!", "Succes");
+                        _context.Users.Remove(lid);
+                        _context.SaveChanges();
+                        LaadLeden();
                     }
                 }
                 catch (System.Exception ex)
                 {
-                    MessageBox.Show($"Fout bij openen bewerkvenster: {ex.Message}", "Fout");
+                    MessageBox.Show($"Fout bij verwijderen lid: {ex.Message}");
                 }
             }
         }
 
-        private void VerwijderClick(object sender, RoutedEventArgs e)
+        private void Refresh_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            if (button?.DataContext is Gebruiker gebruiker)
-            {
-                try
-                {
-                    var result = MessageBox.Show($"Weet u zeker dat u {gebruiker.Voornaam} {gebruiker.Achternaam} wilt verwijderen?",
-                        "Bevestiging", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        using (var context = new FitnessClubDbContext())
-                        {
-                            var gebruikerInDb = context.Users.Find(gebruiker.Id);
-                            if (gebruikerInDb != null)
-                            {
-                                context.Users.Remove(gebruikerInDb);
-                                context.SaveChanges();
-                                LoadLeden();
-                                MessageBox.Show("Lid succesvol verwijderd!", "Succes");
-                            }
-                        }
-                    }
-                }
-                catch (System.Exception ex)
-                {
-                    MessageBox.Show($"Fout bij verwijderen: {ex.Message}", "Fout");
-                }
-            }
-        }
-
-        private void RefreshClick(object sender, RoutedEventArgs e)
-        {
-            LoadLeden();
+            LaadLeden();
         }
     }
 }

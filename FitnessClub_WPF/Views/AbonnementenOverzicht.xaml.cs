@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using FitnessClub.Models.Models;
+using System.Windows;
 using System.Windows.Controls;
 using FitnessClub.Models.Data;
 using System.Linq;

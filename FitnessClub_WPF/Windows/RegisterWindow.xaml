@@ -69,7 +69,7 @@
                 <TextBlock Text="* Verplichte velden" FontStyle="Italic" Foreground="Gray" Margin="0,0,0,15"/>
 
                 <Button Content="Registreren" 
-                        Click="Registreer_Click" 
+                        Click="RegistreerButton_Click" 
                         Width="200" 
                         Height="40"
                         Margin="0,15"
@@ -79,7 +79,7 @@
                         FontWeight="Bold"/>
 
                 <Button Content="Terug naar Hoofdmenu" 
-                        Click="Terug_Click" 
+                        Click="AnnulerenButton_Click" 
                         Width="200" 
                         Height="35"
                         FontSize="14"

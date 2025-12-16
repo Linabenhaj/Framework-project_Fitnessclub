@@ -1,10 +1,23 @@
-﻿<!-- FitnessClub.Web.csproj -->
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    
+    <!-- Voorkom dat Visual Studio een AssemblyInfo.cs genereert -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    
+    <!-- Assembly Attributes -->
+    <Title>FitnessClub</Title>
+    <Company>Your Company Name</Company>
+    <Product>FitnessClub.Web</Product>
+    <Description>Fitness Club Web Application</Description>
+    <Copyright>Copyright © 2024</Copyright>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,10 +31,12 @@
     
     <!-- IDENTITY -->
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
+    <!-- Voor .NET 9, gebruik versie 9.0.0 -->
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.0" />
     
     <!-- MVC -->
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
     
     <!-- DYNAMIC LINQ -->
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
@@ -33,6 +48,10 @@
   <!-- PROJECT REFERENCE -->
   <ItemGroup>
     <ProjectReference Include="..\FitnessClub.Models\FitnessClub.Models.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Views\Abonnementen\Talen\" />
   </ItemGroup>
 
 </Project>

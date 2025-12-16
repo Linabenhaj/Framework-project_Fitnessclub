@@ -1,0 +1,44 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["AdminDashboard"];
+}
+
+<h1>@Localizer["AdminDashboard"]</h1>
+<p>@Localizer["WelcomeAdmin"]</p>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">@Localizer["ManageUsers"]</h5>
+                <p class="card-text">Beheer alle gebruikersaccounts.</p>
+                <a asp-controller="Gebruikers" asp-action="Index" class="btn btn-primary">@Localizer["ManageUsers"]</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">@Localizer["ManageLessons"]</h5>
+                <p class="card-text">Beheer fitnesslessen en planning.</p>
+                <a asp-controller="Lessen" asp-action="Index" class="btn btn-primary">@Localizer["ManageLessons"]</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">@Localizer["ManageSubscriptions"]</h5>
+                <p class="card-text">Beheer abonnementen en prijzen.</p>
+                <a asp-controller="Abonnementen" asp-action="Index" class="btn btn-primary">@Localizer["ManageSubscriptions"]</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terug naar home -->
+<div class="mt-4">
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">@Localizer["BackToHome"]</a>
+</div>

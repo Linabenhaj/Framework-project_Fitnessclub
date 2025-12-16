@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FitnessClub.Models.Data;
-using FitnessClub.Models;
+using FitnessClub.Models.Models;
 
 namespace FitnessClub.API.Controllers.Api
 {
@@ -18,9 +18,6 @@ namespace FitnessClub.API.Controllers.Api
             _context = context;
         }
 
-
-
-
         // GET api/abonnementen
         [HttpGet]
         public async Task<ActionResult<IEnumerable<object>>> GetAbonnementen()
@@ -34,30 +31,34 @@ namespace FitnessClub.API.Controllers.Api
                     a.Prijs,
                     a.Omschrijving,
                     a.LooptijdMaanden,
-                    AantalGebruikers = a.Gebruikers.Count
+                    AantalGebruikers = _context.Users.Count(u => u.AbonnementId == a.Id)  // ← FIX
                 })
                 .ToListAsync();
 
             return Ok(abonnementen);
         }
 
-
-      
         [HttpGet("{id}")]
         public async Task<ActionResult<object>> GetAbonnement(int id)
         {
             var abonnement = await _context.Abonnementen
-                .Include(a => a.Gebruikers)
-                .FirstOrDefaultAsync(a => a.Id == id);
-
-
+                .FirstOrDefaultAsync(a => a.Id == id);  // ← FIX: verwijderde .Include
 
             if (abonnement == null)
             {
                 return NotFound(new { message = "Abonnement niet gevonden" });
             }
 
-
+            // Haal gebruikers apart op
+            var gebruikers = await _context.Users
+                .Where(u => u.AbonnementId == id)
+                .Select(g => new
+                {
+                    g.Id,
+                    Naam = g.Voornaam + " " + g.Achternaam,
+                    g.Email
+                })
+                .ToListAsync();
 
             return Ok(new
             {
@@ -66,12 +67,7 @@ namespace FitnessClub.API.Controllers.Api
                 abonnement.Prijs,
                 abonnement.Omschrijving,
                 abonnement.LooptijdMaanden,
-                Gebruikers = abonnement.Gebruikers.Select(g => new
-                {
-                    g.Id,
-                    Naam = g.Voornaam + " " + g.Achternaam,
-                    g.Email
-                })
+                Gebruikers = gebruikers  // ← FIX: apart opgehaald
             });
         }
     }

@@ -1,3 +1,156 @@
+using FitnessClub.Models.Data;
 using FitnessClub.Models.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
 
-using System.Windows; using System.Windows.Controls; using FitnessClub.Models.Data; using FitnessClub.Models; using System.Linq; using Microsoft.EntityFrameworkCore; using System;  namespace FitnessClub.WPF.Windows {     public partial class LidInschrijvenWindow : Window     {         public LidInschrijvenWindow()         {             InitializeComponent();             LaadLeden();             LaadLessen();              // Event handlers voor selectie wijzigingen             LessenComboBox.SelectionChanged += LessenComboBox_SelectionChanged;         }          private void LaadLeden()         {             try             {                 using (var context = new FitnessClubDbContext())                 {                     var leden = context.Users                         .Where(u => !u.IsVerwijderd)                         .OrderBy(u => u.Voornaam)                         .ThenBy(u => u.Achternaam)                         .ToList();                      // Voeg display naam toe voor combobox                     foreach (var lid in leden)                     {                         lid.DisplayNaam = $"{lid.Voornaam} {lid.Achternaam} ({lid.Email})";                     }                      LedenComboBox.ItemsSource = leden;                 }             }             catch (System.Exception ex)             {                 MessageBox.Show($"Fout bij laden leden: {ex.Message}");             }         }          private void LaadLessen()         {             try             {                 using (var context = new FitnessClubDbContext())                 {                     var lessen = context.Lessen                         .Where(l => !l.IsVerwijderd && l.StartTijd > DateTime.Now)                         .OrderBy(l => l.StartTijd)                         .ToList();                      // Voeg display info toe voor combobox                     foreach (var les in lessen)                     {                         les.DisplayInfo = $"{les.Naam} - {les.StartTijd:dd/MM/yyyy HH:mm}";                     }                      LessenComboBox.ItemsSource = lessen;                 }             }             catch (System.Exception ex)             {                 MessageBox.Show($"Fout bij laden lessen: {ex.Message}");             }         }          private void LessenComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)         {             if (LessenComboBox.SelectedItem is Les geselecteerdeLes)             {                 LesDetailsText.Text = $"{geselecteerdeLes.Naam}\n" +                                     $"Beschrijving: {geselecteerdeLes.Beschrijving}\n" +                                     $"Start: {geselecteerdeLes.StartTijd:dd/MM/yyyy HH:mm}\n" +                                     $"Eind: {geselecteerdeLes.EindTijd:dd/MM/yyyy HH:mm}\n" +                                     $"Max deelnemers: {geselecteerdeLes.MaxDeelnemers}";             }             else             {                 LesDetailsText.Text = "Selecteer een les om details te zien";             }         }          private void InschrijvenClick(object sender, RoutedEventArgs e)         {             ValidatieText.Text = "";              if (LedenComboBox.SelectedItem == null)             {                 ValidatieText.Text = "Selecteer een lid!";                 return;             }              if (LessenComboBox.SelectedItem == null)             {                 ValidatieText.Text = "Selecteer een les!";                 return;             }              try             {                 var gekozenLid = (Gebruiker)LedenComboBox.SelectedItem;                 var gekozenLes = (Les)LessenComboBox.SelectedItem;                  using (var context = new FitnessClubDbContext())                 {                     // Controleer of lid al is ingeschreven voor deze les                     var bestaandeInschrijving = context.Inschrijvingen                         .FirstOrDefault(i => i.GebruikerId == gekozenLid.Id &&                                            i.LesId == gekozenLes.Id &&                                            !i.IsVerwijderd);                      if (bestaandeInschrijving != null)                     {                         ValidatieText.Text = $"{gekozenLid.Voornaam} is al ingeschreven voor deze les!";                         return;                     }                      // Controleer of les vol is                     var aantalIngeschreven = context.Inschrijvingen                         .Count(i => i.LesId == gekozenLes.Id && !i.IsVerwijderd);                      if (aantalIngeschreven >= gekozenLes.MaxDeelnemers)                     {                         ValidatieText.Text = "Deze les is vol! Kies een andere les.";                         return;                     }                      var inschrijving = new Inschrijving                     {                         GebruikerId = gekozenLid.Id,                         LesId = gekozenLes.Id,                         InschrijfDatum = DateTime.Now                     };                      context.Inschrijvingen.Add(inschrijving);                     context.SaveChanges();                      MessageBox.Show($"{gekozenLid.Voornaam} {gekozenLid.Achternaam} succesvol ingeschreven voor '{gekozenLes.Naam}'!",                                   "Succes", MessageBoxButton.OK, MessageBoxImage.Information);                      this.DialogResult = true;                     this.Close();                 }             }             catch (System.Exception ex)             {                 MessageBox.Show($"Fout bij inschrijven: {ex.Message}", "Fout");             }         }          private void AnnulerenClick(object sender, RoutedEventArgs e)         {             this.DialogResult = false;             this.Close();         }     } }
+namespace FitnessClub.WPF.Windows
+{
+    public partial class LidInschrijvenWindow : Window
+    {
+        private readonly FitnessClubDbContext _context;
+        private readonly int _lidId;
+
+        public LidInschrijvenWindow(int lidId)
+        {
+            InitializeComponent();
+
+            _lidId = lidId;
+
+            var optionsBuilder = new DbContextOptionsBuilder<FitnessClubDbContext>();
+            optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=FitnessClubDb;Trusted_Connection=true;TrustServerCertificate=true;MultipleActiveResultSets=true");
+
+            _context = new FitnessClubDbContext(optionsBuilder.Options);
+
+            LaadGegevens();
+        }
+
+        private void LaadGegevens()
+        {
+            try
+            {
+                // Gebruik FindName om controls te vinden
+                var txtLidNaam = FindName("txtLidNaam") as TextBlock;
+                var dgLessen = FindName("dgLessen") as DataGrid;
+                var lessenComboBox = FindName("LessenComboBox") as ComboBox;
+
+                if (txtLidNaam == null || dgLessen == null || lessenComboBox == null)
+                {
+                    MessageBox.Show("Controls niet gevonden", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Laad lid informatie (gebruik Users)
+                var lid = _context.Users
+                    .FirstOrDefault(g => g.Id == _lidId.ToString());
+
+                if (lid != null)
+                {
+                    txtLidNaam.Text = $"{lid.Voornaam} {lid.Achternaam}";
+                }
+
+                // Laad beschikbare lessen
+                var lessen = _context.Lessen
+                    .Where(l => l.IsActief && l.StartTijd > DateTime.Now)
+                    .OrderBy(l => l.StartTijd)
+                    .ToList();
+
+                dgLessen.ItemsSource = lessen;
+                lessenComboBox.ItemsSource = lessen;
+                lessenComboBox.DisplayMemberPath = "Naam";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fout bij laden gegevens: {ex.Message}", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void InschrijvenButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var dgLessen = FindName("dgLessen") as DataGrid;
+                var lessenComboBox = FindName("LessenComboBox") as ComboBox;
+                var txtLesInfo = FindName("LesDetailsText") as TextBlock;
+
+                if (dgLessen == null || lessenComboBox == null || txtLesInfo == null)
+                {
+                    MessageBox.Show("Controls niet gevonden", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                if (dgLessen.SelectedItem is Les geselecteerdeLes)
+                {
+                    // Controleer of al ingeschreven
+                    var bestaandeInschrijving = _context.Inschrijvingen
+                        .FirstOrDefault(i => i.GebruikerId == _lidId.ToString() &&
+                                            i.LesId == geselecteerdeLes.Id &&
+                                            i.Status == "Actief");
+
+                    if (bestaandeInschrijving != null)
+                    {
+                        MessageBox.Show("Lid is al ingeschreven voor deze les", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                        return;
+                    }
+
+                    // Controleer beschikbare plaatsen
+                    var aantalIngeschreven = _context.Inschrijvingen
+                        .Count(i => i.LesId == geselecteerdeLes.Id && i.Status == "Actief");
+
+                    if (aantalIngeschreven >= geselecteerdeLes.MaxDeelnemers)
+                    {
+                        MessageBox.Show("Deze les is vol", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                        return;
+                    }
+
+                    var nieuweInschrijving = new Inschrijving
+                    {
+                        GebruikerId = _lidId.ToString(),
+                        LesId = geselecteerdeLes.Id,
+                        InschrijfDatum = DateTime.UtcNow,
+                        Status = "Actief"
+                    };
+
+                    _context.Inschrijvingen.Add(nieuweInschrijving);
+                    _context.SaveChanges();
+
+                    MessageBox.Show("Inschrijving succesvol!", "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
+                    this.DialogResult = true;
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show("Selecteer eerst een les", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fout bij inschrijven: {ex.Message}", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void AnnulerenButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = false;
+            this.Close();
+        }
+
+        private void DgLessen_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var dgLessen = FindName("dgLessen") as DataGrid;
+            var txtLesInfo = FindName("LesDetailsText") as TextBlock;
+
+            if (dgLessen == null || txtLesInfo == null) return;
+
+            if (dgLessen.SelectedItem is Les geselecteerdeLes)
+            {
+                txtLesInfo.Text = $"Les: {geselecteerdeLes.Naam}\n" +
+                                 $"Datum: {geselecteerdeLes.StartTijd:dd/MM/yyyy HH:mm}\n" +
+                                 $"Trainer: {geselecteerdeLes.Trainer}\n" +
+                                 $"Locatie: {geselecteerdeLes.Locatie}";
+            }
+        }
+    }
+}

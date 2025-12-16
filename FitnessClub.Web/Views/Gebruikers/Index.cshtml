@@ -1,89 +1,97 @@
-@model FitnessClub.Web.PaginatedList<FitnessClub.Models.Models.Gebruiker>
+@model List<FitnessClub.Models.Models.Gebruiker>
+
 @{
     ViewData["Title"] = "Gebruikers";
 }
 
-<h1>Gebruikers</h1>
+<div class="container mt-4">
+    <h1 class="mb-4"><i class="bi bi-people"></i> Gebruikers</h1>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Nieuwe gebruiker</a>
-</p>
-
-<form asp-action="Index" method="get">
-    <div class="form-actions no-color">
-        <p>
-            Zoek: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
-            <input type="submit" value="Zoeken" class="btn btn-default" /> |
-            <a asp-action="Index">Terug naar volledige lijst</a>
-        </p>
+    <!-- Zoekveld -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <form method="get" class="input-group">
+                <input type="text" class="form-control" name="search"
+                       value="@ViewContext.HttpContext.Request.Query["search"]"
+                       placeholder="Zoek op naam of email...">
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search"></i> Zoeken
+                </button>
+            </form>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="Create" class="btn btn-success">
+                <i class="bi bi-person-plus"></i> Nieuwe Gebruiker
+            </a>
+        </div>
     </div>
-</form>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["NaamSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">
-                    Naam
-                </a>
-            </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["EmailSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">
-                    Email
-                </a>
-            </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["RolSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">
-                    Rol
-                </a>
-            </th>
-            <th>Telefoon</th>
-            <th>Abonnement</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.DisplayNaam)</td>
-                <td>@Html.DisplayFor(modelItem => item.Email)</td>
-                <td>@Html.DisplayFor(modelItem => item.Rol)</td>
-                <td>@Html.DisplayFor(modelItem => item.Telefoon)</td>
-                <td>@(item.Abonnement?.Naam ?? "Geen")</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Details</a>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Bewerken</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Verwijderen</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <!-- Gebruikers tabel -->
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Naam</th>
+                        <th>Email</th>
+                        <th>Telefoon</th>
+                        <th>Rol</th>
+                        <th>Status</th>
+                        <th>Acties</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var gebruiker in Model)
+                    {
+                        <tr>
+                            <td>@gebruiker.Voornaam @gebruiker.Achternaam</td>
+                            <td>@gebruiker.Email</td>
+                            <td>@gebruiker.PhoneNumber</td>
+                            <td>
+                                <span class="badge bg-info">@gebruiker.Rol</span>
+                            </td>
+                            <td>
+                                @if (gebruiker.EmailConfirmed)
+                                {
+                                    <span class="badge bg-success">Actief</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactief</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a asp-action="Details" asp-route-id="@gebruiker.Id"
+                                       class="btn btn-info" title="Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@gebruiker.Id"
+                                       class="btn btn-warning" title="Bewerken">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@gebruiker.Id"
+                                       class="btn btn-danger" title="Verwijderen">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
-@{
-    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
-    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
-}
-
-<div class="pagination-container">
-    <a asp-action="Index"
-       asp-route-sortOrder="@ViewData["CurrentSort"]"
-       asp-route-pageNumber="@(Model.PageIndex - 1)"
-       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-       class="btn btn-default @prevDisabled">
-        Vorige
-    </a>
-
-    <span class="page-info">
-        Pagina @Model.PageIndex van @Model.TotalPages
-    </span>
-
-    <a asp-action="Index"
-       asp-route-sortOrder="@ViewData["CurrentSort"]"
-       asp-route-pageNumber="@(Model.PageIndex + 1)"
-       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-       class="btn btn-default @nextDisabled">
-        Volgende
-    </a>
+        <p class="text-muted mt-3">
+            <i class="bi bi-info-circle"></i> @Model.Count gebruikers gevonden
+        </p>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Geen gebruikers gevonden.
+            <a asp-action="Create" class="alert-link">Maak een nieuwe gebruiker aan</a>
+        </div>
+    }
 </div>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FitnessClub.MAUI.Views.InschrijvingenPage"
+             Title="Mijn Inschrijvingen">
+
+    <VerticalStackLayout Spacing="20" Padding="30">
+
+        <Label Text="📅 Mijn Inschrijvingen" 
+               FontSize="24" 
+               FontAttributes="Bold"/>
+
+        <VerticalStackLayout Spacing="10">
+            <Label Text="• Maandag 18:00 - HIIT Training" FontSize="16"/>
+            <Label Text="• Woensdag 19:00 - Yoga" FontSize="16"/>
+            <Label Text="• Vrijdag 17:00 - Strength Training" FontSize="16"/>
+        </VerticalStackLayout>
+
+        <Button Text="➕ Nieuwe inschrijving" 
+                BackgroundColor="#4CAF50"
+                TextColor="White"
+                CornerRadius="10"
+                HeightRequest="50"/>
+
+        <Button Text="🔙 Terug" 
+                Clicked="OnBackClicked"
+                Margin="0,20,0,0"/>
+
+    </VerticalStackLayout>
+</ContentPage>

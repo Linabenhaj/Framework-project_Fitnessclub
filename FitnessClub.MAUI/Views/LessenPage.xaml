@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FitnessClub.MAUI.Views.LessenPage"
+             Title="Lessen">
+
+    <VerticalStackLayout Spacing="20" Padding="30">
+
+        <Label Text="🏋️‍♂️ Fitness Lessen" 
+               FontSize="24" 
+               FontAttributes="Bold"/>
+
+        <Label Text="Beschikbare lessen:" FontSize="18"/>
+
+        <VerticalStackLayout Spacing="10">
+            <Label Text="• 08:00 - Yoga (Easy)" />
+            <Label Text="• 10:00 - Cardio (Medium)" />
+            <Label Text="• 12:00 - Strength (Hard)" />
+            <Label Text="• 18:00 - HIIT (Hard)" />
+            <Label Text="• 20:00 - Pilates (Easy)" />
+        </VerticalStackLayout>
+
+        <Button Text="🔙 Terug" 
+                Clicked="OnBackClicked"
+                Margin="0,20,0,0"/>
+
+    </VerticalStackLayout>
+</ContentPage>

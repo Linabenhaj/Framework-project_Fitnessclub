@@ -16,6 +16,14 @@
         },
         "runtime": {
           "FitnessClub.Models.dll": {}
+        },
+        "resources": {
+          "fr-FR/FitnessClub.Models.resources.dll": {
+            "locale": "fr-FR"
+          },
+          "nl-BE/FitnessClub.Models.resources.dll": {
+            "locale": "nl-BE"
+          }
         }
       },
       "Azure.Core/1.38.0": {

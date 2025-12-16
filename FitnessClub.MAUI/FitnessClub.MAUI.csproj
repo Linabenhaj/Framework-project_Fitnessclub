@@ -1,52 +1,33 @@
-﻿<!-- FitnessClub.MAUI.csproj -->
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿ <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0-android</TargetFramework>
-    <TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
-    
+    <!-- MAUI MULTIPLATFORM -->
+    <TargetFrameworks>net9.0-android;net9.0-windows10.0.19041.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <RootNamespace>FitnessClub.MAUI</RootNamespace>
+
     <UseMaui>true</UseMaui>
     <SingleProject>true</SingleProject>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    
-    <ApplicationTitle>FitnessClub</ApplicationTitle>
-    <ApplicationId>com.companyname.fitnessclub</ApplicationId>
-    
-    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">34.0</SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">17.2</SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">17.2</SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
-    <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+
+    <!-- Windows -->
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Core MAUI packages -->
-    <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.11" />
-    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.11" />
-    <PackageReference Include="Microsoft.Maui.Essentials" Version="9.0.11" />
-    
-    <!-- HTTP Client -->
-    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.8" />
-    
-    <!-- JSON -->
-    <PackageReference Include="System.Text.Json" Version="9.0.0" />
-    
-    <!-- Community Toolkit - CORRECTE VERSIE -->
-    <PackageReference Include="CommunityToolkit.Maui" Version="9.0.0.3" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
-    
-    <!-- Dependency Injection -->
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.8" />
+    <PackageReference Include="CommunityToolkit.Maui" Version="9.0.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.13" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FitnessClub.Models\FitnessClub.Models.csproj" />
+    <MauiFont Include="Resources\Fonts\*" />
+    <MauiImage Include="Resources\Images\*" />
   </ItemGroup>
+
+  <!-- MainPage / AppShell -->
 
 </Project>

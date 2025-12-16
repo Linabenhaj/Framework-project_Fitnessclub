@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FitnessClub.MAUI.Views.SettingsPage"
+             Title="Instellingen">
+
+    <VerticalStackLayout Spacing="20" Padding="30">
+
+        <Label Text="⚙️ Instellingen" 
+               FontSize="24" 
+               FontAttributes="Bold"/>
+
+        <!-- Notificaties -->
+        <VerticalStackLayout Spacing="5">
+            <HorizontalStackLayout>
+                <Label Text="Notificaties" FontSize="16" VerticalOptions="Center"/>
+                <Switch IsToggled="True" HorizontalOptions="EndAndExpand"/>
+            </HorizontalStackLayout>
+            <Label Text="Ontvang herinneringen voor lessen" FontSize="12" TextColor="Gray"/>
+        </VerticalStackLayout>
+
+        <!-- Donkere modus -->
+        <VerticalStackLayout Spacing="5">
+            <HorizontalStackLayout>
+                <Label Text="Donkere modus" FontSize="16" VerticalOptions="Center"/>
+                <Switch IsToggled="True" HorizontalOptions="EndAndExpand"/>
+            </HorizontalStackLayout>
+            <Label Text="Schakel naar donkere interface" FontSize="12" TextColor="Gray"/>
+        </VerticalStackLayout>
+
+        <Button Text="💾 Opslaan" 
+                BackgroundColor="#2196F3"
+                TextColor="White"
+                CornerRadius="10"
+                HeightRequest="50"/>
+
+        <Button Text="🔙 Terug" 
+                Clicked="OnBackClicked"
+                Margin="0,20,0,0"/>
+
+    </VerticalStackLayout>
+</ContentPage>

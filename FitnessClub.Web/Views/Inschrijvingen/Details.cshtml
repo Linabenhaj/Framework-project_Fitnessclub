@@ -1,0 +1,97 @@
+@model FitnessClub.Models.Models.Les 
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Les Details"];
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-calendar-event"></i> @Localizer["Les Details"]</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">@Localizer["Naam"]:</dt>
+                <dd class="col-sm-9">@Model.Naam</dd>
+
+                <dt class="col-sm-3">@Localizer["Beschrijving"]:</dt>
+                <dd class="col-sm-9">@Model.Beschrijving</dd>
+
+                <dt class="col-sm-3">@Localizer["Trainer"]:</dt>
+                <dd class="col-sm-9">@Model.Trainer</dd>
+
+                <dt class="col-sm-3">@Localizer["Locatie"]:</dt>
+                <dd class="col-sm-9">@Model.Locatie</dd>
+
+                <dt class="col-sm-3">@Localizer["Starttijd"]:</dt>
+                <dd class="col-sm-9">@Model.StartTijd.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                <dt class="col-sm-3">@Localizer["Eindtijd"]:</dt>
+                <dd class="col-sm-9">@Model.EindTijd.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                <dt class="col-sm-3">@Localizer["Duur"]:</dt>
+                <dd class="col-sm-9">@((int)(Model.EindTijd - Model.StartTijd).TotalMinutes) minuten</dd>
+
+                <dt class="col-sm-3">@Localizer["Maximaal deelnemers"]:</dt>
+                <dd class="col-sm-9">@Model.MaxDeelnemers</dd>
+
+                <dt class="col-sm-3">@Localizer["Ingeschreven"]:</dt>
+                <dd class="col-sm-9">
+                    @{
+                        var ingeschreven = Model.Inschrijvingen?.Count(i => i.Status == "Actief") ?? 0;
+                        var beschikbaar = Model.MaxDeelnemers - ingeschreven;
+                    }
+                    <span class="badge bg-@(beschikbaar <= 0 ? "danger" : "success")">
+                        @ingeschreven / @Model.MaxDeelnemers
+                    </span>
+                </dd>
+            </dl>
+        </div>
+        <div class="card-footer">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> @Localizer["Bewerken"]
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> @Localizer["Terug naar overzicht"]
+            </a>
+        </div>
+    </div>
+
+
+    <!-- Inschrijvingen lijst -->
+    @if (Model.Inschrijvingen != null && Model.Inschrijvingen.Any())
+    {
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-people"></i> @Localizer["Ingeschreven deelnemers"]</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Naam"]</th>
+                                <th>@Localizer["Email"]</th>
+                                <th>@Localizer["Inschrijvingsdatum"]</th>
+                                <th>@Localizer["Status"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var inschrijving in Model.Inschrijvingen.Where(i => i.Status == "Actief"))
+                            {
+                                <tr>
+                                    <td>@inschrijving.Gebruiker?.Voornaam @inschrijving.Gebruiker?.Achternaam</td>
+                                    <td>@inschrijving.Gebruiker?.Email</td>
+                                    <td>@inschrijving.InschrijfDatum.ToString("dd/MM/yyyy")</td>
+                                    <td><span class="badge bg-success">@inschrijving.Status</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

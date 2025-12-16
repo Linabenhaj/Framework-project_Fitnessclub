@@ -1,3 +1,12 @@
-using FitnessClub.Models.Models;
+using System.Windows;
 
-using System.Windows;  namespace FitnessClub.WPF {     public partial class AboutWindow : Window     {         public AboutWindow()         {             InitializeComponent();         }     } }
+namespace FitnessClub.WPF
+{
+    public partial class AboutWindow : Window
+    {
+        public AboutWindow()
+        {
+            InitializeComponent();
+        }
+    }
+}

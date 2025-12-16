@@ -1,0 +1,91 @@
+@model FitnessClub.Models.Models.Les
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Nieuwe Les"];
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-calendar-plus"></i> @Localizer["Nieuwe Les"]</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Naam" class="form-label"></label>
+                            <input asp-for="Naam" class="form-control" />
+                            <span asp-validation-for="Naam" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Beschrijving" class="form-label"></label>
+                            <textarea asp-for="Beschrijving" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Beschrijving" class="text-danger"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="StartTijd" class="form-label"></label>
+                                <input asp-for="StartTijd" class="form-control" type="datetime-local" />
+                                <span asp-validation-for="StartTijd" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="EindTijd" class="form-label"></label>
+                                <input asp-for="EindTijd" class="form-control" type="datetime-local" />
+                                <span asp-validation-for="EindTijd" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Trainer" class="form-label"></label>
+                                <input asp-for="Trainer" class="form-control" />
+                                <span asp-validation-for="Trainer" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="MaxDeelnemers" class="form-label"></label>
+                                <input asp-for="MaxDeelnemers" class="form-control" type="number" min="1" max="100" />
+                                <span asp-validation-for="MaxDeelnemers" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Locatie" class="form-label"></label>
+                            <input asp-for="Locatie" class="form-control" />
+                            <span asp-validation-for="Locatie" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> @Localizer["Aanmaken"]
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> @Localizer["Annuleren"]
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Set min date/time to current
+        var now = new Date();
+        var nowString = now.toISOString().slice(0, 16);
+        document.getElementById('StartTijd').min = nowString;
+        document.getElementById('EindTijd').min = nowString;
+    </script>
+}

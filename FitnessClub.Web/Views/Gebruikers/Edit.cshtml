@@ -1,9 +1,7 @@
 @model FitnessClub.Models.Models.Gebruiker
-@using Microsoft.AspNetCore.Mvc.Localization
-@inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = Localizer["Gebruiker Bewerken"];
+    ViewData["Title"] = "Gebruiker Bewerken";
 }
 
 <div class="container mt-4">
@@ -12,7 +10,7 @@
             <div class="card">
                 <div class="card-header bg-warning text-white">
                     <h4 class="mb-0">
-                        <i class="bi bi-pencil-square"></i> @Localizer["Gebruiker Bewerken"]
+                        <i class="bi bi-pencil-square"></i> Gebruiker Bewerken
                     </h4>
                 </div>
                 <div class="card-body">
@@ -40,9 +38,9 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Telefoon" class="form-label"></label>
-                            <input asp-for="Telefoon" class="form-control" />
-                            <span asp-validation-for="Telefoon" class="text-danger"></span>
+                            <label asp-for="PhoneNumber" class="form-label">Telefoon</label>
+                            <input asp-for="PhoneNumber" class="form-control" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
@@ -52,36 +50,36 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="AbonnementId" class="form-label">@Localizer["Abonnement"]</label>
+                            <label asp-for="AbonnementId" class="form-label">Abonnement</label>
                             <select asp-for="AbonnementId" class="form-control"
                                     asp-items="ViewBag.Abonnementen">
-                                <option value="">@Localizer["-- Selecteer abonnement --"]</option>
+                                <option value="">-- Selecteer abonnement --</option>
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">@Localizer["Rollen"]</label>
-                            @if (ViewData["AllRoles"] is SelectList roles)
+                            <label class="form-label">Rollen</label>
+                            @if (ViewBag.AllRoles is string[] roles)
                             {
                                 <select name="selectedRoles" class="form-select" multiple>
                                     @foreach (var role in roles)
                                     {
-                                        <option value="@role.Text"
-                                                selected="@(ViewData["UserRoles"] is List<string> userRoles && userRoles.Contains(role.Text))">
-                                            @role.Text
+                                        <option value="@role"
+                                                selected="@(ViewBag.UserRoles is List<string> userRoles && userRoles.Contains(role))">
+                                            @role
                                         </option>
                                     }
                                 </select>
                             }
-                            <small class="text-muted">@Localizer["Hou Ctrl ingedrukt om meerdere rollen te selecteren"]</small>
+                            <small class="text-muted">Hou Ctrl ingedrukt om meerdere rollen te selecteren</small>
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <button type="submit" class="btn btn-success">
-                                <i class="bi bi-check-circle"></i> @Localizer["Opslaan"]
+                                <i class="bi bi-check-circle"></i> Opslaan
                             </button>
                             <a asp-action="Index" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> @Localizer["Terug"]
+                                <i class="bi bi-arrow-left"></i> Terug
                             </a>
                         </div>
                     </form>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FitnessClub.MAUI.Views.AboutPage"
+             Title="Over ons">
+
+    <VerticalStackLayout Spacing="20" Padding="30">
+
+        <Label Text="🏋️‍♂️ FitnessClub" 
+               FontSize="28" 
+               FontAttributes="Bold"/>
+
+        <Label Text="De beste fitness ervaring in de stad!" 
+               FontSize="16"/>
+
+        <VerticalStackLayout Spacing="10" BackgroundColor="#F5F5F5" Padding="20">
+            <Label Text="Onze diensten:" FontSize="18" FontAttributes="Bold"/>
+            <Label Text="• Groepslessen" FontSize="16"/>
+            <Label Text="• Personal training" FontSize="16"/>
+            <Label Text="• Cardio zone" FontSize="16"/>
+            <Label Text="• Krachttraining" FontSize="16"/>
+            <Label Text="• Wellness" FontSize="16"/>
+        </VerticalStackLayout>
+
+        <Label Text="Contact: info@fitnessclub.be" FontSize="16"/>
+        <Label Text="Telefoon: 012 34 56 78" FontSize="16"/>
+
+        <Button Text="🔙 Terug" 
+                Clicked="OnBackClicked"
+                Margin="0,20,0,0"/>
+
+    </VerticalStackLayout>
+</ContentPage>

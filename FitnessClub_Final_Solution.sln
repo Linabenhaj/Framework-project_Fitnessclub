@@ -15,8 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessClub.WPF", "FitnessC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessClub.Web", "FitnessClub.Web\FitnessClub.Web.csproj", "{D1A7CE85-F1A7-4222-8E23-4252592444D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessClub.API", "FitnessClub.API\FitnessClub.API.csproj", "{5E695077-83A7-43FB-9291-0C8E8FB8978B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessClub.MAUI", "FitnessClub.MAUI\FitnessClub.MAUI.csproj", "{A0C4F13F-7BBC-45CD-9414-B6B09A4675CC}"
 EndProject
 Global
@@ -37,12 +35,9 @@ Global
 		{D1A7CE85-F1A7-4222-8E23-4252592444D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1A7CE85-F1A7-4222-8E23-4252592444D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1A7CE85-F1A7-4222-8E23-4252592444D7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5E695077-83A7-43FB-9291-0C8E8FB8978B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5E695077-83A7-43FB-9291-0C8E8FB8978B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5E695077-83A7-43FB-9291-0C8E8FB8978B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5E695077-83A7-43FB-9291-0C8E8FB8978B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A0C4F13F-7BBC-45CD-9414-B6B09A4675CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A0C4F13F-7BBC-45CD-9414-B6B09A4675CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0C4F13F-7BBC-45CD-9414-B6B09A4675CC}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{A0C4F13F-7BBC-45CD-9414-B6B09A4675CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0C4F13F-7BBC-45CD-9414-B6B09A4675CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

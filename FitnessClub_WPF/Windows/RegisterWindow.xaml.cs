@@ -1,3 +1,180 @@
+using FitnessClub.Models.Data;
 using FitnessClub.Models.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Windows;
 
-using FitnessClub.Models; using FitnessClub.Models.Data; using Microsoft.AspNetCore.Identity; using Microsoft.AspNetCore.Identity.EntityFrameworkCore; using System.Collections.Generic; using System.Linq; using System.Windows; using System.Windows.Controls;  namespace FitnessClub.WPF {     public partial class RegisterWindow : Window     {         private List<Abonnement> _beschikbareAbonnementen;         private Abonnement _geselecteerdAbonnement;          public RegisterWindow()         {             InitializeComponent();             LaadAbonnementen();         }          private void LaadAbonnementen()         {             try             {                 using (var context = new FitnessClubDbContext())                 {                     _beschikbareAbonnementen = context.Abonnementen                         .Where(a => !a.IsVerwijderd)                         .OrderBy(a => a.Prijs)                         .ToList();                      ToonAbonnementKeuzes();                 }             }             catch (System.Exception ex)             {                 MessageBox.Show($"Fout bij laden abonnementen: {ex.Message}", "Fout");             }         }          private void ToonAbonnementKeuzes()         {             AbonnementenPanel.Children.Clear();              foreach (var abonnement in _beschikbareAbonnementen)             {                 var radioButton = new RadioButton                 {                     Content = $"{abonnement.Naam} - €{abonnement.Prijs:0.00}/maand",                     Tag = abonnement,                     Margin = new Thickness(0, 5, 0, 5),                     FontSize = 14                 };                  radioButton.Checked += (s, e) =>                 {                     _geselecteerdAbonnement = (Abonnement)radioButton.Tag;                     GekozenAbonnementText.Text = $"Gekozen: {_geselecteerdAbonnement.Naam}";                 };                  AbonnementenPanel.Children.Add(radioButton);             }              if (_beschikbareAbonnementen.Any())             {                 var eersteRadioButton = AbonnementenPanel.Children[0] as RadioButton;                 if (eersteRadioButton != null)                 {                     eersteRadioButton.IsChecked = true;                 }             }         }          private async void Registreer_Click(object sender, RoutedEventArgs e)         {             try             {                                   using (var context = new FitnessClubDbContext())                 {                     var userManager = CreateUserManager(context);                      // Controleer of gebruiker al bestaat                     var existingUser = await userManager.FindByEmailAsync(EmailTextBox.Text);                     if (existingUser != null)                     {                         MessageBox.Show("Er bestaat al een gebruiker met dit e-mailadres!", "Fout");                         return;                     }                      // Maak nieuwe gebruiker aan                     var user = new Gebruiker                     {                         Voornaam = VoornaamTextBox.Text,                         Achternaam = AchternaamTextBox.Text,                         Email = EmailTextBox.Text,                         UserName = EmailTextBox.Text,                         Telefoon = TelefoonTextBox.Text,                         Geboortedatum = GeboortedatumPicker.SelectedDate.Value,                         AbonnementId = _geselecteerdAbonnement.Id                     };                      // GEBRUIK IDENTITY VOOR REGISTRATIE                     var result = await userManager.CreateAsync(user, PasswordBox.Password);                      if (result.Succeeded)                     {                         // Voeg toe aan Lid rol                         await userManager.AddToRoleAsync(user, "Lid");                          MessageBox.Show($"Registratie succesvol! Je kan nu inloggen.", "Succes");                          LoginWindow loginWindow = new LoginWindow();                         loginWindow.Show();                         this.Close();                     }                     else                     {                         var errors = string.Join("\n", result.Errors.Select(err => err.Description));                         MessageBox.Show($"Registratiefout: {errors}", "Fout");                     }                 }             }             catch (System.Exception ex)             {                 MessageBox.Show($"Registratiefout: {ex.Message}", "Fout");             }         }          private UserManager<Gebruiker> CreateUserManager(FitnessClubDbContext context)         {             var userStore = new UserStore<Gebruiker>(context);             return new UserManager<Gebruiker>(                 userStore, null, new PasswordHasher<Gebruiker>(), null, null, null, null, null, null);         }          private void Terug_Click(object sender, RoutedEventArgs e)         {             MainWindow mainWindow = new MainWindow();             mainWindow.Show();             this.Close();         }     } }
+namespace FitnessClub.WPF
+{
+    public partial class RegisterWindow : Window
+    {
+        private readonly FitnessClubDbContext _context;
+
+        public RegisterWindow()
+        {
+            InitializeComponent();
+
+            var optionsBuilder = new DbContextOptionsBuilder<FitnessClubDbContext>();
+            optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=FitnessClubDb;Trusted_Connection=true;TrustServerCertificate=true;MultipleActiveResultSets=true");
+
+            _context = new FitnessClubDbContext(optionsBuilder.Options);
+
+            VulAbonnementen();
+        }
+
+        private void VulAbonnementen()
+        {
+            try
+            {
+                var abonnementen = _context.Abonnementen
+                    .Where(a => a.IsActief)
+                    .ToList();
+
+                AbonnementenPanel.Children.Clear();
+
+                foreach (var abonnement in abonnementen)
+                {
+                    var radioButton = new System.Windows.Controls.RadioButton
+                    {
+                        Content = $"{abonnement.Naam} - €{abonnement.Prijs:F2}/maand",
+                        Tag = abonnement.Id,
+                        Margin = new Thickness(0, 5, 0, 5),
+                        FontSize = 14
+                    };
+                    radioButton.Checked += (s, e) =>
+                    {
+                        GekozenAbonnementText.Text = $"Gekozen: {abonnement.Naam}";
+                    };
+
+                    AbonnementenPanel.Children.Add(radioButton);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fout bij laden abonnementen: {ex.Message}", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void RegistreerButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (!ValideerInvoer())
+                    return;
+
+                if (PasswordBox.Password != ConfirmPasswordBox.Password)
+                {
+                    MessageBox.Show("Wachtwoorden komen niet overeen", "Validatie", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Zoek geselecteerd abonnement
+                int? abonnementId = null;
+                foreach (var child in AbonnementenPanel.Children)
+                {
+                    if (child is System.Windows.Controls.RadioButton radioButton && radioButton.IsChecked == true)
+                    {
+                        abonnementId = (int)radioButton.Tag;
+                        break;
+                    }
+                }
+
+                var nieuwLid = new Gebruiker
+                {
+                    Voornaam = VoornaamTextBox.Text,
+                    Achternaam = AchternaamTextBox.Text,
+                    Email = EmailTextBox.Text,
+                    UserName = EmailTextBox.Text,
+                    PhoneNumber = TelefoonTextBox.Text,
+                    Geboortedatum = GeboortedatumPicker.SelectedDate.Value,
+                    Rol = "Lid",
+                    AbonnementId = abonnementId,
+                    EmailConfirmed = true
+                };
+
+                // Note: In een echte app zou je Identity gebruiken voor wachtwoorden
+                // Voor nu gebruiken we een simpele hash
+                nieuwLid.PasswordHash = HashWachtwoord(PasswordBox.Password);
+
+                _context.Users.Add(nieuwLid);  // Gebruik Users, niet Gebruikers
+                _context.SaveChanges();
+
+                MessageBox.Show("Registratie succesvol!", "Succes", MessageBoxButton.OK, MessageBoxImage.Information);
+                this.DialogResult = true;
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Fout bij registratie: {ex.Message}", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private bool ValideerInvoer()
+        {
+            if (string.IsNullOrWhiteSpace(VoornaamTextBox.Text))
+            {
+                MessageBox.Show("Voer een voornaam in", "Validatie", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(AchternaamTextBox.Text))
+            {
+                MessageBox.Show("Voer een achternaam in", "Validatie", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(EmailTextBox.Text) || !EmailTextBox.Text.Contains("@"))
+            {
+                MessageBox.Show("Voer een geldig emailadres in", "Validatie", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(PasswordBox.Password) || PasswordBox.Password.Length < 6)
+            {
+                MessageBox.Show("Wachtwoord moet minimaal 6 tekens zijn", "Validatie", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (GeboortedatumPicker.SelectedDate == null)
+            {
+                MessageBox.Show("Selecteer een geboortedatum", "Validatie", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            // Controleer of er een abonnement is geselecteerd
+            bool abonnementGeselecteerd = false;
+            foreach (var child in AbonnementenPanel.Children)
+            {
+                if (child is System.Windows.Controls.RadioButton radioButton && radioButton.IsChecked == true)
+                {
+                    abonnementGeselecteerd = true;
+                    break;
+                }
+            }
+
+            if (!abonnementGeselecteerd)
+            {
+                MessageBox.Show("Selecteer een abonnement", "Validatie", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            return true;
+        }
+
+        private string HashWachtwoord(string wachtwoord)
+        {
+            // SIMPELE HASH - IN PRODUCTIE: gebruik PasswordHasher van Identity
+            using var sha = System.Security.Cryptography.SHA256.Create();
+            var bytes = System.Text.Encoding.UTF8.GetBytes(wachtwoord);
+            var hash = sha.ComputeHash(bytes);
+            return Convert.ToBase64String(hash);
+        }
+
+        private void AnnulerenButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = false;
+            this.Close();
+        }
+    }
+}
