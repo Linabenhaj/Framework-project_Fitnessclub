@@ -12,33 +12,32 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<FitnessClubDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// Registreer de interface
+builder.Services.AddScoped<IFitnessClubDbContext>(provider =>
+    provider.GetRequiredService<FitnessClubDbContext>());
+
 // Identity
 builder.Services.AddIdentity<Gebruiker, IdentityRole>()
     .AddEntityFrameworkStores<FitnessClubDbContext>()
     .AddDefaultTokenProviders()
     .AddDefaultUI();
 
-// Add localization services
+// Localization
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-
-// Configure MVC met localization
 builder.Services.AddControllersWithViews()
     .AddViewLocalization()
     .AddDataAnnotationsLocalization();
-
-builder.Services.AddRazorPages()
-    .AddViewLocalization();
+builder.Services.AddRazorPages().AddViewLocalization();
 
 var supportedCultures = new[]
 {
-    new CultureInfo("nl"), // Nederlands
-    new CultureInfo("en"), // Engels
-    new CultureInfo("fr")  // Frans
+    new CultureInfo("nl"),
+    new CultureInfo("en"),
+    new CultureInfo("fr")
 };
 
 var app = builder.Build();
 
-// Configure  middleware
 app.UseRequestLocalization(new RequestLocalizationOptions
 {
     DefaultRequestCulture = new RequestCulture("nl"),

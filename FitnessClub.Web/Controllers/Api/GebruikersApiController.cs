@@ -1,4 +1,4 @@
-﻿using FitnessClub.Models.Data;  // Models.Data gebruiken!
+﻿using FitnessClub.Models.Data;
 using FitnessClub.Models.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +13,11 @@ namespace FitnessClub.Web.Controllers.Api
     [ApiController]
     public class GebruikersApiController : ControllerBase
     {
-        private readonly FitnessClubDbContext _context;
+        private readonly IFitnessClubDbContext _context;
         private readonly UserManager<Gebruiker> _userManager;
 
         public GebruikersApiController(
-            FitnessClubDbContext context,
+            IFitnessClubDbContext context, 
             UserManager<Gebruiker> userManager)
         {
             _context = context;

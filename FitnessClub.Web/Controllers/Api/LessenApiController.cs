@@ -12,27 +12,24 @@ namespace FitnessClub.API.Controllers
     [Authorize]
     public class LessenApiController : ControllerBase
     {
-        private readonly FitnessClubDbContext _context;
+        private readonly IFitnessClubDbContext _context;
 
-        public LessenApiController(FitnessClubDbContext context)
+        public LessenApiController(IFitnessClubDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/lessen
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Les>>> GetLessen()
         {
             var lessen = await _context.Lessen
                 .Include(l => l.Inschrijvingen)
-                .Where(l => l.IsActief && l.StartTijd > DateTime.Now.AddDays(-1)) 
+                .Where(l => l.IsActief && l.StartTijd > DateTime.Now.AddDays(-1))
                 .OrderBy(l => l.StartTijd)
                 .ToListAsync();
-
             return Ok(lessen);
         }
 
-        // POST: api/lessen/{id}/inschrijven
         [HttpPost("{id}/inschrijven")]
         public async Task<IActionResult> InschrijvenVoorLes(int id)
         {
@@ -43,26 +40,20 @@ namespace FitnessClub.API.Controllers
             var les = await _context.Lessen
                 .Include(l => l.Inschrijvingen)
                 .FirstOrDefaultAsync(l => l.Id == id);
-
             if (les == null)
                 return NotFound(new { Message = "Les niet gevonden" });
 
-            // Check of gebruiker al ingeschreven is
             var bestaandeInschrijving = await _context.Inschrijvingen
                 .FirstOrDefaultAsync(i => i.LesId == id && i.GebruikerId == userId && i.Status == "Actief");
-
             if (bestaandeInschrijving != null)
                 return BadRequest(new { Message = "Je bent al ingeschreven voor deze les" });
 
-            // Check of er nog plaats is
             if (les.Inschrijvingen.Count(i => i.Status == "Actief") >= les.MaxDeelnemers)
                 return BadRequest(new { Message = "Les is vol" });
 
-            // Check of les in de toekomst is
             if (les.StartTijd <= DateTime.Now)
                 return BadRequest(new { Message = "Les is al begonnen" });
 
-            // Voeg inschrijving toe
             var inschrijving = new Inschrijving
             {
                 LesId = id,
@@ -82,7 +73,6 @@ namespace FitnessClub.API.Controllers
             });
         }
 
-        // POST: api/lessen/{id}/uitschrijven
         [HttpPost("{id}/uitschrijven")]
         public async Task<IActionResult> UitschrijvenVoorLes(int id)
         {
@@ -93,15 +83,12 @@ namespace FitnessClub.API.Controllers
             var inschrijving = await _context.Inschrijvingen
                 .Include(i => i.Les)
                 .FirstOrDefaultAsync(i => i.LesId == id && i.GebruikerId == userId && i.Status == "Actief");
-
             if (inschrijving == null)
                 return NotFound(new { Message = "Inschrijving niet gevonden" });
 
-            // Check of uitschrijven nog mag
             if (inschrijving.Les.StartTijd <= DateTime.Now.AddHours(24))
                 return BadRequest(new { Message = "Uitschrijven is alleen mogelijk tot 24 uur voor de les" });
 
-            // Update status
             inschrijving.Status = "Geannuleerd";
             _context.Inschrijvingen.Update(inschrijving);
             await _context.SaveChangesAsync();

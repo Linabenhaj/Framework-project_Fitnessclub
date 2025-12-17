@@ -1,18 +1,9 @@
-@using FitnessClub.Models.Models
 @using Microsoft.AspNetCore.Identity
-@using Microsoft.AspNetCore.Localization
-@using Microsoft.AspNetCore.Mvc.Localization
 @inject UserManager<Gebruiker> UserManager
 @inject SignInManager<Gebruiker> SignInManager
-@inject IViewLocalizer Localizer
-
-@{
-    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
-    var currentCulture = requestCulture?.RequestCulture.Culture.Name ?? "nl-BE";
-}
 
 <!DOCTYPE html>
-<html lang="@currentCulture">
+<html lang="nl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -28,6 +19,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <!-- Mijn CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
     <style>
         :root {
             --primary-dark: #2c3e50;
@@ -82,19 +74,6 @@
             background-color: rgba(52, 73, 94, 0.9);
         }
 
-        .language-selector {
-            margin-right: 15px;
-        }
-
-            .language-selector .btn {
-                color: white;
-                border-color: white;
-            }
-
-                .language-selector .btn:hover {
-                    background-color: rgba(255, 255, 255, 0.1);
-                }
-
         .ajax-loading {
             display: none;
             position: fixed;
@@ -113,12 +92,10 @@
             height: 3rem;
         }
 
-        /* Responsive tables */
         .table-responsive {
             overflow-x: auto;
         }
 
-        /* Button styles */
         .btn-primary {
             background-color: var(--login-blue);
             border-color: var(--login-blue);
@@ -134,7 +111,6 @@
             border-color: var(--admin-red);
         }
 
-        /* Pagination styles */
         .pagination .page-link {
             background-color: var(--secondary-dark);
             border-color: rgba(255, 255, 255, 0.2);
@@ -146,7 +122,6 @@
             border-color: var(--login-blue);
         }
 
-        /* Filter section */
         .filter-section {
             background-color: rgba(255, 255, 255, 0.05);
             padding: 15px;
@@ -154,12 +129,6 @@
             margin-bottom: 20px;
         }
 
-            .filter-section label {
-                margin-bottom: 5px;
-                font-weight: bold;
-            }
-
-        /* Footer */
         .footer {
             background-color: var(--secondary-dark);
             color: white;
@@ -167,19 +136,9 @@
             margin-top: auto;
         }
 
-        /* Mobile optimizations */
         @@media (max-width: 768px) {
             .navbar-nav {
                 padding-top: 10px;
-            }
-
-            .language-selector {
-                margin-right: 0;
-                margin-bottom: 10px;
-            }
-
-            .filter-section .row > div {
-                margin-bottom: 10px;
             }
         }
     </style>
@@ -245,38 +204,13 @@
                                 </li>
                             }
 
-                            @if (User.IsInRole("Admin") || User.IsInRole("Trainer") || User.IsInRole("Lid") || User.IsInRole("PremiumLid"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#" onclick="alert('Profiel pagina komt later')">
-                                        <i class="bi bi-person"></i> Mijn Profiel
-                                    </a>
-                                </li>
-                            }
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" onclick="alert('Profiel pagina komt later')">
+                                    <i class="bi bi-person"></i> Mijn Profiel
+                                </a>
+                            </li>
                         }
                     </ul>
-
-                    <!-- Language selector -->
-                    <div class="language-selector">
-                        <div class="dropdown">
-                            <button class="btn btn-outline-light dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown">
-                                <i class="bi bi-translate"></i> Taal
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item" href="?culture=nl-BE">
-                                        <i class="bi bi-flag"></i> Nederlands
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="?culture=fr-FR">
-                                        <i class="bi bi-flag"></i> Français
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
 
                     <!-- Login/Logout -->
                     <partial name="_LoginPartial" />
@@ -311,9 +245,6 @@
             &copy; @DateTime.Now.Year - Fitness Club -
             <a asp-controller="Home" asp-action="Privacy" class="text-light">Privacy</a> -
             <a asp-controller="Home" asp-action="About" class="text-light">Over</a>
-            <div class="mt-2">
-                <small>Huidige taal: @currentCulture.ToUpper()</small>
-            </div>
         </div>
     </footer>
 
@@ -324,7 +255,6 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <!-- AJAX CSRF token setup -->
     <script>
         function getToken() {
             return $('input[name="__RequestVerificationToken"]').val();
@@ -336,7 +266,6 @@
             }
         });
 
-        // Show loading spinner for AJAX requests
         $(document).ajaxStart(function () {
             $('#ajaxLoading').show();
         }).ajaxStop(function () {

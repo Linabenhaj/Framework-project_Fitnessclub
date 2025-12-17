@@ -4,20 +4,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessClub.Models.Data
 {
-    public class FitnessClubDbContext : IdentityDbContext<Gebruiker>
+    public class FitnessClubDbContext : IdentityDbContext<Gebruiker>, IFitnessClubDbContext
     {
         public FitnessClubDbContext(DbContextOptions<FitnessClubDbContext> options)
             : base(options)
         {
         }
 
-        // Identity gebruikers
         public DbSet<Gebruiker> Gebruikers { get; set; }
-
-        // Abonnementen
         public DbSet<Abonnement> Abonnementen { get; set; }
-
-        // Lessen en inschrijvingen
         public DbSet<Les> Lessen { get; set; }
         public DbSet<Inschrijving> Inschrijvingen { get; set; }
 
@@ -25,24 +20,20 @@ namespace FitnessClub.Models.Data
         {
             base.OnModelCreating(builder);
 
-            // Configure decimal precision
             builder.Entity<Abonnement>()
                 .Property(a => a.Prijs)
                 .HasPrecision(18, 2);
 
-            // BELANGRIJK: Configureer ALLEEN DEZE enige relatie
             builder.Entity<Gebruiker>()
                 .HasOne(g => g.Abonnement)
-                .WithMany()  // CRUCIAAL: Geen navigatie terug!
+                .WithMany()
                 .HasForeignKey(g => g.AbonnementId)
                 .OnDelete(DeleteBehavior.SetNull)
                 .IsRequired(false);
 
-            // BLOKKEER dat Abonnement een Gebruikers collectie heeft
             builder.Entity<Abonnement>()
-                .Ignore(a => a.Gebruikers);  // Dit voorkomt de tweede FK!
+                .Ignore(a => a.Gebruikers);
 
-            // Inschrijving relaties
             builder.Entity<Inschrijving>()
                 .HasOne(i => i.Les)
                 .WithMany(l => l.Inschrijvingen)
