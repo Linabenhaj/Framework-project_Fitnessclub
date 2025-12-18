@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FitnessClub.MAUI.Models;
 using FitnessClub.MAUI.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
@@ -10,7 +11,7 @@ namespace FitnessClub.MAUI.ViewModels
     public partial class HomeViewModel : BaseViewModel
     {
         private readonly Synchronizer _synchronizer;
-        private readonly LocalDbContext _context;  // LocalDbContext ipv FitnessClubDbContext
+        private readonly LocalDbContext _context;
 
         [ObservableProperty]
         private string welcomeMessage = "Welkom bij FitnessClub!";
@@ -22,7 +23,7 @@ namespace FitnessClub.MAUI.ViewModels
         private int myRegistrationsCount = 0;
 
         [ObservableProperty]
-        private ObservableCollection<LocalLes> upcomingLessons = new();  // LocalLes ipv Les
+        private ObservableCollection<LocalLes> upcomingLessons = [];
 
         public HomeViewModel(Synchronizer synchronizer, LocalDbContext context)
         {
@@ -39,34 +40,29 @@ namespace FitnessClub.MAUI.ViewModels
 
             try
             {
-                await General.LoadUserInfo();
-
                 if (!string.IsNullOrEmpty(General.UserFirstName))
                     WelcomeMessage = $"Welkom, {General.UserFirstName}!";
 
-                ActiveLessonsCount = await _context.Lessen
-                    .Where(l => l.IsActief && l.StartTijd > DateTime.Now)
-                    .CountAsync();
+                // demo data
+                ActiveLessonsCount = 5;
+                MyRegistrationsCount = 3;
 
-                if (!string.IsNullOrEmpty(General.UserId))
-                {
-                    MyRegistrationsCount = await _context.Inschrijvingen
-                        .Where(i => i.GebruikerId == General.UserId &&
-                                   i.Status == "Actief" &&
-                                   i.Les.StartTijd > DateTime.Now)
-                        .CountAsync();
-                }
-
-                // Load upcoming lessons
+                // Demo lessen
                 UpcomingLessons.Clear();
-                var lessons = await _context.Lessen
-                    .Where(l => l.IsActief && l.StartTijd > DateTime.Now)
-                    .OrderBy(l => l.StartTijd)
-                    .Take(3)
-                    .ToListAsync();
-
-                foreach (var lesson in lessons)
-                    UpcomingLessons.Add(lesson);
+                UpcomingLessons.Add(new LocalLes
+                {
+                    Naam = "Yoga Basics",
+                    StartTijd = DateTime.Now.AddDays(1),
+                    Trainer = "Anna",
+                    Locatie = "Zaal 1"
+                });
+                UpcomingLessons.Add(new LocalLes
+                {
+                    Naam = "HIIT Training",
+                    StartTijd = DateTime.Now.AddDays(2),
+                    Trainer = "Mike",
+                    Locatie = "Zaal 2"
+                });
             }
             catch (Exception ex)
             {
@@ -112,7 +108,7 @@ namespace FitnessClub.MAUI.ViewModels
 
             if (confirm)
             {
-                _synchronizer.Logout();
+                General.ClearUserInfo();
                 await Shell.Current.GoToAsync("//LoginPage");
             }
         }

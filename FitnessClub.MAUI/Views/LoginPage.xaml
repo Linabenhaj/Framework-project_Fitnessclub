@@ -2,24 +2,78 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="FitnessClub.MAUI.Views.LoginPage"
-             Title="Login">
+             Title="Inloggen">
 
-    <VerticalStackLayout Spacing="20" Padding="30" VerticalOptions="Center">
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout Spacing="20" Padding="30" 
+                                 VerticalOptions="Center">
 
-        <Label Text="🏋️‍♂️ FitnessClub" 
-               FontSize="32" 
-               FontAttributes="Bold" 
-               HorizontalOptions="Center"/>
+                <!-- Header -->
+                <Label Text="🏋️ FitnessClub" 
+                       FontSize="32" 
+                       FontAttributes="Bold" 
+                       HorizontalOptions="Center"/>
 
-        <Button Text="Inloggen als Admin" 
-                Clicked="OnAdminLoginClicked"
-                BackgroundColor="Blue"
-                TextColor="White"/>
+                <Label Text="Log in om verder te gaan" 
+                       HorizontalOptions="Center"/>
 
-        <Button Text="Inloggen als Gebruiker" 
-                Clicked="OnUserLoginClicked"
-                BackgroundColor="Green"
-                TextColor="White"/>
+                <!-- Error Message -->
+                <Frame IsVisible="{Binding ShowError}" 
+                       CornerRadius="8" 
+                       BackgroundColor="#FFEBEE" 
+                       Padding="15">
+                    <Label Text="{Binding ErrorMessage}" 
+                           TextColor="#D32F2F"/>
+                </Frame>
 
-    </VerticalStackLayout>
+                <!-- Login Form -->
+                <Frame CornerRadius="10" Padding="20" 
+                       BackgroundColor="#F5F5F5">
+                    <VerticalStackLayout Spacing="15">
+
+                        <!-- Email -->
+                        <Label Text="E-mail" FontAttributes="Bold"/>
+                        <Entry Text="{Binding Email}" 
+                               Placeholder="john@example.com"
+                               Keyboard="Email"/>
+
+                        <!-- Password -->
+                        <Label Text="Wachtwoord" FontAttributes="Bold"/>
+                        <Entry Text="{Binding Password}" 
+                               Placeholder="Je wachtwoord"
+                               IsPassword="True"/>
+
+                        <!-- Login Button -->
+                        <Button Text="🔐 Inloggen" 
+                                Command="{Binding LoginCommand}"
+                                IsEnabled="{Binding IsNotBusy}"
+                                BackgroundColor="#4CAF50" 
+                                TextColor="White"
+                                HeightRequest="50"/>
+
+                        <!-- Demo Accounts Button -->
+                        <Button Text="📋 Demo Accounts" 
+                                Command="{Binding ShowDemoAccountsCommand}"
+                                BackgroundColor="#2196F3" 
+                                TextColor="White"/>
+
+                        <!-- Loading Indicator -->
+                        <ActivityIndicator IsVisible="{Binding IsBusy}" 
+                                           IsRunning="{Binding IsBusy}"
+                                           Color="#4CAF50"/>
+
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Info -->
+                <Label Text="Gebruik demo accounts om te testen" 
+                       FontSize="12" 
+                       HorizontalOptions="Center"
+                       TextColor="Gray"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+
 </ContentPage>

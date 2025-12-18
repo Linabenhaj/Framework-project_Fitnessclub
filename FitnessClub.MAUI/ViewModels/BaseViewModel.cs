@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using FitnessClub.MAUI.Models;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace FitnessClub.MAUI.ViewModels
 {

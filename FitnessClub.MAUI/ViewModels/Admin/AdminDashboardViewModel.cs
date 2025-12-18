@@ -1,7 +1,7 @@
+using FitnessClub.MAUI.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FitnessClub.MAUI.Services;
-using FitnessClub.MAUI.ViewModels;
 
 namespace FitnessClub.MAUI.ViewModels.Admin
 {

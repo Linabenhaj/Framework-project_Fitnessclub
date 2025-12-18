@@ -1,30 +1,36 @@
-using FitnessClub.MAUI.Views.Admin;
+﻿using FitnessClub.MAUI.ViewModels;
 
 namespace FitnessClub.MAUI.Views
 {
     public partial class LoginPage : ContentPage
     {
-        public LoginPage()
+        public LoginPage(LoginViewModel viewModel)
         {
             InitializeComponent();
+            BindingContext = viewModel;
         }
 
-        private async void OnAdminLoginClicked(object sender, EventArgs e)
+        protected override void OnAppearing()
         {
-            // Direct naar admin dashboard
-            await Navigation.PushAsync(new AdminDashboardPage());
+            base.OnAppearing();
+
+            //  reset login velden
+            if (BindingContext is LoginViewModel viewModel)
+            {
+                viewModel.Email = "";
+                viewModel.Password = "";
+                viewModel.ErrorMessage = "";
+                viewModel.ShowError = false;
+            }
         }
 
-        private async void OnTrainerLoginClicked(object sender, EventArgs e)
+        
+        private async void OnLoginSuccess()
         {
-            // Naar home page
-            await Navigation.PushAsync(new HomePage());
+            // Navigeer naar HomePage via Shell
+            await Shell.Current.GoToAsync("//HomePage");
         }
 
-        private async void OnUserLoginClicked(object sender, EventArgs e)
-        {
-            // Naar home page
-            await Navigation.PushAsync(new HomePage());
-        }
+       
     }
 }

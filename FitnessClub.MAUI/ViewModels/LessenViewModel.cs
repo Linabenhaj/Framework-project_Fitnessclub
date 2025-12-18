@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FitnessClub.MAUI.Models;  
 using FitnessClub.MAUI.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
@@ -8,11 +9,11 @@ namespace FitnessClub.MAUI.ViewModels
 {
     public partial class LessenViewModel : BaseViewModel
     {
-        private readonly LocalDbContext _context;  // LocalDbContext ipv FitnessClubDbContext
+        private readonly LocalDbContext _context;
         private readonly Synchronizer _synchronizer;
 
         [ObservableProperty]
-        private ObservableCollection<LocalLes> lessen = new();  // LocalLes ipv Les
+        private ObservableCollection<LocalLes> lessen = new();
 
         [ObservableProperty]
         private string searchText = "";
@@ -79,7 +80,7 @@ namespace FitnessClub.MAUI.ViewModels
         }
 
         [RelayCommand]
-        private async Task Inschrijven(LocalLes les)  // LocalLes ipv Les
+        private async Task Inschrijven(LocalLes les)
         {
             if (les == null) return;
 
@@ -94,10 +95,17 @@ namespace FitnessClub.MAUI.ViewModels
             {
                 try
                 {
-                    var inschrijving = new LocalInschrijving  // LocalInschrijving ipv Inschrijving
+                    if (string.IsNullOrEmpty(General.UserId))
+                    {
+                        await Application.Current.MainPage.DisplayAlert("Fout", "Je moet ingelogd zijn om in te schrijven", "OK");
+                        return;
+                    }
+
+                    var inschrijving = new LocalInschrijving
                     {
                         LesId = les.Id,
                         GebruikerId = General.UserId,
+                        UserId = General.UserId,
                         InschrijfDatum = DateTime.Now,
                         Status = "Actief"
                     };
@@ -116,7 +124,7 @@ namespace FitnessClub.MAUI.ViewModels
         }
 
         [RelayCommand]
-        private async Task ViewLessonDetails(LocalLes les)  // LocalLes ipv Les
+        private async Task ViewLessonDetails(LocalLes les)
         {
             if (les == null) return;
 

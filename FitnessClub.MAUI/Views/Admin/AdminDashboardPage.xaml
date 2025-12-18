@@ -4,123 +4,86 @@
              x:Class="FitnessClub.MAUI.Views.Admin.AdminDashboardPage"
              Title="Admin Dashboard">
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="25" Padding="20">
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout Spacing="20" Padding="20">
 
-            <!-- Header  -->
-            <Border BackgroundColor="#2196F3" 
-                    Padding="20" 
-                    Stroke="Transparent"
-                    StrokeShape="RoundRectangle 15,15,15,15">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="👑 ADMINISTRATOR" 
-                           FontSize="24" 
-                           TextColor="White"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"/>
-                    <Label Text="FitnessClub Beheer" 
-                           FontSize="16" 
-                           TextColor="White"
-                           HorizontalOptions="Center"/>
-                </VerticalStackLayout>
-            </Border>
+                <!-- Header -->
+                <Label Text="👑 Admin Dashboard" 
+                       FontSize="28" 
+                       FontAttributes="Bold" 
+                       HorizontalOptions="Center"
+                       TextColor="Purple"/>
 
-            <!-- Statistieken  -->
-            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="15">
-                <VerticalStackLayout Grid.Column="0" Spacing="5" BackgroundColor="#4CAF50" Padding="15">
-                    <Label Text="128" 
-                           FontSize="28" 
-                           TextColor="White"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"/>
-                    <Label Text="Leden" 
-                           FontSize="12" 
-                           TextColor="White"
-                           HorizontalOptions="Center"/>
-                </VerticalStackLayout>
+                <!-- Admin Cards -->
+                <Frame CornerRadius="10" BackgroundColor="#E3F2FD" Padding="15">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Beheer Functionaliteiten" 
+                               FontSize="18" 
+                               FontAttributes="Bold"/>
 
-                <VerticalStackLayout Grid.Column="1" Spacing="5" BackgroundColor="#FF9800" Padding="15">
-                    <Label Text="24" 
-                           FontSize="28" 
-                           TextColor="White"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"/>
-                    <Label Text="Trainers" 
-                           FontSize="12" 
-                           TextColor="White"
-                           HorizontalOptions="Center"/>
-                </VerticalStackLayout>
+                        <Button Text="📊 Statistieken" 
+                                BackgroundColor="#4CAF50" 
+                                TextColor="White"
+                                HeightRequest="50"/>
 
-                <VerticalStackLayout Grid.Column="2" Spacing="5" BackgroundColor="#F44336" Padding="15">
-                    <Label Text="56" 
-                           FontSize="28" 
-                           TextColor="White"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"/>
-                    <Label Text="Lessen" 
-                           FontSize="12" 
-                           TextColor="White"
-                           HorizontalOptions="Center"/>
-                </VerticalStackLayout>
-            </Grid>
+                        <Button Text="👥 Gebruikers Beheer" 
+                                BackgroundColor="#2196F3" 
+                                TextColor="White"
+                                HeightRequest="50"/>
 
-            <!-- Admin Functies -->
-            <Label Text="📋 BEHEERFUNCTIES" FontSize="18" FontAttributes="Bold"/>
+                        <Button Text="📋 Lessen Beheer" 
+                                BackgroundColor="#FF9800" 
+                                TextColor="White"
+                                HeightRequest="50"/>
+                    </VerticalStackLayout>
+                </Frame>
 
-            <Button Text="👥 Gebruikers Beheren" 
-                    BackgroundColor="#3F51B5"
-                    TextColor="White"
-                    CornerRadius="10"
-                    HeightRequest="55"
-                    Clicked="OnManageUsersClicked"/>
+                <!-- Quick Stats -->
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" 
+                      ColumnSpacing="10" RowSpacing="10">
 
-            <Button Text="📚 Lessen Beheren" 
-                    BackgroundColor="#009688"
-                    TextColor="White"
-                    CornerRadius="10"
-                    HeightRequest="55"
-                    Clicked="OnManageLessonsClicked"/>
+                    <Frame Grid.Column="0" Grid.Row="0" CornerRadius="10" Padding="15">
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Totaal Gebruikers" FontAttributes="Bold"/>
+                            <Label Text="128" FontSize="24" FontAttributes="Bold" 
+                                   HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
 
-            <Button Text="💳 Abonnementen" 
-                    BackgroundColor="#9C27B0"
-                    TextColor="White"
-                    CornerRadius="10"
-                    HeightRequest="55"
-                    Clicked="OnManageSubscriptionsClicked"/>
+                    <Frame Grid.Column="1" Grid.Row="0" CornerRadius="10" Padding="15">
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Actieve Lessen" FontAttributes="Bold"/>
+                            <Label Text="24" FontSize="24" FontAttributes="Bold" 
+                                   HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
 
-            <Button Text="📊 Rapporten" 
-                    BackgroundColor="#607D8B"
-                    TextColor="White"
-                    CornerRadius="10"
-                    HeightRequest="55"
-                    Clicked="OnViewReportsClicked"/>
+                    <Frame Grid.Column="0" Grid.Row="1" CornerRadius="10" Padding="15">
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Nieuwe Inschrijvingen" FontAttributes="Bold"/>
+                            <Label Text="15" FontSize="24" FontAttributes="Bold" 
+                                   HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
 
-            <!-- Snel navigeren -->
-            <Label Text="🚀 SNEL NAAR" FontSize="18" FontAttributes="Bold"/>
+                    <Frame Grid.Column="1" Grid.Row="1" CornerRadius="10" Padding="15">
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Omzet" FontAttributes="Bold"/>
+                            <Label Text="€2.450" FontSize="24" FontAttributes="Bold" 
+                                   HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
 
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                <Button Grid.Column="0" Text="🏠 Home" 
-                        BackgroundColor="#E0E0E0"
-                        CornerRadius="8"
-                        HeightRequest="45"
-                        Clicked="OnGoToHomeClicked"/>
+                <!-- Back Button -->
+                <Button Text="⬅️ Terug naar Home" 
+                        BackgroundColor="#9E9E9E" 
+                        TextColor="White"
+                        Clicked="OnBackClicked"/>
 
-                <Button Grid.Column="1" Text="📚 Lessen" 
-                        BackgroundColor="#E0E0E0"
-                        CornerRadius="8"
-                        HeightRequest="45"
-                        Clicked="OnGoToLessonsClicked"/>
-            </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
 
-            <!-- Uitloggen -->
-            <Button Text="🚪 UITLOGGEN" 
-                    BackgroundColor="#D32F2F"
-                    TextColor="White"
-                    CornerRadius="10"
-                    HeightRequest="55"
-                    Margin="0,20,0,0"
-                    Clicked="OnLogoutClicked"/>
-
-        </VerticalStackLayout>
-    </ScrollView>
 </ContentPage>

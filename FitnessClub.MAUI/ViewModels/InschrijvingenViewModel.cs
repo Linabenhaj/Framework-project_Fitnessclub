@@ -1,6 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using FitnessClub.MAUI.Models;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FitnessClub.MAUI.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Xml.Linq;
@@ -9,10 +9,10 @@ namespace FitnessClub.MAUI.ViewModels
 {
     public partial class InschrijvingenViewModel : BaseViewModel
     {
-        private readonly LocalDbContext _context;  // LocalDbContext ipv FitnessClubDbContext
+        private readonly LocalDbContext _context;
 
         [ObservableProperty]
-        private ObservableCollection<LocalInschrijving> mijnInschrijvingen = new();  // LocalInschrijving ipv Inschrijving
+        private ObservableCollection<LocalInschrijving> mijnInschrijvingen = new();
 
         [ObservableProperty]
         private bool toonAlleenActief = true;
@@ -32,8 +32,6 @@ namespace FitnessClub.MAUI.ViewModels
 
             try
             {
-                await General.LoadUserInfo();
-
                 if (string.IsNullOrEmpty(General.UserId))
                 {
                     await Application.Current.MainPage.DisplayAlert("Info", "Log in om je inschrijvingen te zien", "OK");
@@ -42,12 +40,12 @@ namespace FitnessClub.MAUI.ViewModels
 
                 var query = _context.Inschrijvingen
                     .Include(i => i.Les)
-                    .Where(i => i.GebruikerId == General.UserId);
+                    .Where(i => i.GebruikerId == General.UserId && i.Les != null);  // ← NULL CHECK
 
                 if (ToonAlleenActief)
-                    query = query.Where(i => i.Status == "Actief" && i.Les.StartTijd > DateTime.Now);
+                    query = query.Where(i => i.Status == "Actief" && i.Les!.StartTijd > DateTime.Now);  // ← ! operator
 
-                var inschrijvingen = await query.OrderByDescending(i => i.Les.StartTijd).ToListAsync();
+                var inschrijvingen = await query.OrderByDescending(i => i.Les!.StartTijd).ToListAsync();
 
                 foreach (var inschrijving in inschrijvingen)
                     MijnInschrijvingen.Add(inschrijving);
@@ -63,7 +61,7 @@ namespace FitnessClub.MAUI.ViewModels
         }
 
         [RelayCommand]
-        private async Task Uitschrijven(LocalInschrijving inschrijving)  // LocalInschrijving ipv Inschrijving
+        private async Task Uitschrijven(LocalInschrijving inschrijving)
         {
             if (inschrijving == null) return;
 
@@ -97,7 +95,7 @@ namespace FitnessClub.MAUI.ViewModels
         }
 
         [RelayCommand]
-        private async Task ViewLesDetails(LocalInschrijving inschrijving)  // LocalInschrijving ipv Inschrijving
+        private async Task ViewLesDetails(LocalInschrijving inschrijving)
         {
             if (inschrijving?.Les == null) return;
 

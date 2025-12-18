@@ -11,12 +11,17 @@ namespace FitnessClub.MAUI.Models
         [Required]
         public string UserId { get; set; } = string.Empty;
 
+        public string GebruikerId { get; set; } = string.Empty;
+
         [Required]
         public string LesId { get; set; } = string.Empty;
 
         public DateTime InschrijfDatum { get; set; } = DateTime.Now;
 
-        // navigation properties (optional)
+  
+        public string Status { get; set; } = "Actief";
+
+        // navigation properties
         public virtual LocalUser? User { get; set; }
         public virtual LocalLes? Les { get; set; }
     }

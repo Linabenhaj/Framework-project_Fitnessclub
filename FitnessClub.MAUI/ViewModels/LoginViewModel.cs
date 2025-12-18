@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FitnessClub.MAUI.Services;
 using System.Diagnostics;
@@ -10,7 +10,7 @@ namespace FitnessClub.MAUI.ViewModels
         private readonly AuthService _authService;
 
         [ObservableProperty]
-        private string email = "admin@fitness.com"; // Pre-filled admin
+        private string email = "admin@fitness.com";
 
         [ObservableProperty]
         private string password = "admin123";
@@ -46,28 +46,30 @@ namespace FitnessClub.MAUI.ViewModels
 
                 var result = await _authService.LoginAsync(Email, Password);
 
-                if (result.Success && result.User != null)
+                // AuthService
+                if (result.Success)
                 {
-                    Debug.WriteLine($"Ingelogd als: {result.User.Role} - {result.User.Name}");
+                    //  Email als userId als er geen Id is
+                    string userId = Email;
+                    string userName = Email.Split('@')[0];
+                    string role = "Gebruiker"; // Default rol
+                    string token = ""; // Zet leeg als er geen token is
 
-                    // Navigeer naar juiste dashboard op basis van rol
-                    switch (result.User.Role.ToLower())
-                    {
-                        case "admin":
-                            await Shell.Current.GoToAsync("//AdminDashboardPage");
-                            break;
-                        case "trainer":
-                            // Voor trainer: ga naar HomePage (kan later aangepast worden)
-                            await Shell.Current.GoToAsync("//HomePage");
-                            break;
-                        default:
-                            await Shell.Current.GoToAsync("//HomePage");
-                            break;
-                    }
+                    await General.SaveUserInfo(
+                        userId: userId,
+                        email: Email,
+                        firstName: userName,
+                        lastName: "",
+                        role: role,
+                        token: token
+                    );
+
+                    // Navigeer naar HomePage
+                    await Shell.Current.GoToAsync("//HomePage");
                 }
                 else
                 {
-                    ErrorMessage = result.Message;
+                    ErrorMessage = result.Message ?? "Inloggen mislukt";
                     ShowError = true;
                 }
             }
@@ -87,9 +89,9 @@ namespace FitnessClub.MAUI.ViewModels
         private async Task ShowDemoAccounts()
         {
             var message = "Demo accounts:\n\n" +
-                         "?? Admin: admin@fitness.com / admin123\n" +
-                         "?? Trainer: trainer@fitness.com / trainer123\n" +
-                         "?? Gebruiker: gebruiker@fitness.com / gebruiker123";
+                         "👑 Admin: admin@fitness.com / admin123\n" +
+                         "💪 Trainer: trainer@fitness.com / trainer123\n" +
+                         "👤 Gebruiker: gebruiker@fitness.com / gebruiker123";
 
             await Application.Current.MainPage.DisplayAlert("Demo Accounts", message, "OK");
         }
