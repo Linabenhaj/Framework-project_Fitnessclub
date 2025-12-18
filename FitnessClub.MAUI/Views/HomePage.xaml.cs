@@ -9,16 +9,5 @@ namespace FitnessClub.MAUI.Views
             InitializeComponent();
             BindingContext = viewModel;
         }
-
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-            
-        }
-
-        private async void OnProfileClicked(object sender, EventArgs e)
-        {
-            await Shell.Current.GoToAsync("//ProfielPage");
-        }
     }
 }

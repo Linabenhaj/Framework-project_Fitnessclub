@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FitnessClub.MAUI.Views.RegisterPage"
+             Title="Registreren">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="30" 
+                             VerticalOptions="Center">
+
+            <!-- Header -->
+            <Label Text="📝 Registreren" 
+                   FontSize="28" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center"/>
+
+            <!-- Registratie Formulier -->
+            <Frame CornerRadius="10" Padding="20" 
+                   BackgroundColor="#F5F5F5">
+                <VerticalStackLayout Spacing="15">
+
+                    <!-- Voornaam -->
+                    <Label Text="Voornaam" 
+                           FontAttributes="Bold"/>
+                    <Entry x:Name="FirstNameEntry" 
+                           Placeholder="Je voornaam"/>
+
+                    <!-- Achternaam -->
+                    <Label Text="Achternaam" 
+                           FontAttributes="Bold"/>
+                    <Entry x:Name="LastNameEntry" 
+                           Placeholder="Je achternaam"/>
+
+                    <!-- Email -->
+                    <Label Text="E-mail" 
+                           FontAttributes="Bold"/>
+                    <Entry x:Name="EmailEntry" 
+                           Placeholder="john@example.com"
+                           Keyboard="Email"/>
+
+                    <!-- Wachtwoord -->
+                    <Label Text="Wachtwoord" 
+                           FontAttributes="Bold"/>
+                    <Entry x:Name="PasswordEntry" 
+                           Placeholder="Min. 8 tekens"
+                           IsPassword="True"/>
+
+                    <!-- Bevestig Wachtwoord -->
+                    <Label Text="Bevestig Wachtwoord" 
+                           FontAttributes="Bold"/>
+                    <Entry x:Name="ConfirmPasswordEntry" 
+                           Placeholder="Herhaal wachtwoord"
+                           IsPassword="True"/>
+
+                    <!-- Registreer Button -->
+                    <Button Text="✅ Account Aanmaken" 
+                            Clicked="OnRegisterClicked"
+                            BackgroundColor="#4CAF50" 
+                            TextColor="White"
+                            CornerRadius="10"
+                            HeightRequest="50"/>
+
+                    <!-- Terug naar Login -->
+                    <Button Text="← Terug naar Inloggen" 
+                            Clicked="OnBackToLoginClicked"
+                            BackgroundColor="Transparent"
+                            TextColor="#2196F3"/>
+
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

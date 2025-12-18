@@ -10,7 +10,7 @@ namespace FitnessClub.MAUI
             Routing.RegisterRoute("LoginPage", typeof(LoginPage));
 
             // Admin Routes
-            Routing.RegisterRoute("AdminDashboardPage", typeof(Views.Admin.AdminDashboardPage));
+            Routing.RegisterRoute("AdminDashboardPage", typeof(Views.AdminDashboardPage));
 
             // Main App Pages
             Routing.RegisterRoute("HomePage", typeof(HomePage));

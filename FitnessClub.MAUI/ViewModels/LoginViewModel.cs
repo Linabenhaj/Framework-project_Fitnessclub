@@ -46,14 +46,13 @@ namespace FitnessClub.MAUI.ViewModels
 
                 var result = await _authService.LoginAsync(Email, Password);
 
-                // AuthService
                 if (result.Success)
                 {
-                    //  Email als userId als er geen Id is
                     string userId = Email;
                     string userName = Email.Split('@')[0];
-                    string role = "Gebruiker"; // Default rol
-                    string token = ""; // Zet leeg als er geen token is
+
+                    // Bepaal role op basis van email
+                    string role = Email.Contains("admin") ? "Admin" : "User";
 
                     await General.SaveUserInfo(
                         userId: userId,
@@ -61,12 +60,20 @@ namespace FitnessClub.MAUI.ViewModels
                         firstName: userName,
                         lastName: "",
                         role: role,
-                        token: token
+                        token: ""
                     );
 
-                    // Navigeer naar HomePage
-                    await Shell.Current.GoToAsync("//HomePage");
-                }
+                    // Navigeer naar JUISTE dashboard op basis van role
+                    if (role == "Admin")
+                    {
+                        await Shell.Current.GoToAsync("//AdminDashboardPage");
+                    }
+                    else
+                    {
+                        await Shell.Current.GoToAsync("//DashboardPage"); // User dashboard
+                    }
+                
+            }
                 else
                 {
                     ErrorMessage = result.Message ?? "Inloggen mislukt";
@@ -84,7 +91,6 @@ namespace FitnessClub.MAUI.ViewModels
                 IsBusy = false;
             }
         }
-
         [RelayCommand]
         private async Task ShowDemoAccounts()
         {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using FitnessClub.MAUI.ViewModels;
 using FitnessClub.MAUI.Views;
-using FitnessClub.MAUI.Views.Admin;
 using FitnessClub.MAUI.Models;
 using FitnessClub.MAUI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -55,8 +54,12 @@ namespace FitnessClub.MAUI
             builder.Services.AddTransient<ProfielPage>();
             builder.Services.AddTransient<AboutPage>();
             builder.Services.AddTransient<AdminDashboardPage>();
-
+       
+            builder.Services.AddTransient<RegisterPage>();
             return builder.Build();
+        
+            builder.Services.AddTransient<RegisterPage>();
+
         }
     }
 }

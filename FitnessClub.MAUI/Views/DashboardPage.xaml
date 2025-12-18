@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FitnessClub.MAUI.Views.DashboardPage"
+             Title="Dashboard">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="25" Padding="20">
+
+            <!-- Welcome Header -->
+            <Label Text="{Binding WelcomeMessage}" 
+                   FontSize="28" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center"
+                   TextColor="{StaticResource PrimaryColor}" />
+
+            <!-- Stats Grid -->
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" 
+                  ColumnSpacing="15" RowSpacing="15">
+
+                <!-- Active Lessons Card -->
+                <Frame Grid.Column="0" Grid.Row="0" 
+                       CornerRadius="15" 
+                       BackgroundColor="#4CAF50"
+                       Padding="20"
+                       HeightRequest="120">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Actieve Lessen" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               FontSize="16"/>
+                        <Label Text="{Binding ActiveLessonsCount}" 
+                               TextColor="White" 
+                               FontSize="32" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- My Registrations Card -->
+                <Frame Grid.Column="1" Grid.Row="0" 
+                       CornerRadius="15" 
+                       BackgroundColor="#2196F3"
+                       Padding="20"
+                       HeightRequest="120">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Mijn Inschrijvingen" 
+                               TextColor="White" 
+                               FontAttributes="Bold"
+                               FontSize="16"/>
+                        <Label Text="{Binding MyRegistrationsCount}" 
+                               TextColor="White" 
+                               FontSize="32" 
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Lessons Button -->
+                <Button Grid.Column="0" Grid.Row="1"
+                        Text="📋 Lessen Bekijken" 
+                        Command="{Binding NavigateToLessonsCommand}"
+                        BackgroundColor="#FF9800" 
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="50"
+                        FontSize="14"/>
+
+                <!-- Registrations Button -->
+                <Button Grid.Column="1" Grid.Row="1"
+                        Text="📝 Mijn Inschrijvingen" 
+                        Command="{Binding NavigateToRegistrationsCommand}"
+                        BackgroundColor="#9C27B0" 
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="50"
+                        FontSize="14"/>
+            </Grid>
+
+            <!-- Upcoming Lessons Section -->
+            <Frame CornerRadius="15" Padding="20" HasShadow="True">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="🎯 Komende Lessen" 
+                           FontSize="20" 
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource SecondaryColor}"/>
+
+                    <CollectionView ItemsSource="{Binding UpcomingLessons}"
+                                    HeightRequest="180">
+                        <CollectionView.EmptyView>
+                            <Label Text="Geen komende lessen"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   TextColor="Gray"/>
+                        </CollectionView.EmptyView>
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame CornerRadius="10" Padding="15" 
+                                       BackgroundColor="#F5F5F5"
+                                       HasShadow="True">
+                                    <VerticalStackLayout Spacing="5">
+                                        <Label Text="{Binding Naam}" 
+                                               FontAttributes="Bold"
+                                               FontSize="16"/>
+                                        <Label Text="{Binding StartTijd, StringFormat='{0:dd-MM-yyyy HH:mm}'}" 
+                                               FontSize="12"
+                                               TextColor="Gray"/>
+                                        <Label Text="{Binding Trainer}" 
+                                               FontSize="12"
+                                               TextColor="Gray"/>
+                                    </VerticalStackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Action Buttons -->
+            <VerticalStackLayout Spacing="15">
+                <Button Text="🔄 Synchroniseren" 
+                        Command="{Binding ManualSyncCommand}"
+                        BackgroundColor="#607D8B" 
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="50"/>
+
+                <Button Text="👤 Mijn Profiel" 
+                        Command="{Binding NavigateToProfileCommand}"
+                        BackgroundColor="#795548" 
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="50"/>
+
+                <Button Text="🚪 Uitloggen" 
+                        Command="{Binding LogoutCommand}"
+                        BackgroundColor="#F44336" 
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="50"/>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -1,16 +1,32 @@
-<?xml version="1.0" encoding="UTF-8" ?> 
-<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui" 
-       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
-       x:Class="FitnessClub.MAUI.AppShell" 
-       Title="FitnessClub" 
-       FlyoutBehavior="Disabled"> 
- 
-    <ShellContent Title="Home"> 
-        <ContentPage> 
-            <VerticalStackLayout> 
-                <Label Text="FitnessClub App" /> 
-            </VerticalStackLayout> 
-        </ContentPage> 
-    </ShellContent> 
- 
-</Shell> 
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell x:Class="FitnessClub.MAUI.AppShell"
+       xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:views="clr-namespace:FitnessClub.MAUI.Views"
+       Shell.FlyoutBehavior="Disabled">
+
+    <!-- Startpagina (Home) -->
+    <ShellContent Route="HomePage" 
+                  ContentTemplate="{DataTemplate views:HomePage}" />
+
+    <!-- Login pagina -->
+    <ShellContent Route="LoginPage" 
+                  ContentTemplate="{DataTemplate views:LoginPage}" />
+
+    <!-- User Dashboard -->
+    <ShellContent Route="DashboardPage" 
+                  ContentTemplate="{DataTemplate views:DashboardPage}" />
+
+    <!-- Admin Dashboard -->
+    <ShellContent Route="AdminDashboardPage" 
+                  ContentTemplate="{DataTemplate views:AdminDashboardPage}" />
+
+    <!-- Overige pagina's -->
+    <ShellContent Route="LessenPage" 
+                  ContentTemplate="{DataTemplate views:LessenPage}" />
+
+    <!-- Registratiepagina (moet je nog maken) -->
+    <ShellContent Route="RegisterPage" 
+                  ContentTemplate="{DataTemplate views:RegisterPage}" />
+
+</Shell>

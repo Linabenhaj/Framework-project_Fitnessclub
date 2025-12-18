@@ -52,4 +52,13 @@
     <MauiImage Include="Resources\Images\*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <MauiXaml Update="Views\DashboardPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Views\RegisterPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+  </ItemGroup>
+
 </Project>
