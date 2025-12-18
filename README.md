@@ -83,3 +83,23 @@ Github Copilot en ChatGPT technologieën werden gebruikt bij het debuggen van er
 <img width="364" height="857" alt="image" src="https://github.com/user-attachments/assets/000cda93-cd42-413c-af39-eae2793b00e5" />
 
 
+# .NET WEB 
+
+## welkom pagina
+<img width="1864" height="854" alt="image" src="https://github.com/user-attachments/assets/858a4d18-f6b9-47e2-814b-6869bb5839dc" />
+
+## login pagina 
+
+<img width="1866" height="849" alt="image" src="https://github.com/user-attachments/assets/bb56538e-5492-4962-942f-fbbf87425cf7" />
+
+## registreren pagina
+
+<img width="1814" height="855" alt="image" src="https://github.com/user-attachments/assets/ac6a05f5-498f-41ec-917d-d3ed1eb7cdaa" />
+
+## user dashboard
+
+<img width="1823" height="852" alt="image" src="https://github.com/user-attachments/assets/75ddd8c8-de91-4106-b94a-ebc58d5be71c" />
+
+## logout pagina
+
+<img width="1810" height="860" alt="image" src="https://github.com/user-attachments/assets/93e2b9c4-35eb-4ea5-9e96-a278123f1c9f" />
