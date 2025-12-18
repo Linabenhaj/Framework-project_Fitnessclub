@@ -66,3 +66,20 @@ Voor de screenshots van de applicatie gebruikte ik de user "Wesley" die hiervoor
 ## Gebruik van AI
 
 Github Copilot en ChatGPT technologieën werden gebruikt bij het debuggen van errors en hierdoor ook voor aanvulling om deze errors op te lossen als laatste optie. 
+
+# MAUI APP
+
+## Homepagina app
+<img width="365" height="861" alt="image" src="https://github.com/user-attachments/assets/01a03cee-9961-4dca-81db-5fb4aec7bc8f" />
+
+## Inlog pagina
+<img width="357" height="858" alt="image" src="https://github.com/user-attachments/assets/971eaac2-9c2b-4984-b6b1-eef65f0fa8c7" />
+
+## Regristreren pagina
+<img width="367" height="783" alt="image" src="https://github.com/user-attachments/assets/ed1f31c3-5208-4cd5-bb61-df42ddcbcb47" />
+
+
+## Admin dashboard
+<img width="364" height="857" alt="image" src="https://github.com/user-attachments/assets/000cda93-cd42-413c-af39-eae2793b00e5" />
+
+
