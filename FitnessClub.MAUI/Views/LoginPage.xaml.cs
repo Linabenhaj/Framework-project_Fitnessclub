@@ -1,4 +1,6 @@
 ﻿using FitnessClub.MAUI.ViewModels;
+using System.Diagnostics;
+using System.Text;
 
 namespace FitnessClub.MAUI.Views
 {
@@ -14,7 +16,7 @@ namespace FitnessClub.MAUI.Views
         {
             base.OnAppearing();
 
-            //  reset login velden
+            // reset login velden
             if (BindingContext is LoginViewModel viewModel)
             {
                 viewModel.Email = "";
@@ -25,12 +27,6 @@ namespace FitnessClub.MAUI.Views
         }
 
         
-        private async void OnLoginSuccess()
-        {
-            // Navigeer naar HomePage via Shell
-            await Shell.Current.GoToAsync("//HomePage");
-        }
-
        
     }
 }

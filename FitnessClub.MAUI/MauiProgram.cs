@@ -1,11 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using FitnessClub.MAUI.ViewModels;
 using FitnessClub.MAUI.Views;
-using FitnessClub.MAUI.Models;
 using FitnessClub.MAUI.Services;
-using Microsoft.EntityFrameworkCore;
 using CommunityToolkit.Maui;
-using Microsoft.Maui.Storage;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FitnessClub.MAUI
 {
@@ -27,39 +25,61 @@ namespace FitnessClub.MAUI
             builder.Logging.AddDebug();
 #endif
 
-            // Registreer DbContext
-            builder.Services.AddDbContext<LocalDbContext>(options =>
-                options.UseSqlite($"Data Source={Path.Combine(FileSystem.AppDataDirectory, "fitnessclub.db")}"));
+            // HttpClient configuratie met  IP
+            builder.Services.AddHttpClient("FitnessApi", client =>
+            {
+                // GEBRUIK ALTIJD  IP 
+                client.BaseAddress = new Uri("http://172.20.96.1:5000/api/");
 
-            // Registreer Services
-            builder.Services.AddSingleton<AuthService>();
-            builder.Services.AddSingleton<ApiService>();
-            builder.Services.AddSingleton<Synchronizer>();
+                client.Timeout = TimeSpan.FromSeconds(15); // 🔴 Korter voor snellere feedback
 
-            // Registreer ViewModels
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(
+                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                System.Diagnostics.Debug.WriteLine($"🌐 HttpClient configured with BaseAddress: {client.BaseAddress}");
+            });
+
+            // ApiService registreren
+            builder.Services.AddSingleton<ApiService>(sp =>
+            {
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                var httpClient = httpClientFactory.CreateClient("FitnessApi");
+                return new ApiService(httpClient);
+            });
+
+        
+            builder.Services.AddSingleton<Synchronizer>(sp =>
+            {
+                var apiService = sp.GetRequiredService<ApiService>();
+                return new Synchronizer(null, apiService); // null voor DbContext
+            });
+
+            // ViewModels registreren
+            builder.Services.AddTransient<LoginViewModel>();
             builder.Services.AddTransient<HomeViewModel>();
+            builder.Services.AddTransient<DashboardViewModel>();
             builder.Services.AddTransient<LessenViewModel>();
             builder.Services.AddTransient<InschrijvingenViewModel>();
-            builder.Services.AddTransient<LoginViewModel>();
             builder.Services.AddTransient<SettingsViewModel>();
             builder.Services.AddTransient<ProfielViewModel>();
             builder.Services.AddTransient<AboutViewModel>();
 
-            // Registreer Pages
+            // Pages registreren
+            builder.Services.AddTransient<LoginPage>();
             builder.Services.AddTransient<HomePage>();
+            builder.Services.AddTransient<DashboardPage>();
             builder.Services.AddTransient<LessenPage>();
             builder.Services.AddTransient<InschrijvingenPage>();
-            builder.Services.AddTransient<LoginPage>();
             builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddTransient<ProfielPage>();
             builder.Services.AddTransient<AboutPage>();
             builder.Services.AddTransient<AdminDashboardPage>();
-       
-            builder.Services.AddTransient<RegisterPage>();
-            return builder.Build();
-        
             builder.Services.AddTransient<RegisterPage>();
 
+
+
+            return builder.Build();
         }
     }
 }

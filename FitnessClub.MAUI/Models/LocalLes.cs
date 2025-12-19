@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -6,24 +6,46 @@ namespace FitnessClub.MAUI.Models
 {
     public class LocalLes
     {
-        [Key]
-        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public int Id { get; set; }
 
-        [Required, MaxLength(200)]
-        public string Titel { get; set; } = string.Empty;
-
- 
+        [Required]
+        [StringLength(100)]
         public string Naam { get; set; } = string.Empty;
-        public string Trainer { get; set; } = string.Empty;
+
+        [StringLength(1000)]
         public string Beschrijving { get; set; } = string.Empty;
-        public string Locatie { get; set; } = string.Empty;
-        public bool IsActief { get; set; } = true;
+
+        [Required]
+        public DateTime StartTijd { get; set; }
+
+        [Required]
+        public DateTime EindTijd { get; set; }
+
+        [Range(1, 100)]
         public int MaxDeelnemers { get; set; } = 20;
-        public int MaxAantalDeelnemers { get; set; } = 20; 
 
-        public DateTime StartTijd { get; set; } = DateTime.Now;
-        public DateTime EindTijd { get; set; } = DateTime.Now.AddHours(1);
+        [StringLength(200)]
+        public string Locatie { get; set; } = string.Empty;
 
-        public virtual ICollection<LocalInschrijving> Inschrijvingen { get; set; } = new List<LocalInschrijving>();
+        [StringLength(100)]
+        public string Trainer { get; set; } = string.Empty;
+
+        public bool IsActief { get; set; } = true;
+
+        public DateTime? LastSynced { get; set; }
+
+        // ✅ TOEVOEGEN: Navigation property voor inschrijvingen
+        public List<LocalInschrijving> Inschrijvingen { get; set; } = new();
+
+        // Berekenende properties
+        public string DisplayNaam => $"{Naam} ({StartTijd:HH:mm})";
+        public bool IsToekomstig => StartTijd > DateTime.Now;
+        public bool IsBezig => DateTime.Now >= StartTijd && DateTime.Now <= EindTijd;
+        public bool IsVerleden => EindTijd < DateTime.Now;
+
+        // ✅ TOEVOEGEN: Helper property voor aantal ingeschreven
+        public int AantalIngeschreven => Inschrijvingen?.Count ?? 0;
+        public int BeschikbarePlaatsen => MaxDeelnemers - AantalIngeschreven;
+        public bool IsVol => BeschikbarePlaatsen <= 0;
     }
 }

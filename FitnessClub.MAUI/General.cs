@@ -2,92 +2,70 @@
 {
     public static class General
     {
-        // API Configuration
-        public static string ApiUrl
-        {
-            get => Preferences.Default.Get(nameof(ApiUrl), "https://localhost:7066/api");
-            set => Preferences.Default.Set(nameof(ApiUrl), value);
-        }
 
-        public static string BaseApiUrl
-        {
-            get => Preferences.Default.Get(nameof(BaseApiUrl), "https://localhost:7066");
-            set => Preferences.Default.Set(nameof(BaseApiUrl), value);
-        }
-
+        public static string ApiUrl => "http://10.0.2.2:5000/api/";
         // User Info
         public static string UserId
         {
-            get => Preferences.Default.Get(nameof(UserId), "");
-            set => Preferences.Default.Set(nameof(UserId), value);
+            get => Preferences.Default.Get("user_id", "");
+            set => Preferences.Default.Set("user_id", value);
         }
 
         public static string UserEmail
         {
-            get => Preferences.Default.Get(nameof(UserEmail), "");
-            set => Preferences.Default.Set(nameof(UserEmail), value);
+            get => Preferences.Default.Get("user_email", "");
+            set => Preferences.Default.Set("user_email", value);
         }
 
         public static string UserFirstName
         {
-            get => Preferences.Default.Get(nameof(UserFirstName), "");
-            set => Preferences.Default.Set(nameof(UserFirstName), value);
+            get => Preferences.Default.Get("user_firstname", "");
+            set => Preferences.Default.Set("user_firstname", value);
         }
 
         public static string UserLastName
         {
-            get => Preferences.Default.Get(nameof(UserLastName), "");
-            set => Preferences.Default.Set(nameof(UserLastName), value);
+            get => Preferences.Default.Get("user_lastname", "");
+            set => Preferences.Default.Set("user_lastname", value);
         }
 
         public static string UserRole
         {
-            get => Preferences.Default.Get(nameof(UserRole), "");
-            set => Preferences.Default.Set(nameof(UserRole), value);
+            get => Preferences.Default.Get("user_role", "");
+            set => Preferences.Default.Set("user_role", value);
         }
 
         public static string Token
         {
-            get => Preferences.Default.Get(nameof(Token), "");
-            set => Preferences.Default.Set(nameof(Token), value);
+            get => Preferences.Default.Get("token", "");
+            set => Preferences.Default.Set("token", value);
         }
+
+        // Helper properties
+        public static bool IsLoggedIn => !string.IsNullOrEmpty(Token) && !string.IsNullOrEmpty(UserId);
+        public static bool IsAdmin => UserRole?.Equals("Admin", StringComparison.OrdinalIgnoreCase) == true;
+        public static bool IsTrainer => UserRole?.Equals("Trainer", StringComparison.OrdinalIgnoreCase) == true;
+        public static bool IsUser => UserRole?.Equals("Gebruiker", StringComparison.OrdinalIgnoreCase) == true;
 
         // Methods
-        // IN General.cs, UPDATE de SaveUserInfo method:
-        public static async Task SaveUserInfo(string userId, string email, string firstName, string lastName, string role, string token)
+        public static void SaveUserInfo(string userId, string email, string firstName, string lastName, string role, string token)
         {
-            await Task.Run(() =>
-            {
-                UserId = userId;
-                UserEmail = email;
-                UserFirstName = firstName;
-                UserLastName = lastName;
-                UserRole = role;
-                Token = token;
-
-                // Opslaan in Preferences
-                Preferences.Default.Set("user_id", userId);
-                Preferences.Default.Set("user_email", email);
-                Preferences.Default.Set("user_firstname", firstName);
-                Preferences.Default.Set("user_lastname", lastName);
-                Preferences.Default.Set("user_role", role);
-                Preferences.Default.Set("token", token);
-            });
-        }
-
-        public static async Task LoadUserInfo()
-        {
-            await Task.CompletedTask; // Simpele async method
+            UserId = userId;
+            UserEmail = email;
+            UserFirstName = firstName;
+            UserLastName = lastName;
+            UserRole = role;
+            Token = token;
         }
 
         public static void ClearUserInfo()
         {
-            Preferences.Default.Remove(nameof(UserId));
-            Preferences.Default.Remove(nameof(UserEmail));
-            Preferences.Default.Remove(nameof(UserFirstName));
-            Preferences.Default.Remove(nameof(UserLastName));
-            Preferences.Default.Remove(nameof(UserRole));
-            Preferences.Default.Remove(nameof(Token));
+            Preferences.Default.Remove("user_id");
+            Preferences.Default.Remove("user_email");
+            Preferences.Default.Remove("user_firstname");
+            Preferences.Default.Remove("user_lastname");
+            Preferences.Default.Remove("user_role");
+            Preferences.Default.Remove("token");
         }
     }
 }

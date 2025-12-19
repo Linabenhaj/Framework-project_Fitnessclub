@@ -10,7 +10,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
+
+	  <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+	  <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+
+	  <SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
     
     <!-- BELANGRIJK: Android vereist INTEGER voor VersionCode -->
     <ApplicationId>com.fitnessclub.app</ApplicationId>
@@ -23,10 +27,12 @@
     
     <WindowsPackageType>None</WindowsPackageType>
     <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
     <!-- MAUI Core Packages -->
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.1" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.111" />
     
     <!-- Community Toolkit -->
@@ -39,6 +45,7 @@
     
     <!-- Logging -->
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+    <PackageReference Include="System.Net.Http.Json" Version="10.0.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,6 +57,10 @@
     
     <!-- Images -->
     <MauiImage Include="Resources\Images\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AndroidResource Remove="Platforms\Android\Resources\xml\network_security_config.xml" />
   </ItemGroup>
 
   <ItemGroup>

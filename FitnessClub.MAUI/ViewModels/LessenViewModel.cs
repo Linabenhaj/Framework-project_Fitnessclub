@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FitnessClub.MAUI.Models;  
+using FitnessClub.MAUI.Models;
 using FitnessClub.MAUI.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
@@ -20,6 +20,9 @@ namespace FitnessClub.MAUI.ViewModels
 
         [ObservableProperty]
         private bool showOnlyAvailable = true;
+
+        [ObservableProperty]
+        private bool isRefreshing;
 
         public LessenViewModel(LocalDbContext context, Synchronizer synchronizer)
         {
@@ -105,7 +108,6 @@ namespace FitnessClub.MAUI.ViewModels
                     {
                         LesId = les.Id,
                         GebruikerId = General.UserId,
-                        UserId = General.UserId,
                         InschrijfDatum = DateTime.Now,
                         Status = "Actief"
                     };
@@ -128,7 +130,8 @@ namespace FitnessClub.MAUI.ViewModels
         {
             if (les == null) return;
 
-            var actieveInschrijvingen = les.Inschrijvingen?.Count(i => i.Status == "Actief") ?? 0;
+            // Gebruik de berekende property AantalIngeschreven
+            var actieveInschrijvingen = les.AantalIngeschreven;
             var beschikbaar = les.MaxDeelnemers - actieveInschrijvingen;
 
             await Application.Current.MainPage.DisplayAlert(

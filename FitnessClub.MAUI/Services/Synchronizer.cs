@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
-using System.Text.Json;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using FitnessClub.MAUI.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,26 +9,17 @@ namespace FitnessClub.MAUI.Services
 {
     public class Synchronizer
     {
-        private readonly HttpClient _httpClient;
         private readonly LocalDbContext _context;
-        private readonly JsonSerializerOptions _jsonOptions;
         private readonly ApiService _apiService;
+        private bool _isBusy;
 
         public bool DatabaseExists { get; private set; }
+        public bool IsSynchronizing => _isBusy;
 
         public Synchronizer(LocalDbContext context, ApiService apiService)
         {
             _context = context;
             _apiService = apiService;
-
-            _httpClient = new HttpClient();
-            _jsonOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true,
-            };
-
-            _httpClient.BaseAddress = new Uri(General.ApiUrl);
         }
 
         public async Task InitializeDatabase()
@@ -47,79 +40,183 @@ namespace FitnessClub.MAUI.Services
 
         private async Task SeedDefaultData()
         {
-            if (!await _context.Users.AnyAsync())
+            // Alleen seeden als database leeg is
+            if (!await _context.Lessen.AnyAsync())
             {
-                var localUser = new LocalUser
+                var demoLessen = new[]
                 {
-                    Id = "local-user",
-                    UserName = "localuser",
-                    Email = "local@fitness.com",
-                    Voornaam = "Local",
-                    Achternaam = "User",
-                    Geboortedatum = DateTime.Now.AddYears(-30),
-                    PhoneNumber = "",
-                    EmailConfirmed = true
+                    new LocalLes
+                    {
+                        Naam = "Yoga Basis",
+                        StartTijd = DateTime.Now.AddDays(1).AddHours(10),
+                        EindTijd = DateTime.Now.AddDays(1).AddHours(11),
+                        Locatie = "Zaal 1",
+                        Trainer = "Anna",
+                        MaxDeelnemers = 20,
+                        Beschrijving = "Beginner yoga sessie",
+                        IsActief = true
+                    },
+                    new LocalLes
+                    {
+                        Naam = "HIIT Training",
+                        StartTijd = DateTime.Now.AddDays(2).AddHours(18),
+                        EindTijd = DateTime.Now.AddDays(2).AddHours(19),
+                        Locatie = "Zaal 2",
+                        Trainer = "Mike",
+                        MaxDeelnemers = 15,
+                        Beschrijving = "High Intensity Interval Training",
+                        IsActief = true
+                    }
                 };
 
-                _context.Users.Add(localUser);
+                await _context.Lessen.AddRangeAsync(demoLessen);
                 await _context.SaveChangesAsync();
+                Debug.WriteLine("Seeded default data");
             }
         }
 
-        public async Task<bool> Login(string email, string password)
+        public async Task<bool> LoginWithApi(string email, string password)
         {
             try
             {
-                // DEMO: always succeed and store demo user info
-                var userId = Guid.NewGuid().ToString();
-                var displayName = email.Split('@')[0];
+                var result = await _apiService.LoginAsync(email, password);
 
-                await General.SaveUserInfo(
-                    userId,           // userId
-                    email,            // email
-                    displayName,      // name
-                    "Gebruiker",      // role
-                    "demo-jwt-token", // token
-                    "demo-token-123"  // extra token parameter
-                );
+                if (result.Success && !string.IsNullOrEmpty(result.Token))
+                {
+                    General.SaveUserInfo(
+                        result.Id ?? Guid.NewGuid().ToString(),
+                        result.Email ?? email,
+                        result.Voornaam ?? email.Split('@')[0],
+                        result.Achternaam ?? "",
+                        result.Roles?.FirstOrDefault() ?? "Gebruiker",
+                        result.Token
+                    );
 
-                await SynchronizeAll();
-                return true;
+                    _apiService.SetToken(result.Token);
+
+                    // Synchronizeer na login
+                    await SynchronizeAll();
+
+                    Debug.WriteLine($"User {email} logged in successfully via API");
+                    return true;
+                }
+
+                Debug.WriteLine($"API login failed: {result.Message}");
+                return false;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Login error: {ex.Message}");
+                Debug.WriteLine($"API Login error: {ex.Message}");
                 return false;
             }
         }
 
         public async Task<bool> IsAuthorized()
         {
-            await General.LoadUserInfo();
-            return !string.IsNullOrEmpty(General.Token);
+            if (!string.IsNullOrEmpty(General.Token))
+            {
+                _apiService.SetToken(General.Token);
+                return await _apiService.ValidateTokenAsync();
+            }
+            return false;
         }
 
         public async Task SynchronizeAll()
         {
+            if (_isBusy) return;
+            _isBusy = true;
+
             try
             {
-                Debug.WriteLine("Starting synchronization...");
-                // Demo synchronization
-                await Task.Delay(500);
-                Debug.WriteLine("Synchronization completed successfully");
+                Debug.WriteLine("🔄 Starting REAL API synchronization...");
+
+                // 1. Synchronizeer lessen
+                var lessenResponse = await _apiService.GetAllLessenAsync();
+
+                if (lessenResponse.Success && lessenResponse.Data != null)
+                {
+                    Debug.WriteLine($"📋 Received {lessenResponse.Data.Count} lessons from API");
+
+                    foreach (var apiLes in lessenResponse.Data)
+                    {
+                        var existingLes = await _context.Lessen
+                            .Include(l => l.Inschrijvingen)
+                            .FirstOrDefaultAsync(l => l.Id == apiLes.Id);
+
+                        if (existingLes == null)
+                        {
+                            _context.Lessen.Add(apiLes);
+                            Debug.WriteLine($"➕ Added new lesson: {apiLes.Naam}");
+                        }
+                        else
+                        {
+                            existingLes.Naam = apiLes.Naam;
+                            existingLes.Beschrijving = apiLes.Beschrijving;
+                            existingLes.StartTijd = apiLes.StartTijd;
+                            existingLes.EindTijd = apiLes.EindTijd;
+                            existingLes.Locatie = apiLes.Locatie;
+                            existingLes.Trainer = apiLes.Trainer;
+                            existingLes.MaxDeelnemers = apiLes.MaxDeelnemers;
+                            existingLes.IsActief = apiLes.IsActief;
+                            existingLes.LastSynced = DateTime.Now;
+
+                            _context.Lessen.Update(existingLes);
+                            Debug.WriteLine($"📝 Updated lesson: {apiLes.Naam}");
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+                    Debug.WriteLine($"✅ Saved {lessenResponse.Data.Count} lessons to local database");
+                }
+                else
+                {
+                    Debug.WriteLine($"❌ Failed to sync lessons: {lessenResponse?.Message}");
+                }
+
+                // 2. Synchronizeer inschrijvingen als gebruiker ingelogd is
+                if (!string.IsNullOrEmpty(General.UserId))
+                {
+                    var inschrijvingenResponse = await _apiService
+                        .GetUserInschrijvingenAsync(General.UserId);
+
+                    if (inschrijvingenResponse.Success && inschrijvingenResponse.Data != null)
+                    {
+                        Debug.WriteLine($"📋 Received {inschrijvingenResponse.Data.Count} registrations from API");
+
+                        var oldInschrijvingen = await _context.Inschrijvingen
+                            .Where(i => i.GebruikerId == General.UserId)
+                            .ToListAsync();
+
+                        if (oldInschrijvingen.Count > 0)
+                        {
+                            _context.Inschrijvingen.RemoveRange(oldInschrijvingen);
+                            Debug.WriteLine($"🗑️ Removed {oldInschrijvingen.Count} old registrations");
+                        }
+
+                        foreach (var inschrijving in inschrijvingenResponse.Data)
+                        {
+                            _context.Inschrijvingen.Add(inschrijving);
+                        }
+
+                        await _context.SaveChangesAsync();
+                        Debug.WriteLine($"✅ Saved {inschrijvingenResponse.Data.Count} registrations to local database");
+                    }
+                }
+
+                Debug.WriteLine("🎉 Synchronization completed successfully");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Synchronization error: {ex.Message}");
+                Debug.WriteLine($"❌ REAL API Sync error: {ex.Message}");
+                throw;
+            }
+            finally
+            {
+                _isBusy = false;
             }
         }
 
-        public void Logout()
-        {
-            General.ClearUserInfo();
-            _httpClient.DefaultRequestHeaders.Authorization = null;
-        }
-         public async Task CleanupOldData()
+        public async Task CleanupOldData()
         {
             try
             {
@@ -128,16 +225,24 @@ namespace FitnessClub.MAUI.Services
                     .Where(l => l.StartTijd < cutoffDate)
                     .ToListAsync();
 
-                if (oldLessen.Any())
+                if (oldLessen.Count > 0)
                 {
                     _context.Lessen.RemoveRange(oldLessen);
                     await _context.SaveChangesAsync();
+                    Debug.WriteLine($"🧹 Cleaned up {oldLessen.Count} old lessons");
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error cleaning up old data: {ex.Message}");
             }
+        }
+
+        public void Logout()
+        {
+            General.ClearUserInfo();
+            _apiService.SetToken(null);
+            Debug.WriteLine("👋 User logged out");
         }
     }
 }

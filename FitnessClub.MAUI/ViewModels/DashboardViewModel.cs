@@ -1,8 +1,7 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FitnessClub.MAUI.Models;
 using FitnessClub.MAUI.Services;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
@@ -10,9 +9,6 @@ namespace FitnessClub.MAUI.ViewModels
 {
     public partial class DashboardViewModel : BaseViewModel
     {
-        private readonly Synchronizer _synchronizer;
-        private readonly LocalDbContext _context;
-
         [ObservableProperty]
         private string welcomeMessage = "Welkom bij FitnessClub!";
 
@@ -25,10 +21,8 @@ namespace FitnessClub.MAUI.ViewModels
         [ObservableProperty]
         private ObservableCollection<LocalLes> upcomingLessons = [];
 
-        public DashboardViewModel(Synchronizer synchronizer, LocalDbContext context)
+        public DashboardViewModel() // 🔴 LEEGE CONSTRUCTOR - GEEN dependencies!
         {
-            _synchronizer = synchronizer;
-            _context = context;
             Title = "Dashboard";
             LoadDashboardData();
         }
@@ -43,7 +37,7 @@ namespace FitnessClub.MAUI.ViewModels
                 if (!string.IsNullOrEmpty(General.UserFirstName))
                     WelcomeMessage = $"Welkom, {General.UserFirstName}!";
 
-                // Demo data
+                // Demo data 
                 ActiveLessonsCount = 5;
                 MyRegistrationsCount = 3;
 
@@ -63,10 +57,12 @@ namespace FitnessClub.MAUI.ViewModels
                     Trainer = "Mike",
                     Locatie = "Zaal 2"
                 });
+
+                Debug.WriteLine("✅ Dashboard data loaded (demo)");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error loading dashboard: {ex.Message}");
+                Debug.WriteLine($"❌ Error loading dashboard: {ex.Message}");
             }
             finally
             {
@@ -75,13 +71,22 @@ namespace FitnessClub.MAUI.ViewModels
         }
 
         [RelayCommand]
-        private async Task NavigateToLessons() => await Shell.Current.GoToAsync("//LessenPage");
+        private async Task NavigateToLessons()
+        {
+            await Shell.Current.GoToAsync("//LessenPage");
+        }
 
         [RelayCommand]
-        private async Task NavigateToRegistrations() => await Shell.Current.GoToAsync("//InschrijvingenPage");
+        private async Task NavigateToRegistrations()
+        {
+            await Shell.Current.GoToAsync("//InschrijvingenPage");
+        }
 
         [RelayCommand]
-        private async Task NavigateToProfile() => await Shell.Current.GoToAsync("//ProfielPage");
+        private async Task NavigateToProfile()
+        {
+            await Shell.Current.GoToAsync("//ProfielPage");
+        }
 
         [RelayCommand]
         private async Task ManualSync()
@@ -89,13 +94,20 @@ namespace FitnessClub.MAUI.ViewModels
             IsBusy = true;
             try
             {
-                await _synchronizer.SynchronizeAll();
+                //  Simpele sync zonder database
+                Debug.WriteLine("🔄 Manual sync started (demo)");
+                await Task.Delay(1000); // Simulatie
+
+                // Herlaad data
                 LoadDashboardData();
-                await Application.Current.MainPage.DisplayAlert("Succes", "Synchronisatie voltooid!", "OK");
+
+                await Application.Current.MainPage.DisplayAlert("Succes",
+                    "Synchronisatie voltooid! (demo)", "OK");
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Fout", $"Synchronisatie mislukt: {ex.Message}", "OK");
+                await Application.Current.MainPage.DisplayAlert("Fout",
+                    $"Synchronisatie mislukt: {ex.Message}", "OK");
             }
             finally
             {
@@ -114,6 +126,12 @@ namespace FitnessClub.MAUI.ViewModels
                 General.ClearUserInfo();
                 await Shell.Current.GoToAsync("//HomePage");
             }
+        }
+
+        [RelayCommand]
+        private async Task RefreshDashboard()
+        {
+            LoadDashboardData();
         }
     }
 }

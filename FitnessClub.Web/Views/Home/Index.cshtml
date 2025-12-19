@@ -45,7 +45,7 @@
                 </a>
             }
 
-            <!-- FORM GECORRIGEERD -->
+          
             <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="d-inline">
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn btn-danger btn-lg">
@@ -56,30 +56,5 @@
     }
 </div>
 
-<!-- Taal selector -->
-<div class="mt-5">
-    <h5>@Localizer["SelectLanguage"]</h5>
-    <div class="btn-group" role="group">
-        <a asp-controller="Home"
-           asp-action="SetLanguage"
-           asp-route-culture="nl-BE"
-           asp-route-returnUrl="@Context.Request.Path"
-           class="btn btn-outline-primary">
-            Nederlands
-        </a>
-        <a asp-controller="Home"
-           asp-action="SetLanguage"
-           asp-route-culture="fr-FR"
-           asp-route-returnUrl="@Context.Request.Path"
-           class="btn btn-outline-primary">
-            Français
-        </a>
-        <a asp-controller="Home"
-           asp-action="SetLanguage"
-           asp-route-culture="en-US"
-           asp-route-returnUrl="@Context.Request.Path"
-           class="btn btn-outline-primary">
-            English
-        </a>
-    </div>
+
 </div>

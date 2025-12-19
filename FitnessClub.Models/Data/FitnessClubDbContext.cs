@@ -16,6 +16,9 @@ namespace FitnessClub.Models.Data
         public DbSet<Les> Lessen { get; set; }
         public DbSet<Inschrijving> Inschrijvingen { get; set; }
 
+        //  LogError DbSet 
+        public DbSet<LogError> LogErrors { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -43,6 +46,28 @@ namespace FitnessClub.Models.Data
                 .HasOne(i => i.Gebruiker)
                 .WithMany(g => g.Inschrijvingen)
                 .HasForeignKey(i => i.GebruikerId);
+
+            // Configuratie voor LogError
+            builder.Entity<LogError>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Message)
+                    .IsRequired()
+                    .HasMaxLength(1000);
+                entity.Property(e => e.StackTrace)
+                    .HasMaxLength(4000);
+                entity.Property(e => e.Source)
+                    .HasMaxLength(500);
+                entity.Property(e => e.UserId)
+                    .HasMaxLength(100);
+                entity.Property(e => e.Level)
+                    .HasMaxLength(50)
+                    .HasDefaultValue("Error");
+                entity.Property(e => e.RequestPath)
+                    .HasMaxLength(500);
+                entity.Property(e => e.TimeStamp)
+                    .HasDefaultValueSql("GETUTCDATE()");
+            });
         }
     }
 }
