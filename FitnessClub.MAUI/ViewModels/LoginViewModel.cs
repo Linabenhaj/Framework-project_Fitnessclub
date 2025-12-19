@@ -5,31 +5,31 @@ using System.Diagnostics;
 
 namespace FitnessClub.MAUI.ViewModels
 {
-    public partial class LoginViewModel : BaseViewModel
+    public partial class LoginViewModel : BaseViewModel  // ViewModel voor login pagina
     {
         private readonly ApiService _apiService;
 
         [ObservableProperty]
-        private string email = "admin@fitness.com";
+        private string email = "admin@fitness.com";  // Standaard demo email
 
         [ObservableProperty]
-        private string password = "admin123";
+        private string password = "admin123";  // Standaard demo wachtwoord
 
         [ObservableProperty]
-        private string errorMessage = string.Empty;
+        private string errorMessage = string.Empty;  // Foutmelding bij login
 
         [ObservableProperty]
-        private bool showError;
+        private bool showError;  // Toon foutmelding
 
         public LoginViewModel(ApiService apiService)
         {
             _apiService = apiService;
             Title = "Inloggen";
 
-            // Test verbinding bij opstart
-            _ = TestConnectionOnStartup();
+            _ = TestConnectionOnStartup();  // Test API verbinding bij opstart
         }
 
+        // Test API verbinding bij app opstart
         private async Task TestConnectionOnStartup()
         {
             try
@@ -46,6 +46,7 @@ namespace FitnessClub.MAUI.ViewModels
             }
         }
 
+        // Login gebruiker via API
         [RelayCommand]
         private async Task Login()
         {
@@ -57,7 +58,7 @@ namespace FitnessClub.MAUI.ViewModels
 
             try
             {
-                // Validatie
+                // Valideer input velden
                 if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
                 {
                     ErrorMessage = "Vul zowel e-mail als wachtwoord in";
@@ -68,8 +69,7 @@ namespace FitnessClub.MAUI.ViewModels
                 Debug.WriteLine($"🔐 Login attempt for: {Email}");
                 Debug.WriteLine($"🔐 Using API URL: {_apiService.GetBaseUrl()}");
 
-                // Directe API call
-                var result = await _apiService.LoginAsync(Email, Password);
+                var result = await _apiService.LoginAsync(Email, Password);  // API login call
 
                 Debug.WriteLine($"🔐 API Response - Success: {result.Success}");
                 Debug.WriteLine($"🔐 API Response - Token: {(string.IsNullOrEmpty(result.Token) ? "MISSING" : "PRESENT")}");
@@ -79,7 +79,7 @@ namespace FitnessClub.MAUI.ViewModels
                 {
                     Debug.WriteLine($"✅ Login successful!");
 
-                    // Save user info
+                    // Sla gebruiker info op in Preferences
                     General.SaveUserInfo(
                         userId: result.Id ?? Guid.NewGuid().ToString(),
                         email: result.Email ?? Email,
@@ -89,14 +89,12 @@ namespace FitnessClub.MAUI.ViewModels
                         token: result.Token
                     );
 
-                    // Set token in ApiService
-                    _apiService.SetToken(result.Token);
+                    _apiService.SetToken(result.Token);  // Stel token in voor toekomstige requests
 
                     Debug.WriteLine($"👤 User saved: {General.UserFirstName} {General.UserLastName}");
                     Debug.WriteLine($"🎭 Role: {General.UserRole}");
 
-                    // Navigatie
-                    await Shell.Current.GoToAsync("//DashboardPage");
+                    await Shell.Current.GoToAsync("//DashboardPage");  // Navigeer naar dashboard
                 }
                 else
                 {
@@ -104,7 +102,7 @@ namespace FitnessClub.MAUI.ViewModels
                     ShowError = true;
                     Debug.WriteLine($"❌ Login failed: {result.Message}");
 
-                    // Extra debug info voor jou
+                    // Toon debug info voor ontwikkelaar
                     await Application.Current.MainPage.DisplayAlert("Debug Info",
                         $"Login Response:\n\n" +
                         $"Success: {result.Success}\n" +
@@ -137,6 +135,7 @@ namespace FitnessClub.MAUI.ViewModels
             }
         }
 
+        // Test API verbinding via service
         [RelayCommand]
         private async Task TestConnection()
         {
@@ -172,6 +171,7 @@ namespace FitnessClub.MAUI.ViewModels
             }
         }
 
+        // Toon demo accounts informatie
         [RelayCommand]
         private async Task ShowDemoAccounts()
         {
@@ -183,12 +183,14 @@ namespace FitnessClub.MAUI.ViewModels
             await Application.Current.MainPage.DisplayAlert("Test Accounts", message, "OK");
         }
 
+        // Navigeer naar registratie pagina
         [RelayCommand]
         private async Task NavigateToRegister()
         {
             await Shell.Current.GoToAsync("//RegisterPage");
         }
 
+        // Navigeer als gast (zonder login)
         [RelayCommand]
         private async Task NavigateAsGuest()
         {

@@ -2,38 +2,38 @@
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Minimale services
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Basis services registreren voor API functionaliteit
+builder.Services.AddControllers();  // Voegt controller ondersteuning toe
+builder.Services.AddEndpointsApiExplorer();  // API explorer voor endpoints
+builder.Services.AddSwaggerGen();  // Genereert Swagger documentatie
 
-// CORS voor MAUI - ALLES TOESTAAN
+// CORS configuratie - staat alle cross-origin requests toe voor MAUI
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()       // Vanuit MAUI
-              .AllowAnyMethod()       // GET, POST, etc.
-              .AllowAnyHeader();      // Alle headers
+        policy.AllowAnyOrigin()       // Accepteert requests vanaf elke bron
+              .AllowAnyMethod()       // Staat alle HTTP methodes toe (GET, POST, etc.)
+              .AllowAnyHeader();      // Accepteert alle headers
     });
 });
 
 var app = builder.Build();
 
-// Swagger in development
+// Swagger UI alleen in development omgeving
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwagger();  // Voegt Swagger middleware toe
+    app.UseSwaggerUI();  // Voegt Swagger UI interface toe
 }
 
-// CORS gebruiken
+// CORS policy toepassen
 app.UseCors("AllowAll");
 
-// MAUI heeft deze nodig
+// Authorization middleware toevoegen
 app.UseAuthorization();
 
-// De endpoints die je MAUI app nodig heeft
+// Health check endpoint - controleert of API draait
 app.MapGet("/api/health", () =>
 {
     Console.WriteLine($"Health check op: {DateTime.Now}");
@@ -45,18 +45,18 @@ app.MapGet("/api/health", () =>
     });
 });
 
-// Login endpoint - SIMPELE VERSIE
+// Login endpoint - verwerkt gebruikersauthenticatie
 app.MapPost("/api/gebruikers/login", (LoginRequest request) =>
 {
     Console.WriteLine($"Login poging: {request.Email}");
 
-    // Simpele hardcoded login - GEEN DATABASE
+    // Hardcoded login voor testdoeleinden
     if (request.Email == "admin@fitness.com" && request.Password == "admin123")
     {
         return Results.Ok(new
         {
             success = true,
-            token = "fake-jwt-token-admin-12345",
+            token = "fake-jwt-token-admin-12345",  // Test token voor admin
             email = "admin@fitness.com",
             voornaam = "Admin",
             achternaam = "User",
@@ -70,7 +70,7 @@ app.MapPost("/api/gebruikers/login", (LoginRequest request) =>
         return Results.Ok(new
         {
             success = true,
-            token = "fake-jwt-token-user-67890",
+            token = "fake-jwt-token-user-67890",  // Test token voor gebruiker
             email = "user@fitness.com",
             voornaam = "Regular",
             achternaam = "User",
@@ -79,11 +79,11 @@ app.MapPost("/api/gebruikers/login", (LoginRequest request) =>
         });
     }
 
-    // Als login mislukt
+    // Retourneert unauthorized bij foute credentials
     return Results.Unauthorized();
 });
 
-// Lessen endpoint - SIMPELE DATA
+// Lessen endpoint - retourneert lesdata
 app.MapGet("/api/lessen", () =>
 {
     var lessen = new[]
@@ -122,21 +122,21 @@ app.MapGet("/api/lessen", () =>
     });
 });
 
-// Token validatie endpoint
+// Token validatie endpoint - controleert token geldigheid
 app.MapGet("/api/gebruikers/validate", () =>
 {
-    // Altijd true teruggeven voor test
+    // Retourneert altijd true voor testdoeleinden
     return Results.Ok(new { valid = true });
 });
 
-// 🔴 BELANGRIJK: LUISTER OP ALLE IP's
+// Console output voor startup informatie
 Console.WriteLine("🚀 Starting FitnessClub API...");
 Console.WriteLine("📡 Listening on ALL interfaces (0.0.0.0:5000)");
 Console.WriteLine("🌐 Swagger UI: http://localhost:5000/swagger");
 Console.WriteLine("📱 MAUI endpoint: http://172.20.96.1:5000/api/");
 
-// 🔴 DEZE REGEL IS KRITIEK: 0.0.0.0 betekent "luister op alle IP's"
+// Start API en luister op alle netwerkinterfaces
 app.Run("http://0.0.0.0:5000");
 
-// DTO voor login
+// DTO (Data Transfer Object) voor login requests
 public record LoginRequest(string Email, string Password);

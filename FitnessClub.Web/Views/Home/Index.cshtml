@@ -1,60 +1,71 @@
-﻿@using Microsoft.AspNetCore.Mvc.Localization
-@inject IViewLocalizer Localizer
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<Gebruiker> SignInManager
 
 @{
-    ViewData["Title"] = Localizer["Home"];
+    ViewData["Title"] = "Home";
 }
 
 <div class="text-center">
-    <h1 class="display-4">@Localizer["Welcome"]</h1>
+    <h1 class="display-4">Welkom bij Fitness Club</h1>
 
-    @if (!User.Identity.IsAuthenticated)
+    @if (!SignInManager.IsSignedIn(User))
     {
+        <!-- NIET ingelogd: toon login/register -->
         <div class="mt-4">
-            <a class="btn btn-primary btn-lg" asp-area="Identity" asp-page="/Account/Login">
-                @Localizer["Login"]
+            <a class="btn btn-primary btn-lg" asp-controller="Account" asp-action="Login">
+                Inloggen
             </a>
-            <a class="btn btn-secondary btn-lg" asp-area="Identity" asp-page="/Account/Register">
-                @Localizer["Register"]
+            <a class="btn btn-secondary btn-lg" asp-controller="Account" asp-action="Register">
+                Registreren
             </a>
         </div>
     }
     else
     {
+        <!-- WEL ingelogd -->
         <div class="alert alert-info mt-4">
-            <h5>@Localizer["LoggedInAs"] <strong>@User.Identity.Name</strong></h5>
+            <h5>Ingelogd als <strong>@User.Identity.Name</strong></h5>
         </div>
 
         <div class="mt-4">
             @if (User.IsInRole("Admin"))
             {
+                <!-- ADMIN: ga naar Admin Dashboard -->
                 <a class="btn btn-success btn-lg" asp-controller="Admin" asp-action="Dashboard">
-                    @Localizer["AdminDashboard"]
-                </a>
-            }
-            else if (User.IsInRole("Trainer"))
-            {
-                <a class="btn btn-success btn-lg" asp-controller="Trainer" asp-action="Dashboard">
-                    @Localizer["TrainerDashboard"]
+                    Admin Dashboard
                 </a>
             }
             else
             {
-                <a class="btn btn-success btn-lg" asp-controller="User" asp-action="Dashboard">
-                    @Localizer["UserDashboard"]
+                <!-- ANDERE gebruikers (Lid, Trainer, PremiumLid): ga naar User Dashboard -->
+                <a class="btn btn-success btn-lg" asp-controller="Home" asp-action="Index">
+                    Mijn Dashboard
                 </a>
             }
 
-          
-            <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="d-inline">
+            <!-- Logout knop voor iedereen -->
+            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn btn-danger btn-lg">
-                    @Localizer["Logout"]
+                    Uitloggen
                 </button>
             </form>
         </div>
     }
-</div>
 
-
+    <!-- Demo accounts info -->
+    <div class="mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Demo Accounts</h5>
+                <p>Test de applicatie met deze accounts:</p>
+                <ul class="text-start">
+                    <li><strong>Admin:</strong> admin@fitnessclub.be / Admin123!</li>
+                    <li><strong>Trainer:</strong> trainer@fitnessclub.be / Trainer123!</li>
+                    <li><strong>Lid:</strong> lid@fitnessclub.be / Lid123!</li>
+                </ul>
+                <p class="mt-2"><small>Admin heeft eigen dashboard, andere gebruikers zien gewoon home pagina</small></p>
+            </div>
+        </div>
+    </div>
 </div>

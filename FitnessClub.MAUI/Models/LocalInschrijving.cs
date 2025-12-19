@@ -6,7 +6,7 @@ namespace FitnessClub.MAUI.Models
     {
         public int Id { get; set; }
 
-        // ✅ CORRECTIE: Property heet 'GebruikerId', niet 'UserId'
+       
         public string GebruikerId { get; set; } = string.Empty;
 
         public int LesId { get; set; }
@@ -17,7 +17,7 @@ namespace FitnessClub.MAUI.Models
         // Navigation properties
         public LocalLes? Les { get; set; }
 
-        // ✅ OPTIONEEL: Als je gebruiker info nodig hebt
+        //gebruiker info nodig hebt
         public string? GebruikerNaam { get; set; }
         public string? GebruikerEmail { get; set; }
     }

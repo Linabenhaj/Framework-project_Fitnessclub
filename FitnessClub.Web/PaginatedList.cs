@@ -1,11 +1,10 @@
-﻿// FitnessClub.Web/PaginatedList.cs (IN ROOT, niet in Controllers)
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FitnessClub.Web  // BELANGRIJK: FitnessClub.Web, niet FitnessClub.Web.Controllers
+namespace FitnessClub.Web  
 {
     public class PaginatedList<T> : List<T>
     {

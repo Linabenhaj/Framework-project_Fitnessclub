@@ -3,37 +3,39 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace FitnessClub.MAUI.ViewModels
 {
-    public partial class ProfielViewModel : BaseViewModel
+    public partial class ProfielViewModel : BaseViewModel  // ViewModel voor profiel pagina
     {
         [ObservableProperty]
-        private string volledigeNaam = "Test Gebruiker";
+        private string volledigeNaam = "Test Gebruiker";  // Gebruikersnaam
 
         [ObservableProperty]
-        private string email = "test@fitness.com";
+        private string email = "test@fitness.com";  // Email adres
 
         [ObservableProperty]
-        private string telefoon = "012 34 56 78";
+        private string telefoon = "012 34 56 78";  // Telefoonnummer
 
         [ObservableProperty]
-        private DateTime geboortedatum = new(1990, 1, 1);  // ← FIXED
+        private DateTime geboortedatum = new(1990, 1, 1);  // Geboortedatum
 
         [ObservableProperty]
-        private string abonnementNaam = "Premium - €29.99/maand";
+        private string abonnementNaam = "Premium - €29.99/maand";  // Abonnementsinfo
 
         [ObservableProperty]
-        private int aantalInschrijvingen = 3;
+        private int aantalInschrijvingen = 3;  // Aantal actieve inschrijvingen
 
         [ObservableProperty]
-        private bool isEditing = false;
+        private bool isEditing = false;  // Bewerkmodus status
 
         public ProfielViewModel()
         {
             Title = "Mijn Profiel";
         }
 
+        // Activeer bewerkmodus
         [RelayCommand]
         private void EditProfile() => IsEditing = true;
 
+        // Sla profiel wijzigingen op
         [RelayCommand]
         private async Task SaveProfile()
         {
@@ -42,7 +44,7 @@ namespace FitnessClub.MAUI.ViewModels
 
             try
             {
-                if (string.IsNullOrWhiteSpace(VolledigeNaam))
+                if (string.IsNullOrWhiteSpace(VolledigeNaam))  // Valideer verplichte velden
                 {
                     await Application.Current.MainPage.DisplayAlert("Fout", "Naam is verplicht", "OK");
                     return;
@@ -51,7 +53,7 @@ namespace FitnessClub.MAUI.ViewModels
                 await Application.Current.MainPage.DisplayAlert("Succes",
                     $"Profiel opgeslagen!\nNaam: {VolledigeNaam}", "OK");
 
-                IsEditing = false;
+                IsEditing = false;  // Schakel bewerkmodus uit
             }
             catch (Exception ex)
             {

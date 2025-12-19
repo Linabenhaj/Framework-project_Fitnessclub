@@ -7,57 +7,58 @@ using System.Collections.ObjectModel;
 
 namespace FitnessClub.MAUI.ViewModels
 {
-    public partial class LessenViewModel : BaseViewModel
+    public partial class LessenViewModel : BaseViewModel  // ViewModel voor lessen overzicht
     {
         private readonly LocalDbContext _context;
         private readonly Synchronizer _synchronizer;
 
         [ObservableProperty]
-        private ObservableCollection<LocalLes> lessen = new();
+        private ObservableCollection<LocalLes> lessen = new();  // Lijst met lessen
 
         [ObservableProperty]
-        private string searchText = "";
+        private string searchText = "";  // Zoekterm voor filteren
 
         [ObservableProperty]
-        private bool showOnlyAvailable = true;
+        private bool showOnlyAvailable = true;  // Toon alleen beschikbare lessen
 
         [ObservableProperty]
-        private bool isRefreshing;
+        private bool isRefreshing;  // Pull-to-refresh status
 
         public LessenViewModel(LocalDbContext context, Synchronizer synchronizer)
         {
             _context = context;
             _synchronizer = synchronizer;
             Title = "Lessen";
-            LoadLessen();
+            LoadLessen();  // Laad lessen bij opstart
         }
 
+        // Laad lessen uit database
         public async void LoadLessen()
         {
             if (IsBusy) return;
             IsBusy = true;
-            Lessen.Clear();
+            Lessen.Clear();  // Maak lijst leeg
 
             try
             {
                 var query = _context.Lessen
-                    .Include(l => l.Inschrijvingen)
-                    .Where(l => l.IsActief && l.StartTijd > DateTime.Now);
+                    .Include(l => l.Inschrijvingen)  // Include inschrijvingen voor bezettingsgraad
+                    .Where(l => l.IsActief && l.StartTijd > DateTime.Now);  // Filter actieve toekomstige lessen
 
                 if (ShowOnlyAvailable)
-                    query = query.Where(l => l.Inschrijvingen.Count(i => i.Status == "Actief") < l.MaxDeelnemers);
+                    query = query.Where(l => l.Inschrijvingen.Count(i => i.Status == "Actief") < l.MaxDeelnemers);  // Filter beschikbare lessen
 
                 if (!string.IsNullOrWhiteSpace(SearchText))
                 {
                     query = query.Where(l =>
                         l.Naam.Contains(SearchText) ||
                         l.Trainer.Contains(SearchText) ||
-                        l.Locatie.Contains(SearchText));
+                        l.Locatie.Contains(SearchText));  // Zoek op naam, trainer of locatie
                 }
 
-                var lessonList = await query.OrderBy(l => l.StartTijd).ToListAsync();
+                var lessonList = await query.OrderBy(l => l.StartTijd).ToListAsync();  // Sorteer op starttijd
                 foreach (var les in lessonList)
-                    Lessen.Add(les);
+                    Lessen.Add(les);  // Voeg toe aan observable collectie
             }
             catch (Exception ex)
             {
@@ -69,19 +70,22 @@ namespace FitnessClub.MAUI.ViewModels
             }
         }
 
+        // Herlaad lessen bij zoekopdracht
         [RelayCommand]
         private void Search() => LoadLessen();
 
+        // Vernieuw lessen via synchronizer
         [RelayCommand]
         private async Task Refresh()
         {
             IsRefreshing = true;
-            await _synchronizer.SynchronizeAll();
-            LoadLessen();
+            await _synchronizer.SynchronizeAll();  // Sync met API
+            LoadLessen();  // Herlaad lessen
             await Task.Delay(500);
             IsRefreshing = false;
         }
 
+        // Schrijf gebruiker in voor les
         [RelayCommand]
         private async Task Inschrijven(LocalLes les)
         {
@@ -91,14 +95,14 @@ namespace FitnessClub.MAUI.ViewModels
                 "Inschrijven",
                 $"Weet je zeker dat je wilt inschrijven voor '{les.Naam}'?\n" +
                 $"Datum: {les.StartTijd:dd/MM/yyyy HH:mm}\n" +
-                $"Trainer: {les.Trainer}",
+                $"Trainer: {les.Trainer}",  // Bevestigingsdialoog
                 "Ja", "Nee");
 
             if (confirm)
             {
                 try
                 {
-                    if (string.IsNullOrEmpty(General.UserId))
+                    if (string.IsNullOrEmpty(General.UserId))  // Controleer of gebruiker ingelogd is
                     {
                         await Application.Current.MainPage.DisplayAlert("Fout", "Je moet ingelogd zijn om in te schrijven", "OK");
                         return;
@@ -112,11 +116,11 @@ namespace FitnessClub.MAUI.ViewModels
                         Status = "Actief"
                     };
 
-                    _context.Inschrijvingen.Add(inschrijving);
-                    await _context.SaveChangesAsync();
+                    _context.Inschrijvingen.Add(inschrijving);  // Voeg nieuwe inschrijving toe
+                    await _context.SaveChangesAsync();  // Sla op in database
 
                     await Application.Current.MainPage.DisplayAlert("Succes", "Succesvol ingeschreven!", "OK");
-                    LoadLessen();
+                    LoadLessen();  // Herlaad lessen lijst
                 }
                 catch (Exception ex)
                 {
@@ -125,14 +129,14 @@ namespace FitnessClub.MAUI.ViewModels
             }
         }
 
+        // Toon details van specifieke les
         [RelayCommand]
         private async Task ViewLessonDetails(LocalLes les)
         {
             if (les == null) return;
 
-            // Gebruik de berekende property AantalIngeschreven
-            var actieveInschrijvingen = les.AantalIngeschreven;
-            var beschikbaar = les.MaxDeelnemers - actieveInschrijvingen;
+            var actieveInschrijvingen = les.AantalIngeschreven;  // Gebruik berekende property
+            var beschikbaar = les.MaxDeelnemers - actieveInschrijvingen;  // Bereken beschikbare plaatsen
 
             await Application.Current.MainPage.DisplayAlert(
                 les.Naam,
@@ -141,7 +145,7 @@ namespace FitnessClub.MAUI.ViewModels
                 $"Locatie: {les.Locatie}\n" +
                 $"Beschikbaar: {beschikbaar}/{les.MaxDeelnemers}\n" +
                 $"Duur: {(les.EindTijd - les.StartTijd).TotalMinutes} minuten\n\n" +
-                $"{les.Beschrijving}",
+                $"{les.Beschrijving}",  // Toon alle lesdetails
                 "OK");
         }
     }

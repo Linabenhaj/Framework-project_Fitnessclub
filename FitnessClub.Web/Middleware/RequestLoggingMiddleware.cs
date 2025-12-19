@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace FitnessClub.Web.Middleware
 {
-    public class RequestLoggingMiddleware
+    public class RequestLoggingMiddleware  // Middleware voor gedetailleerd request logging
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<RequestLoggingMiddleware> _logger;
@@ -16,25 +16,24 @@ namespace FitnessClub.Web.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var stopwatch = Stopwatch.StartNew();
+            var stopwatch = Stopwatch.StartNew();  // Start stopwatch voor timing
             var request = context.Request;
-            var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+            var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";  // Haal IP adres op
 
             // Log request start
             _logger.LogInformation($"Request started: {request.Method} {request.Path} from {ipAddress}");
 
             try
             {
-                // Request
-                await _next(context);
+                await _next(context);  // Verwerk request
 
                 stopwatch.Stop();
 
-                // Log completion
+                // Log completion met statuscode
                 var statusCode = context.Response.StatusCode;
-                var logLevel = statusCode >= 500 ? LogLevel.Error :
-                              statusCode >= 400 ? LogLevel.Warning :
-                              LogLevel.Information;
+                var logLevel = statusCode >= 500 ? LogLevel.Error :  // Server error
+                              statusCode >= 400 ? LogLevel.Warning : // Client error
+                              LogLevel.Information;                  // Succes
 
                 _logger.Log(logLevel,
                     $"Request completed: {request.Method} {request.Path} " +
@@ -44,17 +43,17 @@ namespace FitnessClub.Web.Middleware
             {
                 stopwatch.Stop();
 
-                // Log error
+                // Log error met details
                 _logger.LogError(ex,
                     $"Request failed: {request.Method} {request.Path} " +
                     $"=> Error: {ex.Message} in {stopwatch.ElapsedMilliseconds}ms");
 
-                throw; // Re-throw voor middleware 
+                throw;  // Re-throw voor error handling middleware
             }
         }
     }
 
-    //  method registratie
+    // Extension method voor eenvoudige middleware registratie
     public static class RequestLoggingMiddlewareExtensions
     {
         public static IApplicationBuilder UseRequestLogging(this IApplicationBuilder builder)

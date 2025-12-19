@@ -5,7 +5,7 @@ namespace FitnessClub.MAUI.Models
     public class LocalUser
     {
         [Key]
-        public string Id { get; set; } = string.Empty; // 👈 string ipv int
+        public string Id { get; set; } = string.Empty; 
 
         [Required]
         [MaxLength(100)]
@@ -30,7 +30,7 @@ namespace FitnessClub.MAUI.Models
 
         public bool EmailConfirmed { get; set; }
 
-        // 👇 DIT IS WAT JE MIST - AbonnementType ipv Abonnement
+        
         [MaxLength(50)]
         public string AbonnementType { get; set; } = "Standaard";
 

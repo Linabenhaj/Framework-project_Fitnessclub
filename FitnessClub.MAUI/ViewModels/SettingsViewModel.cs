@@ -5,48 +5,49 @@ using FitnessClub.MAUI.Services;
 
 namespace FitnessClub.MAUI.ViewModels
 {
-    public partial class SettingsViewModel : BaseViewModel
+    public partial class SettingsViewModel : BaseViewModel  // ViewModel voor instellingen pagina
     {
         private readonly Synchronizer _synchronizer;
-        private readonly LocalDbContext _context; 
+        private readonly LocalDbContext _context;
 
         [ObservableProperty]
-        private string lastSyncTime = "Nooit";
+        private string lastSyncTime = "Nooit";  // Laatste synchronisatietijd
 
         [ObservableProperty]
-        private bool autoSyncEnabled = true;
+        private bool autoSyncEnabled = true;  // Automatische sync instelling
 
         [ObservableProperty]
-        private bool notifyBeforeLesson = true;
+        private bool notifyBeforeLesson = true;  // Notificatie instelling
 
         [ObservableProperty]
-        private string notificationTime = "30";
+        private string notificationTime = "30";  // Notificatietijd (minuten)
 
         [ObservableProperty]
-        private string appVersion = "1.0.0";
+        private string appVersion = "1.0.0";  // App versie
 
         [ObservableProperty]
-        private string databaseStatus = "Actief";
+        private string databaseStatus = "Actief";  // Database status
 
         [ObservableProperty]
-        private long localIdCounter = -1;
+        private long localIdCounter = -1;  // Lokale ID counter
 
         public SettingsViewModel(Synchronizer synchronizer, LocalDbContext context)
         {
             _synchronizer = synchronizer;
             _context = context;
             Title = "Instellingen";
-            LoadSettings();
+            LoadSettings();  // Laad instellingen bij opstart
         }
 
+        // Laad app instellingen en versie
         private void LoadSettings()
         {
             try
             {
                 var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                var version = assembly.GetName().Version;
+                var version = assembly.GetName().Version;  // Haal assembly versie op
                 AppVersion = version?.ToString() ?? "1.0.0";
-                DatabaseStatus = _synchronizer.DatabaseExists ? "Actief" : "Inactief";
+                DatabaseStatus = _synchronizer.DatabaseExists ? "Actief" : "Inactief";  // Controleer database status
             }
             catch
             {
@@ -54,6 +55,7 @@ namespace FitnessClub.MAUI.ViewModels
             }
         }
 
+        // Handmatige synchronisatie trigger
         [RelayCommand]
         private async Task ManualSync()
         {
@@ -62,8 +64,8 @@ namespace FitnessClub.MAUI.ViewModels
 
             try
             {
-                await _synchronizer.SynchronizeAll();
-                LastSyncTime = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+                await _synchronizer.SynchronizeAll();  // Voer synchronisatie uit
+                LastSyncTime = DateTime.Now.ToString("dd/MM/yyyy HH:mm");  // Update tijd
                 await Application.Current.MainPage.DisplayAlert("Succes", "Synchronisatie voltooid!", "OK");
             }
             catch (Exception ex)
@@ -76,6 +78,7 @@ namespace FitnessClub.MAUI.ViewModels
             }
         }
 
+        // Sla instellingen op in SecureStorage
         [RelayCommand]
         private async Task SaveSettings()
         {
@@ -92,6 +95,7 @@ namespace FitnessClub.MAUI.ViewModels
             }
         }
 
+        // Maak cache leeg (oude data)
         [RelayCommand]
         private async Task ClearCache()
         {
@@ -102,7 +106,7 @@ namespace FitnessClub.MAUI.ViewModels
             {
                 try
                 {
-                    await _synchronizer.CleanupOldData();
+                    await _synchronizer.CleanupOldData();  // Verwijder oude lessen
                     await Application.Current.MainPage.DisplayAlert("Succes", "Cache geleegd!", "OK");
                 }
                 catch (Exception ex)
@@ -112,6 +116,7 @@ namespace FitnessClub.MAUI.ViewModels
             }
         }
 
+        // Reset database naar initiële staat
         [RelayCommand]
         private async Task ResetDatabase()
         {
@@ -123,9 +128,9 @@ namespace FitnessClub.MAUI.ViewModels
                 try
                 {
                     IsBusy = true;
-                    await _context.Database.EnsureDeletedAsync();
-                    await _synchronizer.InitializeDatabase();
-                    LoadSettings();
+                    await _context.Database.EnsureDeletedAsync();  // Verwijder database
+                    await _synchronizer.InitializeDatabase();  // Herinitialiseer met demo data
+                    LoadSettings();  // Herlaad instellingen
                     await Application.Current.MainPage.DisplayAlert("Succes", "Database gereset en opnieuw geïnitialiseerd!", "OK");
                 }
                 catch (Exception ex)

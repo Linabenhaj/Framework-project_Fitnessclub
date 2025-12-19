@@ -34,7 +34,7 @@ namespace FitnessClub.MAUI.Models
 
         public DateTime? LastSynced { get; set; }
 
-        // ✅ TOEVOEGEN: Navigation property voor inschrijvingen
+        // Navigation property voor inschrijvingen
         public List<LocalInschrijving> Inschrijvingen { get; set; } = new();
 
         // Berekenende properties
@@ -43,7 +43,7 @@ namespace FitnessClub.MAUI.Models
         public bool IsBezig => DateTime.Now >= StartTijd && DateTime.Now <= EindTijd;
         public bool IsVerleden => EindTijd < DateTime.Now;
 
-        // ✅ TOEVOEGEN: Helper property voor aantal ingeschreven
+        //Helper property voor aantal ingeschreven
         public int AantalIngeschreven => Inschrijvingen?.Count ?? 0;
         public int BeschikbarePlaatsen => MaxDeelnemers - AantalIngeschreven;
         public bool IsVol => BeschikbarePlaatsen <= 0;

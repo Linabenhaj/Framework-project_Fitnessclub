@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessClub.MAUI.Services
 {
-    public class Synchronizer
+    public class Synchronizer  // Synchroniseert data tussen API en lokale database
     {
         private readonly LocalDbContext _context;
         private readonly ApiService _apiService;
@@ -22,12 +22,13 @@ namespace FitnessClub.MAUI.Services
             _apiService = apiService;
         }
 
+        // Initialiseer database
         public async Task InitializeDatabase()
         {
             try
             {
-                await _context.Database.MigrateAsync();
-                await SeedDefaultData();
+                await _context.Database.MigrateAsync();  // Voer migraties uit
+                await SeedDefaultData();  // Voeg demo data toe
                 DatabaseExists = true;
                 Debug.WriteLine("Database initialized successfully");
             }
@@ -38,9 +39,9 @@ namespace FitnessClub.MAUI.Services
             }
         }
 
+        // Voeg demo data toe als database leeg is
         private async Task SeedDefaultData()
         {
-            // Alleen seeden als database leeg is
             if (!await _context.Lessen.AnyAsync())
             {
                 var demoLessen = new[]
@@ -75,6 +76,7 @@ namespace FitnessClub.MAUI.Services
             }
         }
 
+        // Login via API en sync data
         public async Task<bool> LoginWithApi(string email, string password)
         {
             try
@@ -94,8 +96,7 @@ namespace FitnessClub.MAUI.Services
 
                     _apiService.SetToken(result.Token);
 
-                    // Synchronizeer na login
-                    await SynchronizeAll();
+                    await SynchronizeAll();  // Sync na succesvolle login
 
                     Debug.WriteLine($"User {email} logged in successfully via API");
                     return true;
@@ -111,6 +112,7 @@ namespace FitnessClub.MAUI.Services
             }
         }
 
+        // Controleer of gebruiker geauthoriseerd is
         public async Task<bool> IsAuthorized()
         {
             if (!string.IsNullOrEmpty(General.Token))
@@ -121,6 +123,7 @@ namespace FitnessClub.MAUI.Services
             return false;
         }
 
+        // Synchroniseer alle data
         public async Task SynchronizeAll()
         {
             if (_isBusy) return;
@@ -130,7 +133,7 @@ namespace FitnessClub.MAUI.Services
             {
                 Debug.WriteLine("🔄 Starting REAL API synchronization...");
 
-                // 1. Synchronizeer lessen
+                // 1. Synchroniseer lessen
                 var lessenResponse = await _apiService.GetAllLessenAsync();
 
                 if (lessenResponse.Success && lessenResponse.Data != null)
@@ -145,11 +148,12 @@ namespace FitnessClub.MAUI.Services
 
                         if (existingLes == null)
                         {
-                            _context.Lessen.Add(apiLes);
+                            _context.Lessen.Add(apiLes);  // Voeg nieuwe les toe
                             Debug.WriteLine($"➕ Added new lesson: {apiLes.Naam}");
                         }
                         else
                         {
+                            // Update bestaande les
                             existingLes.Naam = apiLes.Naam;
                             existingLes.Beschrijving = apiLes.Beschrijving;
                             existingLes.StartTijd = apiLes.StartTijd;
@@ -173,7 +177,7 @@ namespace FitnessClub.MAUI.Services
                     Debug.WriteLine($"❌ Failed to sync lessons: {lessenResponse?.Message}");
                 }
 
-                // 2. Synchronizeer inschrijvingen als gebruiker ingelogd is
+                // 2. Synchroniseer inschrijvingen als gebruiker ingelogd is
                 if (!string.IsNullOrEmpty(General.UserId))
                 {
                     var inschrijvingenResponse = await _apiService
@@ -189,13 +193,13 @@ namespace FitnessClub.MAUI.Services
 
                         if (oldInschrijvingen.Count > 0)
                         {
-                            _context.Inschrijvingen.RemoveRange(oldInschrijvingen);
+                            _context.Inschrijvingen.RemoveRange(oldInschrijvingen);  // Verwijder oude inschrijvingen
                             Debug.WriteLine($"🗑️ Removed {oldInschrijvingen.Count} old registrations");
                         }
 
                         foreach (var inschrijving in inschrijvingenResponse.Data)
                         {
-                            _context.Inschrijvingen.Add(inschrijving);
+                            _context.Inschrijvingen.Add(inschrijving);  // Voeg nieuwe inschrijvingen toe
                         }
 
                         await _context.SaveChangesAsync();
@@ -216,18 +220,19 @@ namespace FitnessClub.MAUI.Services
             }
         }
 
+        // Ruim oude data op
         public async Task CleanupOldData()
         {
             try
             {
                 var cutoffDate = DateTime.Now.AddDays(-30);
                 var oldLessen = await _context.Lessen
-                    .Where(l => l.StartTijd < cutoffDate)
+                    .Where(l => l.StartTijd < cutoffDate)  // Lessen ouder dan 30 dagen
                     .ToListAsync();
 
                 if (oldLessen.Count > 0)
                 {
-                    _context.Lessen.RemoveRange(oldLessen);
+                    _context.Lessen.RemoveRange(oldLessen);  // Verwijder oude lessen
                     await _context.SaveChangesAsync();
                     Debug.WriteLine($"🧹 Cleaned up {oldLessen.Count} old lessons");
                 }
@@ -238,6 +243,7 @@ namespace FitnessClub.MAUI.Services
             }
         }
 
+        // Loguit gebruiker
         public void Logout()
         {
             General.ClearUserInfo();

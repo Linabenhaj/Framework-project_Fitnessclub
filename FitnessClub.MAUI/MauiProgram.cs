@@ -7,40 +7,40 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FitnessClub.MAUI
 {
-    public static class MauiProgram
+    public static class MauiProgram  // Dependency Injection configuratie
     {
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
             builder
-                .UseMauiApp<App>()
+                .UseMauiApp<App>()  // Stel App als hoofdapplicatie in
                 .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");  // Voeg lettertype toe
+                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");  // Voeg lettertype toe
                 })
-                .UseMauiCommunityToolkit();
+                .UseMauiCommunityToolkit();  // Voeg Community Toolkit toe
 
 #if DEBUG
-            builder.Logging.AddDebug();
+            builder.Logging.AddDebug();  // Debug logging in development mode
 #endif
 
-            // HttpClient configuratie met  IP
+            // HttpClient configuratie met specifiek IP voor Android emulator
             builder.Services.AddHttpClient("FitnessApi", client =>
             {
-                // GEBRUIK ALTIJD  IP 
+                // Gebruik statisch IP voor API communicatie
                 client.BaseAddress = new Uri("http://172.20.96.1:5000/api/");
 
-                client.Timeout = TimeSpan.FromSeconds(15); // 🔴 Korter voor snellere feedback
+                client.Timeout = TimeSpan.FromSeconds(15);  // Timeout voor requests
 
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(
-                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));  // Accepteer JSON
 
                 System.Diagnostics.Debug.WriteLine($"🌐 HttpClient configured with BaseAddress: {client.BaseAddress}");
             });
 
-            // ApiService registreren
+            // ApiService registratie met HttpClient factory
             builder.Services.AddSingleton<ApiService>(sp =>
             {
                 var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
@@ -48,14 +48,14 @@ namespace FitnessClub.MAUI
                 return new ApiService(httpClient);
             });
 
-        
+            // Synchronizer registratie zonder LocalDbContext voor nu
             builder.Services.AddSingleton<Synchronizer>(sp =>
             {
                 var apiService = sp.GetRequiredService<ApiService>();
-                return new Synchronizer(null, apiService); // null voor DbContext
+                return new Synchronizer(null, apiService);  // null voor DbContext tijdelijk
             });
 
-            // ViewModels registreren
+            // ViewModels registreren (Transient = nieuwe instantie per request)
             builder.Services.AddTransient<LoginViewModel>();
             builder.Services.AddTransient<HomeViewModel>();
             builder.Services.AddTransient<DashboardViewModel>();
@@ -77,9 +77,7 @@ namespace FitnessClub.MAUI
             builder.Services.AddTransient<AdminDashboardPage>();
             builder.Services.AddTransient<RegisterPage>();
 
-
-
-            return builder.Build();
+            return builder.Build();  // Bouw en retourneer de MAUI app
         }
     }
 }

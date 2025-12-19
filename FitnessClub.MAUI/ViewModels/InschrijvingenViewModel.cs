@@ -3,52 +3,52 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
-using System.Xml.Linq;
 
 namespace FitnessClub.MAUI.ViewModels
 {
-    public partial class InschrijvingenViewModel : BaseViewModel
+    public partial class InschrijvingenViewModel : BaseViewModel  // ViewModel voor inschrijvingen pagina
     {
         private readonly LocalDbContext _context;
 
         [ObservableProperty]
-        private ObservableCollection<LocalInschrijving> mijnInschrijvingen = new();
+        private ObservableCollection<LocalInschrijving> mijnInschrijvingen = new();  // Gebruikersinschrijvingen collectie
 
         [ObservableProperty]
-        private bool toonAlleenActief = true;
+        private bool toonAlleenActief = true;  // Filter voor actieve inschrijvingen
 
         public InschrijvingenViewModel(LocalDbContext context)
         {
             _context = context;
             Title = "Mijn Inschrijvingen";
-            LoadInschrijvingen();
+            LoadInschrijvingen();  // Laad inschrijvingen bij opstart
         }
 
+        // Laad inschrijvingen van huidige gebruiker
         public async void LoadInschrijvingen()
         {
             if (IsBusy) return;
             IsBusy = true;
-            MijnInschrijvingen.Clear();
+            MijnInschrijvingen.Clear();  // Maak lijst leeg
 
             try
             {
-                if (string.IsNullOrEmpty(General.UserId))
+                if (string.IsNullOrEmpty(General.UserId))  // Controleer of gebruiker ingelogd is
                 {
                     await Application.Current.MainPage.DisplayAlert("Info", "Log in om je inschrijvingen te zien", "OK");
                     return;
                 }
 
                 var query = _context.Inschrijvingen
-                    .Include(i => i.Les)
-                    .Where(i => i.GebruikerId == General.UserId && i.Les != null);  // ← NULL CHECK
+                    .Include(i => i.Les)  // Include les details
+                    .Where(i => i.GebruikerId == General.UserId && i.Les != null);  // Filter op gebruiker
 
                 if (ToonAlleenActief)
-                    query = query.Where(i => i.Status == "Actief" && i.Les!.StartTijd > DateTime.Now);  // ← ! operator
+                    query = query.Where(i => i.Status == "Actief" && i.Les!.StartTijd > DateTime.Now);  // Filter actieve toekomstige lessen
 
-                var inschrijvingen = await query.OrderByDescending(i => i.Les!.StartTijd).ToListAsync();
+                var inschrijvingen = await query.OrderByDescending(i => i.Les!.StartTijd).ToListAsync();  // Sorteer op datum
 
                 foreach (var inschrijving in inschrijvingen)
-                    MijnInschrijvingen.Add(inschrijving);
+                    MijnInschrijvingen.Add(inschrijving);  // Voeg toe aan observable collectie
             }
             catch (Exception ex)
             {
@@ -60,6 +60,7 @@ namespace FitnessClub.MAUI.ViewModels
             }
         }
 
+        // Schrijf gebruiker uit van les
         [RelayCommand]
         private async Task Uitschrijven(LocalInschrijving inschrijving)
         {
@@ -67,24 +68,25 @@ namespace FitnessClub.MAUI.ViewModels
 
             bool confirm = await Application.Current.MainPage.DisplayAlert(
                 "Uitschrijven",
-                $"Weet je zeker dat je wilt uitschrijven voor '{inschrijving.Les?.Naam}'?",
+                $"Weet je zeker dat je wilt uitschrijven voor '{inschrijving.Les?.Naam}'?",  // Bevestigingsdialoog
                 "Ja", "Nee");
 
             if (confirm)
             {
                 try
                 {
+                    // Controleer uitschrijftermijn (24 uur voor les)
                     if (inschrijving.Les != null && inschrijving.Les.StartTijd <= DateTime.Now.AddHours(24))
                     {
                         await Application.Current.MainPage.DisplayAlert("Fout", "Uitschrijven is alleen mogelijk tot 24 uur voor de les", "OK");
                         return;
                     }
 
-                    inschrijving.Status = "Geannuleerd";
+                    inschrijving.Status = "Geannuleerd";  // Update status
                     _context.Inschrijvingen.Update(inschrijving);
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();  // Sla wijzigingen op
 
-                    MijnInschrijvingen.Remove(inschrijving);
+                    MijnInschrijvingen.Remove(inschrijving);  // Verwijder uit lijst
                     await Application.Current.MainPage.DisplayAlert("Succes", "Succesvol uitgeschreven", "OK");
                 }
                 catch (Exception ex)
@@ -94,6 +96,7 @@ namespace FitnessClub.MAUI.ViewModels
             }
         }
 
+        // Toon details van specifieke inschrijving
         [RelayCommand]
         private async Task ViewLesDetails(LocalInschrijving inschrijving)
         {
@@ -107,13 +110,15 @@ namespace FitnessClub.MAUI.ViewModels
                 $"Les datum: {les.StartTijd:dd/MM/yyyy HH:mm}\n" +
                 $"Trainer: {les.Trainer}\n" +
                 $"Locatie: {les.Locatie}\n" +
-                $"Beschrijving: {les.Beschrijving}",
+                $"Beschrijving: {les.Beschrijving}",  // Toon alle details
                 "OK");
         }
 
+        // Herlaad inschrijvingen bij filter wijziging
         [RelayCommand]
         private void FilterChanged() => LoadInschrijvingen();
 
+        // Vernieuw inschrijvingen lijst
         [RelayCommand]
         private async Task Refresh()
         {
@@ -123,6 +128,7 @@ namespace FitnessClub.MAUI.ViewModels
             IsRefreshing = false;
         }
 
+        // Navigeer naar lessen pagina voor nieuwe inschrijving
         [RelayCommand]
         private async Task NieuweInschrijving() => await Shell.Current.GoToAsync("//LessenPage");
     }

@@ -33,7 +33,7 @@ namespace FitnessClub.MAUI.ViewModels
         [RelayCommand]
         private void ChangeLanguage(string languageCode)
         {
-            // Simpele taalwisseling - later uitbreiden
+            // Simpele taalwisseling 
             string languageName = GetLanguageName(languageCode);
 
             // Toon melding

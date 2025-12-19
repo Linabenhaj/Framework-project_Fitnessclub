@@ -1,24 +1,22 @@
-using FitnessClub.Models.Data;    
-using FitnessClub.Models.Models; 
+using FitnessClub.Models.Data;
+using FitnessClub.Models.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 
-
 namespace FitnessClub.Web.Controllers
 {
-
     public class GebruikersController : Controller
     {
         private readonly UserManager<Gebruiker> _userManager;
-        private readonly FitnessClubDbContext _context;  // Wijzig naar ApplicationDbContext
+        private readonly IFitnessClubDbContext _context;  // Interface gebruiken!
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public GebruikersController(
             UserManager<Gebruiker> userManager,
-            FitnessClubDbContext context,  // Wijzig naar ApplicationDbContext
+            IFitnessClubDbContext context,  // Interface gebruiken!
             RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
@@ -33,7 +31,6 @@ namespace FitnessClub.Web.Controllers
                 .Include(g => g.Abonnement)
                 .ToListAsync();
 
-            // Maak een lijst met gebruikers en hun rollen
             var gebruikersMetRollen = new List<object>();
 
             foreach (var gebruiker in gebruikers)
@@ -42,7 +39,7 @@ namespace FitnessClub.Web.Controllers
                 gebruikersMetRollen.Add(new
                 {
                     Gebruiker = gebruiker,
-                    Rollen = rollen.FirstOrDefault() // Of toon alle rollen
+                    Rollen = rollen.FirstOrDefault()
                 });
             }
 
@@ -66,17 +63,13 @@ namespace FitnessClub.Web.Controllers
                 return NotFound();
             }
 
-            // Haal rollen op voor deze gebruiker
             var rollen = await _userManager.GetRolesAsync(gebruiker);
             ViewBag.Rollen = rollen;
 
             return View(gebruiker);
         }
 
-
-        // Andere methods...
-
-        // Helper method voor rollen
+        // Helper method
         private async Task<List<string>> GetUserRolesAsync(Gebruiker gebruiker)
         {
             return (await _userManager.GetRolesAsync(gebruiker)).ToList();

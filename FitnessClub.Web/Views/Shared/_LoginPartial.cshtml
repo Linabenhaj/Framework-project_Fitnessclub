@@ -12,13 +12,22 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li>
-                    <a class="dropdown-item" href="/Identity/Account/Manage">
+                    <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
                         <i class="bi bi-gear"></i> Account
                     </a>
                 </li>
+                @if (User.IsInRole("Admin"))
+                {
+                    <li>
+                        <a class="dropdown-item" asp-controller="Admin" asp-action="ManageUsers">
+                            <i class="bi bi-shield-lock"></i> Gebruikersbeheer
+                        </a>
+                    </li>
+                }
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                    <form class="form-inline" action="/Identity/Account/Logout" method="post">
+                    <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
                         <button type="submit" class="dropdown-item">
                             <i class="bi bi-box-arrow-right"></i> Uitloggen
                         </button>
@@ -30,12 +39,12 @@
     else
     {
         <li class="nav-item">
-            <a class="nav-link text-light" href="/Identity/Account/Register">
+            <a class="nav-link text-light" asp-controller="Account" asp-action="Register">
                 <i class="bi bi-person-plus"></i> Registreren
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-light" href="/Identity/Account/Login">
+            <a class="nav-link text-light" asp-controller="Account" asp-action="Login">
                 <i class="bi bi-box-arrow-in-right"></i> Inloggen
             </a>
         </li>

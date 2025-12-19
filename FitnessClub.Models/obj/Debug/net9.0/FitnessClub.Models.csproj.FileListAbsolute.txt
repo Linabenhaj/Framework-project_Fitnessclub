@@ -1,3 +1,9 @@
+C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\bin\Debug\net9.0\FitnessClub.Models.deps.json
+C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\bin\Debug\net9.0\FitnessClub.Models.runtimeconfig.json
+C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\bin\Debug\net9.0\FitnessClub.Models.dll
+C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\bin\Debug\net9.0\FitnessClub.Models.pdb
+C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\bin\Debug\net9.0\fr-FR\FitnessClub.Models.resources.dll
+C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\bin\Debug\net9.0\nl-BE\FitnessClub.Models.resources.dll
 C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.csproj.AssemblyReference.cache
 C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.Resources.SharedModelResource.resources
 C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.Resources.SharedModelResource.fr-FR.resources
@@ -8,3 +14,10 @@ C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\De
 C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.AssemblyInfo.cs
 C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.csproj.CoreCompileInputs.cache
 C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.sourcelink.json
+C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\fr-FR\FitnessClub.Models.resources.dll
+C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\nl-BE\FitnessClub.Models.resources.dll
+C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.dll
+C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\refint\FitnessClub.Models.dll
+C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.pdb
+C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\FitnessClub.Models.genruntimeconfig.cache
+C:\Users\Benha\source\repos\FitnessClub_Final_Solution\FitnessClub.Models\obj\Debug\net9.0\ref\FitnessClub.Models.dll
