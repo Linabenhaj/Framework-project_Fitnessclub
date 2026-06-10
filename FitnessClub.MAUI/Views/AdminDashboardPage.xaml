@@ -2,85 +2,79 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="FitnessClub.MAUI.Views.AdminDashboardPage"
-             Title="Admin Dashboard">
+             Title="Beheer"
+             BackgroundColor="#F4F6F8">
 
-    <ContentPage.Content>
-        <ScrollView>
-            <VerticalStackLayout Spacing="25" Padding="20">
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
 
-                <!-- Admin Header -->
-                <Label Text="👑 Admin Dashboard" 
-                       FontSize="28" 
-                       FontAttributes="Bold" 
-                       HorizontalOptions="Center"
-                       TextColor="{StaticResource PrimaryColor}"/>
+            <!-- Header banner -->
+            <Grid BackgroundColor="#1B5E20" Padding="20,24,20,20">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding AdminNaam, StringFormat='Hallo, {0}'}"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Text="Beheerdersportaal"
+                           FontSize="13"
+                           TextColor="#C8E6C9" />
+                </VerticalStackLayout>
+            </Grid>
 
-                <!-- Admin Stats -->
-                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" 
-                      ColumnSpacing="15" RowSpacing="15">
+            <!-- Stats-kaders verwijderd op vraag van gebruiker : vermeden caching-issues -->
 
-                    <!-- Total Users -->
-                    <Frame Grid.Column="0" Grid.Row="0" 
-                           CornerRadius="15" 
-                           BackgroundColor="#4CAF50"
-                           Padding="20"
-                           HeightRequest="120">
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Totaal Gebruikers" 
-                                   TextColor="White" 
-                                   FontAttributes="Bold"/>
-                            <Label Text="0" 
-                                   TextColor="White" 
-                                   FontSize="32" 
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"/>
-                        </VerticalStackLayout>
-                    </Frame>
 
-                    <!-- Total Lessons -->
-                    <Frame Grid.Column="1" Grid.Row="0" 
-                           CornerRadius="15" 
-                           BackgroundColor="#2196F3"
-                           Padding="20"
-                           HeightRequest="120">
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Totaal Lessen" 
-                                   TextColor="White" 
-                                   FontAttributes="Bold"/>
-                            <Label Text="0" 
-                                   TextColor="White" 
-                                   FontSize="32" 
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"/>
-                        </VerticalStackLayout>
-                    </Frame>
+            <!-- Acties -->
+            <VerticalStackLayout Margin="16,20" Spacing="12">
 
-                    <!-- Admin Actions -->
-                    <Button Grid.Column="0" Grid.Row="1"
-                            Text="👥 Beheer Gebruikers"
-                            BackgroundColor="#FF9800" 
-                            TextColor="White"
-                            CornerRadius="10"
-                            HeightRequest="50"/>
+                <Label Text="Acties"
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       TextColor="#757575" />
 
-                    <Button Grid.Column="1" Grid.Row="1"
-                            Text="📋 Beheer Lessen"
-                            BackgroundColor="#9C27B0" 
-                            TextColor="White"
-                            CornerRadius="10"
-                            HeightRequest="50"/>
-                </Grid>
-
-                <!-- Logout Button -->
-                <Button Text="🚪 Uitloggen" 
-                        BackgroundColor="#F44336" 
+                <Button Text="Bekijk alle lessen"
+                        Command="{Binding BeheerLessenCommand}"
+                        BackgroundColor="#1B5E20"
                         TextColor="White"
                         CornerRadius="10"
                         HeightRequest="50"
-                        Clicked="OnLogoutClicked"/>
+                        FontAttributes="Bold" />
+
+                <Button Text="Nieuwe les aanmaken"
+                        Command="{Binding NieuweLesCommand}"
+                        BackgroundColor="#FF8F00"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="50"
+                        FontAttributes="Bold" />
+
+                <Button Text="Bekijk inschrijvingen"
+                        Command="{Binding BeheerInschrijvingenCommand}"
+                        BackgroundColor="#37474F"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="50"
+                        FontAttributes="Bold" />
+
+                <Button Text="Bekijk gebruikers"
+                        Command="{Binding BekijkGebruikersCommand}"
+                        BackgroundColor="#455A64"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="50"
+                        FontAttributes="Bold" />
+
+                <Button Text="Afmelden"
+                        Command="{Binding LogoutCommand}"
+                        BackgroundColor="#D32F2F"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="46"
+                        Margin="0,10,0,0" />
 
             </VerticalStackLayout>
-        </ScrollView>
-    </ContentPage.Content>
+
+        </VerticalStackLayout>
+    </ScrollView>
 
 </ContentPage>

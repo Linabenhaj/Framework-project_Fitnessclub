@@ -1,68 +1,80 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FitnessClub.MAUI.Models;
+using FitnessClub.Models.Models;
 using FitnessClub.MAUI.Services;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 
 namespace FitnessClub.MAUI.ViewModels
 {
-    public partial class LessenViewModel : BaseViewModel  // ViewModel voor lessen overzicht
+    // ViewModel voor de lessenpagina
+    public partial class LessenViewModel : BaseViewModel
     {
-        private readonly LocalDbContext _context;
-        private readonly Synchronizer _synchronizer;
+        private readonly ApiService _apiService;
 
-        [ObservableProperty]
-        private ObservableCollection<LocalLes> lessen = new();  // Lijst met lessen
+        [ObservableProperty] private ObservableCollection<LocalLes> lessen = new();
+        [ObservableProperty] private string searchText = "";
+        [ObservableProperty] private bool showOnlyAvailable = true;
+        [ObservableProperty] private bool isRefreshing;
+        [ObservableProperty] private bool isOffline;
 
-        [ObservableProperty]
-        private string searchText = "";  // Zoekterm voor filteren
+        public bool MagInschrijven => !General.IsAdmin && !General.IsTrainer;
+        public bool MagBewerken => General.IsAdmin;
+        public bool MagClaimen => General.IsTrainer;
+        public bool MagVerwijderen => General.IsAdmin;
 
-        [ObservableProperty]
-        private bool showOnlyAvailable = true;  // Toon alleen beschikbare lessen
+        private List<LocalLes> _allLessen = new();
+        private HashSet<int> _ingeschrevenLesIds = new();
 
-        [ObservableProperty]
-        private bool isRefreshing;  // Pull-to-refresh status
-
-        public LessenViewModel(LocalDbContext context, Synchronizer synchronizer)
+        public LessenViewModel(ApiService apiService)
         {
-            _context = context;
-            _synchronizer = synchronizer;
+            _apiService = apiService;
             Title = "Lessen";
-            LoadLessen();  // Laad lessen bij opstart
+            _ = LoadLessenAsync();
         }
 
-        // Laad lessen uit database
-        public async void LoadLessen()
+        public async Task LoadLessenAsync()
         {
             if (IsBusy) return;
             IsBusy = true;
-            Lessen.Clear();  // Maak lijst leeg
+            Lessen.Clear();
 
             try
             {
-                var query = _context.Lessen
-                    .Include(l => l.Inschrijvingen)  // Include inschrijvingen voor bezettingsgraad
-                    .Where(l => l.IsActief && l.StartTijd > DateTime.Now);  // Filter actieve toekomstige lessen
-
-                if (ShowOnlyAvailable)
-                    query = query.Where(l => l.Inschrijvingen.Count(i => i.Status == "Actief") < l.MaxDeelnemers);  // Filter beschikbare lessen
-
-                if (!string.IsNullOrWhiteSpace(SearchText))
+                var result = await _apiService.GetAllLessenAsync();
+                if (result.Success && result.Data != null)
                 {
-                    query = query.Where(l =>
-                        l.Naam.Contains(SearchText) ||
-                        l.Trainer.Contains(SearchText) ||
-                        l.Locatie.Contains(SearchText));  // Zoek op naam, trainer of locatie
-                }
+                    _allLessen = result.Data;
+                    IsOffline = false;
 
-                var lessonList = await query.OrderBy(l => l.StartTijd).ToListAsync();  // Sorteer op starttijd
-                foreach (var les in lessonList)
-                    Lessen.Add(les);  // Voeg toe aan observable collectie
+                    if (!string.IsNullOrEmpty(General.UserId) && !General.IsAdmin)
+                    {
+                        var insResult = await _apiService.GetUserInschrijvingenAsync(General.UserId);
+                        if (insResult.Success && insResult.Data != null)
+                        {
+                            _ingeschrevenLesIds = insResult.Data
+                                .Where(i => i.Status == "Actief")
+                                .Select(i => i.LesId)
+                                .ToHashSet();
+
+                            foreach (var les in _allLessen)
+                                les.IsIngeschrevenDoorMij = _ingeschrevenLesIds.Contains(les.Id);
+                        }
+                    }
+
+                    ApplyFilter();
+                }
+                else
+                {
+                    IsOffline = true;
+                    await Application.Current!.Windows[0]!.Page!.DisplayAlert("Fout",
+                        result.Message ?? "Kon lessen niet ophalen.", "OK");
+                }
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Fout", $"Kon lessen niet laden: {ex.Message}", "OK");
+                IsOffline = true;
+                await Application.Current!.Windows[0]!.Page!.DisplayAlert("Fout",
+                    $"Onverwachte fout: {ex.Message}", "OK");
             }
             finally
             {
@@ -70,83 +82,207 @@ namespace FitnessClub.MAUI.ViewModels
             }
         }
 
-        // Herlaad lessen bij zoekopdracht
-        [RelayCommand]
-        private void Search() => LoadLessen();
+        private void ApplyFilter()
+        {
+            Lessen.Clear();
+            var filtered = _allLessen
+                .Where(l => l.IsActief && l.StartTijd > DateTime.Now)
+                .AsEnumerable();
 
-        // Vernieuw lessen via synchronizer
+            if (ShowOnlyAvailable)
+                filtered = filtered.Where(l => l.AantalIngeschreven < l.MaxDeelnemers);
+
+            if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                var s = SearchText.ToLower();
+                filtered = filtered.Where(l =>
+                    (l.Naam ?? "").ToLower().Contains(s) ||
+                    (l.Trainer ?? "").ToLower().Contains(s) ||
+                    (l.Locatie ?? "").ToLower().Contains(s));
+            }
+
+            foreach (var les in filtered.OrderBy(l => l.StartTijd))
+                Lessen.Add(les);
+        }
+
+        [RelayCommand]
+        private void Search() => ApplyFilter();
+
         [RelayCommand]
         private async Task Refresh()
         {
             IsRefreshing = true;
-            await _synchronizer.SynchronizeAll();  // Sync met API
-            LoadLessen();  // Herlaad lessen
-            await Task.Delay(500);
+            await LoadLessenAsync();
             IsRefreshing = false;
         }
 
-        // Schrijf gebruiker in voor les
         [RelayCommand]
         private async Task Inschrijven(LocalLes les)
         {
             if (les == null) return;
 
-            bool confirm = await Application.Current.MainPage.DisplayAlert(
+            if (les.IsIngeschrevenDoorMij)
+            {
+                await Application.Current!.Windows[0]!.Page!.DisplayAlert(
+                    "Reeds ingeschreven",
+                    $"Je bent al ingeschreven voor '{les.Naam}'.\n\nOm uit te schrijven, ga naar 'Mijn Inschrijvingen'.",
+                    "OK");
+                return;
+            }
+
+            bool confirm = await Application.Current!.Windows[0]!.Page!.DisplayAlert(
                 "Inschrijven",
-                $"Weet je zeker dat je wilt inschrijven voor '{les.Naam}'?\n" +
-                $"Datum: {les.StartTijd:dd/MM/yyyy HH:mm}\n" +
-                $"Trainer: {les.Trainer}",  // Bevestigingsdialoog
+                $"Inschrijven voor '{les.Naam}'?\nDatum: {les.StartTijd:dd/MM/yyyy HH:mm}\nTrainer: {les.Trainer}",
                 "Ja", "Nee");
 
-            if (confirm)
+            if (!confirm) return;
+
+            if (string.IsNullOrEmpty(General.UserId))
             {
-                try
+                await Application.Current!.Windows[0]!.Page!.DisplayAlert("Fout",
+                    "Je moet ingelogd zijn om in te schrijven", "OK");
+                return;
+            }
+
+            try
+            {
+                var result = await _apiService.CreateInschrijvingAsync(new InschrijvingDto
                 {
-                    if (string.IsNullOrEmpty(General.UserId))  // Controleer of gebruiker ingelogd is
-                    {
-                        await Application.Current.MainPage.DisplayAlert("Fout", "Je moet ingelogd zijn om in te schrijven", "OK");
-                        return;
-                    }
+                    GebruikerId = General.UserId,
+                    LesId = les.Id,
+                    InschrijfDatum = DateTime.Now,
+                    Status = "Actief"
+                });
 
-                    var inschrijving = new LocalInschrijving
-                    {
-                        LesId = les.Id,
-                        GebruikerId = General.UserId,
-                        InschrijfDatum = DateTime.Now,
-                        Status = "Actief"
-                    };
-
-                    _context.Inschrijvingen.Add(inschrijving);  // Voeg nieuwe inschrijving toe
-                    await _context.SaveChangesAsync();  // Sla op in database
-
-                    await Application.Current.MainPage.DisplayAlert("Succes", "Succesvol ingeschreven!", "OK");
-                    LoadLessen();  // Herlaad lessen lijst
-                }
-                catch (Exception ex)
+                if (result.Success)
                 {
-                    await Application.Current.MainPage.DisplayAlert("Fout", $"Inschrijven mislukt: {ex.Message}", "OK");
+                    await Application.Current!.Windows[0]!.Page!.DisplayAlert(
+                        "Succes", $"Je bent ingeschreven voor '{les.Naam}'!", "OK");
+                    await LoadLessenAsync();
                 }
+                else
+                {
+                    await Application.Current!.Windows[0]!.Page!.DisplayAlert("Fout",
+                        result.Message ?? "Inschrijven mislukt", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current!.Windows[0]!.Page!.DisplayAlert("Fout",
+                    $"Inschrijven mislukt: {ex.Message}", "OK");
             }
         }
 
-        // Toon details van specifieke les
         [RelayCommand]
-        private async Task ViewLessonDetails(LocalLes les)
+        private async Task BewerkLes(LocalLes les)
         {
             if (les == null) return;
 
-            var actieveInschrijvingen = les.AantalIngeschreven;  // Gebruik berekende property
-            var beschikbaar = les.MaxDeelnemers - actieveInschrijvingen;  // Bereken beschikbare plaatsen
+            string nieuweNaam = await Application.Current!.Windows[0]!.Page!.DisplayPromptAsync(
+                "Les bewerken", "Naam:", initialValue: les.Naam);
+            if (string.IsNullOrWhiteSpace(nieuweNaam)) return;
 
-            await Application.Current.MainPage.DisplayAlert(
-                les.Naam,
-                $"Trainer: {les.Trainer}\n" +
-                $"Datum: {les.StartTijd:dd/MM/yyyy HH:mm}\n" +
-                $"Locatie: {les.Locatie}\n" +
-                $"Beschikbaar: {beschikbaar}/{les.MaxDeelnemers}\n" +
-                $"Duur: {(les.EindTijd - les.StartTijd).TotalMinutes} minuten\n\n" +
-                $"{les.Beschrijving}",  // Toon alle lesdetails
-                "OK");
+            string nieuweTrainer = await Application.Current!.Windows[0]!.Page!.DisplayPromptAsync(
+                "Les bewerken", "Trainer:", initialValue: les.Trainer);
+            if (nieuweTrainer == null) return;
+
+            string nieuweLocatie = await Application.Current!.Windows[0]!.Page!.DisplayPromptAsync(
+                "Les bewerken", "Locatie:", initialValue: les.Locatie);
+            if (nieuweLocatie == null) return;
+
+            string maxStr = await Application.Current!.Windows[0]!.Page!.DisplayPromptAsync(
+                "Les bewerken", "Max. deelnemers:",
+                keyboard: Microsoft.Maui.Keyboard.Numeric,
+                initialValue: les.MaxDeelnemers.ToString());
+            int max = int.TryParse(maxStr, out var m) ? m : les.MaxDeelnemers;
+
+            les.Naam = nieuweNaam;
+            les.Trainer = nieuweTrainer;
+            les.Locatie = nieuweLocatie;
+            les.MaxDeelnemers = max;
+
+            try
+            {
+                var result = await _apiService.UpdateLesAsync(les);
+                if (result.Success)
+                {
+                    await Application.Current!.Windows[0]!.Page!.DisplayAlert(
+                        "Bijgewerkt", $"Les '{nieuweNaam}' is bijgewerkt!", "OK");
+                    await LoadLessenAsync();
+                }
+                else
+                {
+                    await Application.Current!.Windows[0]!.Page!.DisplayAlert("Fout",
+                        result.Message ?? "Bewerken mislukt", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current!.Windows[0]!.Page!.DisplayAlert("Fout",
+                    $"Bewerken mislukt: {ex.Message}", "OK");
+            }
+        }
+
+        [RelayCommand]
+        private async Task VerwijderLes(LocalLes les)
+        {
+            if (les == null) return;
+
+            bool confirm = await Application.Current!.Windows[0]!.Page!.DisplayAlert(
+                "Verwijderen",
+                $"Wil je '{les.Naam}' echt verwijderen?",
+                "Ja", "Nee");
+
+            if (!confirm) return;
+
+            try
+            {
+                var result = await _apiService.DeleteLesAsync(les.Id);
+                if (result.Success)
+                {
+                    await Application.Current!.Windows[0]!.Page!.DisplayAlert(
+                        "Verwijderd", $"Les '{les.Naam}' is verwijderd.", "OK");
+                    await LoadLessenAsync();
+                }
+                else
+                {
+                    await Application.Current!.Windows[0]!.Page!.DisplayAlert("Fout",
+                        result.Message ?? "Verwijderen mislukt", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current!.Windows[0]!.Page!.DisplayAlert("Fout",
+                    $"Verwijderen mislukt: {ex.Message}", "OK");
+            }
+        }
+
+        [RelayCommand]
+        private async Task ClaimLes(LocalLes les)
+        {
+            if (les == null) return;
+
+            string trainerNaam = await Application.Current!.Windows[0]!.Page!.DisplayPromptAsync(
+                "Claim les", "Jouw naam als trainer:",
+                initialValue: $"{General.UserFirstName} {General.UserLastName}".Trim());
+            if (string.IsNullOrWhiteSpace(trainerNaam)) return;
+
+            les.Trainer = trainerNaam;
+            try
+            {
+                var result = await _apiService.UpdateLesAsync(les);
+                if (result.Success)
+                {
+                    await Application.Current!.Windows[0]!.Page!.DisplayAlert(
+                        "Geclaimd", $"Je bent nu de trainer van '{les.Naam}'!", "OK");
+                    await LoadLessenAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current!.Windows[0]!.Page!.DisplayAlert("Fout",
+                    $"Claimen mislukt: {ex.Message}", "OK");
+            }
         }
     }
 }

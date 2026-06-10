@@ -1,4 +1,4 @@
-﻿using FitnessClub.MAUI.Models;
+﻿using FitnessClub.Models.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -6,14 +6,12 @@ namespace FitnessClub.MAUI.ViewModels
 {
     public partial class AboutViewModel : BaseViewModel  // ViewModel voor "Over" pagina
     {
-        [ObservableProperty]
-        private string appVersion = "1.0.0";  // Huidige app versie
-
+     
         [ObservableProperty]
         private string appName = "FitnessClub MAUI";  // App naam
 
         [ObservableProperty]
-        private string developer = "FitnessClub Development Team";  // Ontwikkelaar
+        private string developer = "Lina Benhaj";  // Ontwikkelaar
 
         [ObservableProperty]
         private string copyright = "© 2024 FitnessClub. Alle rechten voorbehouden.";  // Copyright

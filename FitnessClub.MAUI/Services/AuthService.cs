@@ -28,7 +28,7 @@ namespace FitnessClub.MAUI.Services
         public void Logout()
         {
             General.ClearUserInfo();  // Wis gebruikersdata
-            _apiService.SetToken(null);  // Verwijder token
+            _apiService.SetToken(null);  
         }
 
         // Valideer huidige token

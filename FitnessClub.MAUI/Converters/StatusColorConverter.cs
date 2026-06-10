@@ -2,27 +2,25 @@
 
 namespace FitnessClub.MAUI.Converters
 {
+
+    /// Converteert een Status-string naar een achtergrondkleur voor de badge
+    ///   "Actief"      → groen
+    ///   "Geannuleerd" → rood
+    ///   overige       → grijs
+   
     public class StatusColorConverter : IValueConverter
     {
-        // Converteert status string naar bijpassende kleur
-        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is string status)
+            return value?.ToString() switch
             {
-                return status.ToLower() switch
-                {
-                    "actief" => Colors.Green,      // Groen voor actief
-                    "geannuleerd" => Colors.Red,   // Rood voor geannuleerd
-                    "geweest" => Colors.Gray,      // Grijs voor verleden
-                    _ => Colors.Black               // Zwart voor onbekend
-                };
-            }
-            return Colors.Black;  // Standaard zwart
+                "Actief" => Color.FromArgb("#4CAF50"),
+                "Geannuleerd" => Color.FromArgb("#F44336"),
+                _ => Color.FromArgb("#9E9E9E")
+            };
         }
 
-        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();  // Niet geïmplementeerd voor terugconversie
-        }
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => throw new NotImplementedException();
     }
 }

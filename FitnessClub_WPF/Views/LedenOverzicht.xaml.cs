@@ -20,7 +20,6 @@ namespace FitnessClub.WPF.Views
             optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=FitnessClubDb;Trusted_Connection=true;TrustServerCertificate=true;MultipleActiveResultSets=true");
 
             _context = new FitnessClubDbContext(optionsBuilder.Options);
-
             LaadLeden();
         }
 
@@ -28,7 +27,6 @@ namespace FitnessClub.WPF.Views
         {
             try
             {
-                // Gebruik Users in plaats van Gebruikers
                 var leden = _context.Users
                     .Include(u => u.Abonnement)
                     .Where(u => u.Rol == "Lid" || u.Rol == "PremiumLid")
@@ -42,25 +40,24 @@ namespace FitnessClub.WPF.Views
             }
         }
 
-        private void BewerkLid_Click(object sender, RoutedEventArgs e)
+        // Naam overeenkomstig met XAML Click="BewerkenClick"
+        private void BewerkenClick(object sender, RoutedEventArgs e)
         {
             if (LedenDataGrid.SelectedItem is Gebruiker geselecteerdLid)
             {
-                // Roep parameterloze constructor aan
                 var bewerkWindow = new BewerkLidWindow();
-                // Je kunt eventueel de gebruiker doorgeven via een property
                 bewerkWindow.ShowDialog();
                 LaadLeden();
             }
         }
 
-        private void VerwijderLid_Click(object sender, RoutedEventArgs e)
+        // Naam overeenkomstig met XAML Click="VerwijderClick"
+        private void VerwijderClick(object sender, RoutedEventArgs e)
         {
             if (LedenDataGrid.SelectedItem is Gebruiker geselecteerdLid)
             {
                 try
                 {
-                    // Gebruik Users in plaats van Gebruikers
                     var lid = _context.Users.Find(geselecteerdLid.Id);
                     if (lid != null)
                     {
@@ -76,7 +73,8 @@ namespace FitnessClub.WPF.Views
             }
         }
 
-        private void Refresh_Click(object sender, RoutedEventArgs e)
+        // Naam overeenkomstig met XAML Click="RefreshClick"
+        private void RefreshClick(object sender, RoutedEventArgs e)
         {
             LaadLeden();
         }

@@ -2,69 +2,93 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="FitnessClub.MAUI.Views.RegisterPage"
-             Title="Registreren">
+             Title="{Binding Title}">
 
     <ScrollView>
-        <VerticalStackLayout Spacing="20" Padding="30" 
-                             VerticalOptions="Center">
+        <VerticalStackLayout Spacing="20" Padding="30" VerticalOptions="Center">
 
-            <!-- Header -->
-            <Label Text="📝 Registreren" 
-                   FontSize="28" 
-                   FontAttributes="Bold" 
-                   HorizontalOptions="Center"/>
+            <Label Text="📝 Registreren"
+                   FontSize="28" FontAttributes="Bold"
+                   HorizontalOptions="Center" />
 
-            <!-- Registratie Formulier -->
-            <Frame CornerRadius="10" Padding="20" 
-                   BackgroundColor="#F5F5F5">
-                <VerticalStackLayout Spacing="15">
+            <Label Text="Maak een nieuw account aan"
+                   FontSize="14" TextColor="Gray"
+                   HorizontalOptions="Center" />
 
-                    <!-- Voornaam -->
-                    <Label Text="Voornaam" 
-                           FontAttributes="Bold"/>
-                    <Entry x:Name="FirstNameEntry" 
-                           Placeholder="Je voornaam"/>
+            <Frame IsVisible="{Binding ShowError}"
+                   CornerRadius="8" BackgroundColor="#FFEBEE" Padding="12">
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="#D32F2F" FontSize="14" />
+            </Frame>
 
-                    <!-- Achternaam -->
-                    <Label Text="Achternaam" 
-                           FontAttributes="Bold"/>
-                    <Entry x:Name="LastNameEntry" 
-                           Placeholder="Je achternaam"/>
+            <Frame CornerRadius="12" Padding="20" BackgroundColor="#F5F5F5">
+                <VerticalStackLayout Spacing="14">
 
-                    <!-- Email -->
-                    <Label Text="E-mail" 
-                           FontAttributes="Bold"/>
-                    <Entry x:Name="EmailEntry" 
-                           Placeholder="john@example.com"
-                           Keyboard="Email"/>
+                    <Label Text="Voornaam" FontAttributes="Bold" FontSize="14"/>
+                    <Entry Text="{Binding Voornaam}"
+                           Placeholder="Je voornaam" ReturnType="Next" />
 
-                    <!-- Wachtwoord -->
-                    <Label Text="Wachtwoord" 
-                           FontAttributes="Bold"/>
-                    <Entry x:Name="PasswordEntry" 
-                           Placeholder="Min. 8 tekens"
-                           IsPassword="True"/>
+                    <Label Text="Achternaam" FontAttributes="Bold" FontSize="14"/>
+                    <Entry Text="{Binding Achternaam}"
+                           Placeholder="Je achternaam" ReturnType="Next" />
 
-                    <!-- Bevestig Wachtwoord -->
-                    <Label Text="Bevestig Wachtwoord" 
-                           FontAttributes="Bold"/>
-                    <Entry x:Name="ConfirmPasswordEntry" 
+                    <Label Text="E-mailadres" FontAttributes="Bold" FontSize="14"/>
+                    <Entry Text="{Binding Email}"
+                           Placeholder="naam@voorbeeld.be"
+                           Keyboard="Email" ReturnType="Next" />
+
+                    <Label Text="Telefoon (optioneel)" FontAttributes="Bold" FontSize="14"/>
+                    <Entry Text="{Binding Telefoon}"
+                           Placeholder="+32 ..."
+                           Keyboard="Telephone" ReturnType="Next" />
+
+                    <Label Text="Wachtwoord" FontAttributes="Bold" FontSize="14"/>
+                    <Entry Text="{Binding Wachtwoord}"
+                           Placeholder="Minimaal 6 tekens"
+                           IsPassword="True" ReturnType="Next" />
+
+                    <Label Text="Bevestig wachtwoord" FontAttributes="Bold" FontSize="14"/>
+                    <Entry Text="{Binding BevestigWachtwoord}"
                            Placeholder="Herhaal wachtwoord"
-                           IsPassword="True"/>
+                           IsPassword="True" ReturnType="Done" />
 
-                    <!-- Registreer Button -->
-                    <Button Text="✅ Account Aanmaken" 
-                            Clicked="OnRegisterClicked"
-                            BackgroundColor="#4CAF50" 
-                            TextColor="White"
-                            CornerRadius="10"
-                            HeightRequest="50"/>
+                    <Label Text="Kies een abonnement" FontAttributes="Bold" FontSize="14"
+                           Margin="0,10,0,0"/>
+                    <Picker ItemsSource="{Binding Abonnementen}"
+                            SelectedItem="{Binding GeselecteerdAbonnement}"
+                            Title="Kies hier..."
+                            BackgroundColor="White" />
 
-                    <!-- Terug naar Login -->
-                    <Button Text="← Terug naar Inloggen" 
-                            Clicked="OnBackToLoginClicked"
+                    <!-- Info-box met alle abonnementen -->
+                    <Frame BackgroundColor="#E8F5E9" CornerRadius="8" Padding="12" Margin="0,4,0,0">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="ℹ️ Onze abonnementen" FontAttributes="Bold" FontSize="13"/>
+                            <Label Text="• Basic — €19.99/maand: toegang tot fitnesszaal + alle lessen"
+                                   FontSize="12"/>
+                            <Label Text="• Medium — €34.99/maand: alles van Basic + groepslessen extra"
+                                   FontSize="12"/>
+                            <Label Text="• Pro — €54.99/maand: alles + persoonlijke begeleiding"
+                                   FontSize="12"/>
+                            <Label Text="Alle abonnementen geven je toegang tot inschrijving voor lessen."
+                                   FontSize="11" TextColor="Gray" FontAttributes="Italic"/>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Button Text="✅ Account aanmaken"
+                            Command="{Binding RegisterCommand}"
+                            IsEnabled="{Binding IsNotBusy}"
+                            BackgroundColor="#4CAF50" TextColor="White"
+                            CornerRadius="10" HeightRequest="50"
+                            Margin="0,10,0,0" />
+
+                    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                       IsVisible="{Binding IsBusy}"
+                                       Color="#4CAF50" HeightRequest="30" />
+
+                    <Button Text="⬅️ Terug naar inloggen"
+                            Command="{Binding BackToLoginCommand}"
                             BackgroundColor="Transparent"
-                            TextColor="#2196F3"/>
+                            TextColor="#2196F3" FontSize="14" />
 
                 </VerticalStackLayout>
             </Frame>

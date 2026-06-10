@@ -1,43 +1,64 @@
-﻿@model FitnessClub.Web.Controllers.LoginModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using FitnessClub.Web.Translations
+@inject IHtmlLocalizer<SharedResource> L
+@model FitnessClub.Web.Models.LoginModel
 
 @{
-    ViewData["Title"] = "Inloggen";
+    ViewData["Title"] = L["Login"].Value;
 }
 
 <div class="row justify-content-center">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h2>@ViewData["Title"]</h2>
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0"><i class="bi bi-box-arrow-in-right"></i> @L["Login"]</h3>
             </div>
             <div class="card-body">
-                <form method="post">
-                    <div asp-validation-summary="All" class="text-danger"></div>
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+                }
 
-                    <div class="form-group mb-3">
-                        <label asp-for="Email"></label>
-                        <input asp-for="Email" class="form-control" />
+                <form asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">@L["Email"]</label>
+                        <input asp-for="Email" class="form-control" autocomplete="email" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
 
-                    <div class="form-group mb-3">
-                        <label asp-for="Password"></label>
-                        <input asp-for="Password" class="form-control" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
+                    <div class="mb-3">
+                        <label asp-for="Wachtwoord" class="form-label">@L["Password"]</label>
+                        <input asp-for="Wachtwoord" class="form-control" type="password" autocomplete="current-password" />
+                        <span asp-validation-for="Wachtwoord" class="text-danger"></span>
                     </div>
 
-                    <div class="form-group mb-3">
-                        <div class="checkbox">
-                            <label asp-for="RememberMe">
-                                <input asp-for="RememberMe" />
-                                @Html.DisplayNameFor(m => m.RememberMe)
-                            </label>
-                        </div>
+                    <div class="form-check mb-3">
+                        <input asp-for="Onthouden" class="form-check-input" />
+                        <label asp-for="Onthouden" class="form-check-label">@L["Login"]</label>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Inloggen</button>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right"></i> @L["Login"]
+                        </button>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> @L["Back"]
+                        </a>
+                    </div>
                 </form>
+            </div>
+            <div class="card-footer text-center">
+                <small class="text-muted">
+                    <a asp-action="Register">@L["Register"]</a>
+                </small>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

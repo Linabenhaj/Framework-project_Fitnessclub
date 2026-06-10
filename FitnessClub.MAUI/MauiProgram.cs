@@ -1,83 +1,171 @@
-﻿using Microsoft.Extensions.Logging;
+using CommunityToolkit.Maui;
+using FitnessClub.MAUI.Services;
 using FitnessClub.MAUI.ViewModels;
 using FitnessClub.MAUI.Views;
-using FitnessClub.MAUI.Services;
-using CommunityToolkit.Maui;
-using Microsoft.Extensions.DependencyInjection;
+using FitnessClub.Models.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace FitnessClub.MAUI
 {
-    public static class MauiProgram  // Dependency Injection configuratie
+   
+    public static class MauiProgram
     {
         public static MauiApp CreateMauiApp()
         {
+            // SQLite native bibliotheek initialiseren vóór alles
+            SQLitePCL.Batteries_V2.Init();
+
             var builder = MauiApp.CreateBuilder();
+
+            ConfigureMaui(builder);
+            ConfigureServices(builder);
+            ConfigureHttpClient(builder);
+            ConfigureLogging(builder);
+
+            var app = builder.Build();
+
+            // Token vroeg instellen zodat de eerste pagina al auth heeft
+            if (General.IsLoggedIn && !string.IsNullOrEmpty(General.Token))
+            {
+                var api = app.Services.GetRequiredService<ApiService>();
+                api.SetToken(General.Token);
+            }
+
+            StartBackgroundDbInit(app);
+
+            return app;
+        }
+
+        private static void ConfigureMaui(MauiAppBuilder builder)
+        {
             builder
-                .UseMauiApp<App>()  // Stel App als hoofdapplicatie in
+                .UseMauiApp<App>()
+                .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");  // Voeg lettertype toe
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");  // Voeg lettertype toe
-                })
-                .UseMauiCommunityToolkit();  // Voeg Community Toolkit toe
+                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                });
+        }
 
-#if DEBUG
-            builder.Logging.AddDebug();  // Debug logging in development mode
-#endif
+        //  SERVICES 
 
-            // HttpClient configuratie met specifiek IP voor Android emulator
+        private static void ConfigureServices(MauiAppBuilder builder)
+        {
+            var services = builder.Services;
+
+            // ── Core / app state ──
+            // SecurityViewModel is een singleton die login-status bijhoudt (net als bij Kiran)
+            services.AddSingleton<SecurityViewModel>();
+
+            // ── Database (SQLite) ──
+            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "fitnessclub.db");
+            services.AddDbContext<LocalDbContext>(
+                options => options.UseSqlite($"Data Source={dbPath}"),
+                ServiceLifetime.Transient);
+
+            // ── API-services ──
+            services.AddSingleton<ApiService>(sp =>
+                new ApiService(sp.GetRequiredService<IHttpClientFactory>().CreateClient("FitnessApi")));
+            services.AddSingleton<AuthService>();
+
+            // ── ViewModels (Transient = nieuwe instantie per pagina) ──
+            services.AddTransient<DashboardViewModel>();
+            services.AddTransient<AdminDashboardViewModel>();
+            services.AddTransient<LessenViewModel>();
+            services.AddTransient<InschrijvingenViewModel>();
+            services.AddTransient<ProfielViewModel>();
+            services.AddTransient<SettingsViewModel>();
+            services.AddTransient<AboutViewModel>();
+            services.AddTransient<RegisterViewModel>();
+            services.AddTransient<HomeViewModel>();
+            services.AddTransient<GebruikersViewModel>();
+
+            // ── Pages (Transient) ──
+            services.AddTransient<LoginPage>();
+            services.AddTransient<RegisterPage>();
+            services.AddTransient<LessenPage>();
+            services.AddTransient<InschrijvingenPage>();
+            services.AddTransient<AdminDashboardPage>();
+            services.AddTransient<DashboardPage>();
+            services.AddTransient<ProfielPage>();
+            services.AddTransient<SettingsPage>();
+            services.AddTransient<AboutPage>();
+            services.AddTransient<HomePage>();
+            services.AddTransient<GebruikersPage>();
+
+            // ── Shell (Singleton – vereist door MAUI) ──
+            services.AddSingleton<AppShell>();
+        }
+
+        //  HTTP 
+
+        private static void ConfigureHttpClient(MauiAppBuilder builder)
+        {
+            var apiBase = ResolveApiBase();
+
             builder.Services.AddHttpClient("FitnessApi", client =>
             {
-                // Gebruik statisch IP voor API communicatie
-                client.BaseAddress = new Uri("http://172.20.96.1:5000/api/");
-
-                client.Timeout = TimeSpan.FromSeconds(15);  // Timeout voor requests
-
-                client.DefaultRequestHeaders.Accept.Clear();
+                client.BaseAddress = new Uri(apiBase);
+                client.Timeout = TimeSpan.FromSeconds(20);
                 client.DefaultRequestHeaders.Accept.Add(
-                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));  // Accepteer JSON
+                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            })
+            .ConfigurePrimaryHttpMessageHandler(() =>
+                new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (msg, cert, chain, errors) =>
+                    {
+                        // In development: accepteer self-signed certificaten op localhost/10.0.2.2
+#if DEBUG
+                        var host = msg?.RequestUri?.Host ?? "";
+                        if (host == "localhost" || host == "10.0.2.2") return true;
+#endif
+                        return errors == System.Net.Security.SslPolicyErrors.None;
+                    }
+                });
+        }
 
-                System.Diagnostics.Debug.WriteLine($"🌐 HttpClient configured with BaseAddress: {client.BaseAddress}");
-            });
+        //  LOGGING 
 
-            // ApiService registratie met HttpClient factory
-            builder.Services.AddSingleton<ApiService>(sp =>
+        private static void ConfigureLogging(MauiAppBuilder builder)
+        {
+#if DEBUG
+            builder.Logging.AddDebug();
+#endif
+        }
+
+        //  DATABASE INIT 
+
+        private static void StartBackgroundDbInit(MauiApp app)
+        {
+            // Fire-and-forget: blokkeer de app-start niet
+            _ = Task.Run(async () =>
             {
-                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-                var httpClient = httpClientFactory.CreateClient("FitnessApi");
-                return new ApiService(httpClient);
+                try
+                {
+                    using var scope = app.Services.CreateScope();
+                    var db = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
+                    await db.Database.EnsureCreatedAsync();
+                    System.Diagnostics.Debug.WriteLine("[DB] SQLite tabellen aangemaakt of bevestigd.");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[DB] Init fout (niet kritiek): {ex.Message}");
+                }
             });
+        }
 
-            // Synchronizer registratie zonder LocalDbContext voor nu
-            builder.Services.AddSingleton<Synchronizer>(sp =>
-            {
-                var apiService = sp.GetRequiredService<ApiService>();
-                return new Synchronizer(null, apiService);  // null voor DbContext tijdelijk
-            });
+     
 
-            // ViewModels registreren (Transient = nieuwe instantie per request)
-            builder.Services.AddTransient<LoginViewModel>();
-            builder.Services.AddTransient<HomeViewModel>();
-            builder.Services.AddTransient<DashboardViewModel>();
-            builder.Services.AddTransient<LessenViewModel>();
-            builder.Services.AddTransient<InschrijvingenViewModel>();
-            builder.Services.AddTransient<SettingsViewModel>();
-            builder.Services.AddTransient<ProfielViewModel>();
-            builder.Services.AddTransient<AboutViewModel>();
+        private static string ResolveApiBase()
+        {
+           
+            if (DeviceInfo.Platform == DevicePlatform.Android)
+                return "http://10.0.2.2:5000/api/";
 
-            // Pages registreren
-            builder.Services.AddTransient<LoginPage>();
-            builder.Services.AddTransient<HomePage>();
-            builder.Services.AddTransient<DashboardPage>();
-            builder.Services.AddTransient<LessenPage>();
-            builder.Services.AddTransient<InschrijvingenPage>();
-            builder.Services.AddTransient<SettingsPage>();
-            builder.Services.AddTransient<ProfielPage>();
-            builder.Services.AddTransient<AboutPage>();
-            builder.Services.AddTransient<AdminDashboardPage>();
-            builder.Services.AddTransient<RegisterPage>();
-
-            return builder.Build();  // Bouw en retourneer de MAUI app
+            return "http://localhost:5000/api/";
         }
     }
 }

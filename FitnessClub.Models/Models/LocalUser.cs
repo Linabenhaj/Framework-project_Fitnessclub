@@ -1,11 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System;
+using System.ComponentModel.DataAnnotations;
 
-namespace FitnessClub.MAUI.Models
+namespace FitnessClub.Models.Models
 {
+    // Afgeleid model van Gebruiker voor lokale opslag (SQLite) in de MAUI-app.
+    // Bevat alleen de velden die de mobiele client nodig heeft (geen IdentityUser-overhead).
     public class LocalUser
     {
         [Key]
-        public string Id { get; set; } = string.Empty; 
+        public string Id { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(100)]
@@ -30,13 +33,12 @@ namespace FitnessClub.MAUI.Models
 
         public bool EmailConfirmed { get; set; }
 
-        
         [MaxLength(50)]
         public string AbonnementType { get; set; } = "Standaard";
 
         public DateTime LidSinds { get; set; } = DateTime.Now;
 
         [MaxLength(50)]
-        public string Rol { get; set; } = "Gebruiker";
+        public string Rol { get; set; } = "Lid";
     }
 }

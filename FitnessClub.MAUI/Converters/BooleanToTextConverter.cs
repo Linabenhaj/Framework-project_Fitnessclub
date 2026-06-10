@@ -2,25 +2,31 @@
 
 namespace FitnessClub.MAUI.Converters
 {
-    public class BooleanToColorConverter : IValueConverter
+  
+    public class BooleanToTextConverter : IValueConverter
     {
-        // Converteert boolean waarde naar kleur op basis van parameter
-        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is bool boolValue && parameter is string param)
-            {
-                var parts = param.Split('|');  // Format: "trueKleur|falseKleur"
-                var colorString = boolValue ? parts[0] : parts[1];
+            // Wordt gebruikt met Status (string) voor Uitschrijven-knop
+            if (value is string status)
+                return status == "Actief";
 
-                if (Color.TryParse(colorString, out var color))
-                    return color;  // Retourneert geparse kleur
-            }
-            return Colors.Gray;  // Standaard bij fout
+            /// Voor de "Uitschrijven" knop:
+            ///   Status == "Actief" → knop zichtbaar/enabled (true)
+            ///   anders             → knop verborgen (false)
+
+            // Wordt gebruikt met IsVol (bool) voor Inschrijven-knop inverteer
+            if (value is bool isVol)
+                return !isVol;
+
+            return true;
+
+            /// Voor de "Inschrijven" knop op LessenPage:
+            ///   IsVol == false → knop enabled (true, er zijn plaatsen)
+            ///   IsVol == true  → knop disabled (false)
         }
 
-        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();  // One-way conversie
-        }
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+            => throw new NotImplementedException();
     }
 }

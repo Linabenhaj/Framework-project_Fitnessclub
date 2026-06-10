@@ -6,99 +6,60 @@
 
     <ContentPage.Content>
         <ScrollView>
-            <VerticalStackLayout Spacing="40" Padding="30" 
+            <VerticalStackLayout Spacing="40" Padding="30"
                                  VerticalOptions="Center">
 
                 <!-- App Logo/Title -->
-                <Label Text="🏋️ FitnessClub" 
-                       FontSize="40" 
-                       FontAttributes="Bold" 
+                <Label Text="🏋️ FitnessClub"
+                       FontSize="40"
+                       FontAttributes="Bold"
                        HorizontalOptions="Center"
                        TextColor="#4CAF50"/>
 
                 <!-- Welcome Message -->
-                <Label Text="Welkom op FitnessClub" 
-                       FontSize="28" 
-                       FontAttributes="Bold" 
+                <Label Text="Welkom op FitnessClub"
+                       FontSize="28"
+                       FontAttributes="Bold"
                        HorizontalOptions="Center"
                        TextColor="#333333"/>
-
-                <!-- Language Selector -->
-                <Frame CornerRadius="10" Padding="15" 
-                       BackgroundColor="#F5F5F5"
-                       HorizontalOptions="Center">
-                    <HorizontalStackLayout Spacing="15">
-                        <Button Text="🇳🇱 NL" 
-                                Command="{Binding ChangeLanguageCommand}"
-                                CommandParameter="nl"
-                                BackgroundColor="Transparent"
-                                BorderColor="LightGray"
-                                BorderWidth="1"
-                                CornerRadius="5"
-                                WidthRequest="60"/>
-                        <Button Text="🇬🇧 EN" 
-                                Command="{Binding ChangeLanguageCommand}"
-                                CommandParameter="en"
-                                BackgroundColor="Transparent"
-                                BorderColor="LightGray"
-                                BorderWidth="1"
-                                CornerRadius="5"
-                                WidthRequest="60"/>
-                        <Button Text="🇫🇷 FR" 
-                                Command="{Binding ChangeLanguageCommand}"
-                                CommandParameter="fr"
-                                BackgroundColor="Transparent"
-                                BorderColor="LightGray"
-                                BorderWidth="1"
-                                CornerRadius="5"
-                                WidthRequest="60"/>
-                    </HorizontalStackLayout>
-                </Frame>
 
                 <!-- Main Action Buttons -->
                 <VerticalStackLayout Spacing="20">
 
                     <!-- Login Button -->
-                    <Button Text="🔐 Inloggen" 
+                    <Button Text="🔐 Inloggen"
                             Command="{Binding NavigateToLoginCommand}"
-                            BackgroundColor="#4CAF50" 
+                            BackgroundColor="#4CAF50"
                             TextColor="White"
                             CornerRadius="10"
                             HeightRequest="60"
                             FontSize="16"
                             FontAttributes="Bold"/>
 
-                    <!-- Register Button -->
-                    <Button Text="📝 Registreren" 
+                    <!-- Registratie Button -->
+                    <Button Text="📝 Registreren"
                             Command="{Binding NavigateToRegisterCommand}"
-                            BackgroundColor="#2196F3" 
+                            BackgroundColor="#2196F3"
                             TextColor="White"
                             CornerRadius="10"
                             HeightRequest="60"
                             FontSize="16"
                             FontAttributes="Bold"/>
-
-                    <!-- Guest Access -->
-                    <Button Text="👁️ Als gast bekijken" 
-                            Command="{Binding NavigateAsGuestCommand}"
-                            BackgroundColor="#9E9E9E" 
-                            TextColor="White"
-                            CornerRadius="10"
-                            HeightRequest="50"
-                            FontSize="14"/>
 
                 </VerticalStackLayout>
 
                 <!-- Demo Info -->
-                <Frame CornerRadius="10" Padding="15" 
+                <Frame CornerRadius="10" Padding="15"
                        BackgroundColor="#FFF3E0">
                     <VerticalStackLayout Spacing="10">
-                        <Label Text="💡 Demo Accounts" 
+                        <Label Text="💡 Demo Accounts"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"/>
-                        <Label Text="Admin: admin@fitness.com / admin123" 
+                        <Label Text="Admin: admin@fitnessclub.be / Admin123!"
                                FontSize="12"/>
-                        <Label Text="User: user@fitness.com / user123" 
+                        <Label Text="Trainer: trainer@fitnessclub.be / Trainer123!"
+                               FontSize="12"/>
+                        <Label Text="Lid: user@fitnessclub.be / User123!"
                                FontSize="12"/>
                     </VerticalStackLayout>
                 </Frame>

@@ -5,11 +5,10 @@ namespace FitnessClub.MAUI
 {
     public class Program
     {
-        // This is the main entry point of the application.
+        // Startpunt van de applicatie op MacCatalyst
         static void Main(string[] args)
         {
-            // if you want to use a different Application Delegate class from "AppDelegate"
-            // you can specify it here.
+            // Gebruik een ander Application Delegate type door dit hier aan te passen
             UIApplication.Main(args, null, typeof(AppDelegate));
         }
     }

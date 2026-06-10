@@ -1,28 +1,178 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:FitnessClub.MAUI.ViewModels"
+             xmlns:models="clr-namespace:FitnessClub.Models.Models;assembly=FitnessClub.Models"
              x:Class="FitnessClub.MAUI.Views.LessenPage"
-             Title="Lessen">
+             Title="{Binding Title}"
+             BackgroundColor="#F4F6F8">
 
-    <VerticalStackLayout Spacing="20" Padding="30">
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
 
-        <Label Text="🏋️‍♂️ Fitness Lessen" 
-               FontSize="24" 
-               FontAttributes="Bold"/>
+        <!-- Loading indicator -->
+        <ActivityIndicator Grid.Row="0"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           Color="#1B5E20"
+                           HorizontalOptions="Center"
+                           Margin="0,8" />
 
-        <Label Text="Beschikbare lessen:" FontSize="18"/>
+        <!-- Offline modus indicator -->
+        <Border Grid.Row="1"
+                BackgroundColor="#E65100"
+                IsVisible="{Binding IsOffline}"
+                Padding="12,8">
+            <Label Text="📵  Offline modus — gegevens uit lokale opslag"
+                   TextColor="White"
+                   FontSize="13"
+                   HorizontalTextAlignment="Center" />
+        </Border>
 
-        <VerticalStackLayout Spacing="10">
-            <Label Text="• 08:00 - Yoga (Easy)" />
-            <Label Text="• 10:00 - Cardio (Medium)" />
-            <Label Text="• 12:00 - Strength (Hard)" />
-            <Label Text="• 18:00 - HIIT (Hard)" />
-            <Label Text="• 20:00 - Pilates (Easy)" />
-        </VerticalStackLayout>
+        <!-- Lessenlijst -->
+        <RefreshView Grid.Row="2"
+                     IsRefreshing="{Binding IsRefreshing}"
+                     Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding Lessen}"
+                            EmptyView="Geen lessen beschikbaar"
+                            Margin="0,4">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:LocalLes">
+                        <Border Margin="12,5"
+                                BackgroundColor="White"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 10">
+                            <Border.Shadow>
+                                <Shadow Brush="#22000000" Offset="0,2" Radius="6" Opacity="0.12" />
+                            </Border.Shadow>
+                            <Grid ColumnDefinitions="6,*">
+                                <BoxView Grid.Column="0"
+                                         BackgroundColor="#1B5E20"
+                                         HorizontalOptions="Fill"
+                                         VerticalOptions="Fill" />
+                                <VerticalStackLayout Grid.Column="1" Padding="12,10" Spacing="4">
+                                    <Label Text="{Binding Naam}"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="#212121" />
+                                    <Label Text="{Binding StartTijd, StringFormat='{0:ddd dd MMM · HH:mm}'}"
+                                           FontSize="12" TextColor="#616161" />
+                                    <Label Text="{Binding Trainer, StringFormat='Trainer: {0}'}"
+                                           FontSize="12" TextColor="#616161" />
+                                    <Label Text="{Binding Locatie, StringFormat='Locatie: {0}'}"
+                                           FontSize="12" TextColor="#616161" />
+                                    <Label Text="{Binding MaxDeelnemers, StringFormat='Max {0} deelnemers'}"
+                                           FontSize="11" TextColor="#9E9E9E" />
 
-        <Button Text="🔙 Terug" 
-                Clicked="OnBackClicked"
-                Margin="0,20,0,0"/>
+                                    <!-- Actiepanel -->
+                                    <FlexLayout Wrap="Wrap" JustifyContent="End">
 
-    </VerticalStackLayout>
+                                        <!-- Inschrijven/Ingeschreven: alleen voor Lid en Trainer.
+                                             Admin ziet deze knoppen  -->
+                                        <Button Text="Inschrijven"
+                                                BackgroundColor="#FF8F00"
+                                                TextColor="White"
+                                                FontSize="13"
+                                                FontAttributes="Bold"
+                                                CornerRadius="8"
+                                                Padding="12,7"
+                                                Margin="0,4,4,0"
+                                                Clicked="OnInschrijvenClicked"
+                                                CommandParameter="{Binding .}">
+                                            <Button.IsVisible>
+                                                <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                                    <Binding Source="{RelativeSource AncestorType={x:Type CollectionView}}"
+                                                             Path="BindingContext.MagInschrijven" />
+                                                    <Binding Path="IsNietIngeschrevenDoorMij" />
+                                                </MultiBinding>
+                                            </Button.IsVisible>
+                                        </Button>
+
+                                        <Button Text="✓ Ingeschreven"
+                                                BackgroundColor="#2E7D32"
+                                                TextColor="White"
+                                                FontSize="13"
+                                                FontAttributes="Bold"
+                                                CornerRadius="8"
+                                                Padding="12,7"
+                                                Margin="0,4,4,0"
+                                                IsEnabled="False">
+                                            <Button.IsVisible>
+                                                <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                                    <Binding Source="{RelativeSource AncestorType={x:Type CollectionView}}"
+                                                             Path="BindingContext.MagInschrijven" />
+                                                    <Binding Path="IsIngeschrevenDoorMij" />
+                                                </MultiBinding>
+                                            </Button.IsVisible>
+                                        </Button>
+
+                                        <!-- Bewerken: Admin -->
+                                        <Button Text="Bewerken"
+                                                BackgroundColor="#1565C0"
+                                                TextColor="White"
+                                                FontSize="13"
+                                                FontAttributes="Bold"
+                                                CornerRadius="8"
+                                                Padding="12,7"
+                                                Margin="0,4,4,0"
+                                                IsVisible="{Binding Source={RelativeSource AncestorType={x:Type CollectionView}}, Path=BindingContext.MagBewerken}"
+                                                Clicked="OnBewerkClicked"
+                                                CommandParameter="{Binding .}" />
+
+                                        <!-- Claimen: Trainer -->
+                                        <Button Text="Claim"
+                                                BackgroundColor="#6A1B9A"
+                                                TextColor="White"
+                                                FontSize="13"
+                                                FontAttributes="Bold"
+                                                CornerRadius="8"
+                                                Padding="12,7"
+                                                Margin="0,4,4,0"
+                                                IsVisible="{Binding Source={RelativeSource AncestorType={x:Type CollectionView}}, Path=BindingContext.MagClaimen}"
+                                                Clicked="OnClaimClicked"
+                                                CommandParameter="{Binding .}" />
+
+                                        <!-- Verwijderen: Admin -->
+                                        <Button Text="Verwijderen"
+                                                BackgroundColor="#C62828"
+                                                TextColor="White"
+                                                FontSize="13"
+                                                FontAttributes="Bold"
+                                                CornerRadius="8"
+                                                Padding="12,7"
+                                                Margin="0,4,0,0"
+                                                IsVisible="{Binding Source={RelativeSource AncestorType={x:Type CollectionView}}, Path=BindingContext.MagVerwijderen}"
+                                                Clicked="OnVerwijderenClicked"
+                                                CommandParameter="{Binding .}" />
+
+                                    </FlexLayout>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- Info-tekstbox onderaan: hoe uitschrijven -->
+        <Border Grid.Row="3"
+                BackgroundColor="#E3F2FD"
+                Padding="14,10"
+                Margin="12,6,12,12"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 8">
+            <Label FontSize="12"
+                   TextColor="#0D47A1"
+                   HorizontalTextAlignment="Center">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="ℹ️ " />
+                        <Span Text="Wil je je uitschrijven? Ga naar " />
+                        <Span Text="'Mijn Inschrijvingen'" FontAttributes="Bold" />
+                        <Span Text=" en klik op 'Uitschrijven' bij de gewenste les." />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+        </Border>
+
+    </Grid>
 </ContentPage>

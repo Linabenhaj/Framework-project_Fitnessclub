@@ -1,5 +1,37 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+@using Microsoft.AspNetCore.Mvc.Localization
+@using FitnessClub.Web.Translations
+@inject IHtmlLocalizer<SharedResource> L
+@model FitnessClub.Models.Models.Abonnement
+
+@{ ViewData["Title"] = L["Delete"].Value; }
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> @L["Delete"]</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">@L["Name"]</dt>
+                    <dd class="col-sm-9">@Model.Naam</dd>
+                    <dt class="col-sm-3">@L["Price"]</dt>
+                    <dd class="col-sm-9">€ @Model.Prijs.ToString("F2")</dd>
+                </dl>
+
+                <form asp-action="Delete" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> @L["Cancel"]
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> @L["Delete"]
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

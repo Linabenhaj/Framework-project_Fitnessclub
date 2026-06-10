@@ -1,0 +1,123 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using FitnessClub.Web.Translations
+@inject IHtmlLocalizer<SharedResource> L
+@model FitnessClub.Web.Models.PaginatedList<FitnessClub.Models.Models.Les>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        @if (User.IsInRole("Admin"))
+        {
+            <text>Er zijn nog geen lessen. Klik op "Nieuwe Les Toevoegen" om er één aan te maken.</text>
+        }
+        else
+        {
+            <text>Er zijn momenteel geen lessen beschikbaar.</text>
+        }
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>@L["Name"]</th>
+                    <th>@L["StartTime"]</th>
+                    <th>@L["Trainer"]</th>
+                    <th>@L["Location"]</th>
+                    <th>@L["Available"]</th>
+                    <th class="text-end">@L["Actions"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var les in Model)
+                {
+                    var availableSpots = les.MaxDeelnemers - (les.Inschrijvingen?.Count(i => i.Status == "Actief") ?? 0);
+                    var isFull = availableSpots <= 0;
+                    <tr>
+                        <td><strong>@les.Naam</strong></td>
+                        <td>@les.StartTijd.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            @if (string.IsNullOrEmpty(les.Trainer))
+                            {
+                                <em class="text-muted">— Geen trainer —</em>
+                            }
+                            else
+                            {
+                                @les.Trainer
+                            }
+                        </td>
+                        <td>@les.Locatie</td>
+                        <td>
+                            <span class="badge @(isFull ? "bg-danger" : "bg-success")">
+                                @availableSpots / @les.MaxDeelnemers
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <a asp-action="Details" asp-route-id="@les.Id" class="btn btn-info btn-sm">
+                                <i class="bi bi-info-circle"></i> @L["Info"]
+                            </a>
+
+                            @* Lid: één-klik inschrijven *@
+                            @if (User.Identity!.IsAuthenticated && !User.IsInRole("Admin") && !User.IsInRole("Trainer") && !isFull)
+                            {
+                                <form asp-action="SchrijfIn" asp-route-id="@les.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="bi bi-calendar-plus"></i> @L["Enroll"]
+                                    </button>
+                                </form>
+                            }
+
+                            @* Trainer: zichzelf aangeven als de les nog geen trainer heeft *@
+                            @if (User.IsInRole("Trainer") && string.IsNullOrEmpty(les.Trainer))
+                            {
+                                <form asp-action="ClaimAsTrainer" asp-route-id="@les.Id" method="post" class="d-inline-flex align-items-center gap-1">
+                                    @Html.AntiForgeryToken()
+                                    <input type="text" name="trainerName" placeholder="Je naam"
+                                           class="form-control form-control-sm" style="width: 110px;" required />
+                                    <button type="submit" class="btn btn-warning btn-sm">
+                                        <i class="bi bi-person-check"></i> Aangeven
+                                    </button>
+                                </form>
+                            }
+
+                            @* Admin: bewerken/verwijderen *@
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@les.Id" class="btn btn-warning btn-sm"><i class="bi bi-pencil"></i></a>
+                                <a asp-action="Delete" asp-route-id="@les.Id" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <nav>
+        <ul class="pagination justify-content-center">
+            @if (Model.HasPreviousPage)
+            {
+                <li class="page-item"><a class="page-link" href="#" data-page="@(Model.PageIndex - 1)">@L["Back"]</a></li>
+            }
+            <li class="page-item active"><span class="page-link">@Model.PageIndex / @Model.TotalPages</span></li>
+            @if (Model.HasNextPage)
+            {
+                <li class="page-item"><a class="page-link" href="#" data-page="@(Model.PageIndex + 1)">→</a></li>
+            }
+        </ul>
+    </nav>
+}
+
+<script>
+    $(function() {
+        $('.page-link[data-page]').click(function(e) {
+            e.preventDefault();
+            const p = $(this).data('page');
+            if (p) loadLessenViaAjax(p);
+        });
+    });
+</script>

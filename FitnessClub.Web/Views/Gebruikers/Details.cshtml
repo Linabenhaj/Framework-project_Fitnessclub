@@ -1,78 +1,61 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using FitnessClub.Web.Translations
+@inject IHtmlLocalizer<SharedResource> L
 @model FitnessClub.Models.Models.Gebruiker
 
-@{
-    ViewData["Title"] = "Details";
-}
+@{ ViewData["Title"] = L["Details"].Value; }
 
-<h1>Details</h1>
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-person-circle"></i> @Model.Voornaam @Model.Achternaam</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">@L["Email"]</dt>
+                    <dd class="col-sm-9">@Model.Email</dd>
 
-<div>
-    <h4>Gebruiker</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">Voornaam</dt>
-        <dd class="col-sm-10">@Model.Voornaam</dd>
+                    <dt class="col-sm-3">@L["Phone"]</dt>
+                    <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.PhoneNumber) ? "—" : Model.PhoneNumber)</dd>
 
-        <dt class="col-sm-2">Achternaam</dt>
-        <dd class="col-sm-10">@Model.Achternaam</dd>
+                    <dt class="col-sm-3">@L["Subscription"]</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.Abonnement != null)
+                        {
+                            <span class="badge bg-info">@Model.Abonnement.Naam</span>
+                            <small>(€ @Model.Abonnement.Prijs.ToString("F2"))</small>
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </dd>
 
-        <dt class="col-sm-2">Email</dt>
-        <dd class="col-sm-10">@Model.Email</dd>
+                    <dt class="col-sm-3">@L["Role"]</dt>
+                    <dd class="col-sm-9">
+                        @if (ViewBag.Rollen != null && ((IEnumerable<string>)ViewBag.Rollen).Any())
+                        {
+                            foreach (var rol in (IEnumerable<string>)ViewBag.Rollen)
+                            {
+                                <span class="badge bg-secondary">@rol</span>
+                            }
+                        }
+                        else { <span class="text-muted">—</span> }
+                    </dd>
 
-        <dt class="col-sm-2">Telefoon</dt>
-        <dd class="col-sm-10">@Model.PhoneNumber</dd>
-
-        <dt class="col-sm-2">Geboortedatum</dt>
-        <dd class="col-sm-10">
-            @if (Model.Geboortedatum.HasValue)
-            {
-                @Model.Geboortedatum.Value.ToShortDateString()
-            }
-            else
-            {
-                <span>Niet opgegeven</span>
-            }
-        </dd>
-
-        <dt class="col-sm-2">Leeftijd</dt>
-        <dd class="col-sm-10">@Model.Leeftijd jaar</dd>
-
-        <dt class="col-sm-2">Adres</dt>
-        <dd class="col-sm-10">@Model.Adres</dd>
-
-        <dt class="col-sm-2">Abonnement</dt>
-        <dd class="col-sm-10">
-            @if (Model.Abonnement != null)
-            {
-                <span>@Model.Abonnement.Naam - @Model.Abonnement.Prijs.ToString("C") / maand</span>
-            }
-            else
-            {
-                <span>Geen abonnement</span>
-            }
-        </dd>
-
-        <dt class="col-sm-2">Rollen</dt>
-        <dd class="col-sm-10">
-            @if (ViewBag.Rollen != null && ((List<string>)ViewBag.Rollen).Any())
-            {
-                @string.Join(", ", ViewBag.Rollen)
-            }
-            else
-            {
-                <span>Geen rollen toegewezen</span>
-            }
-        </dd>
-
-        <dt class="col-sm-2">Aangemaakt op</dt>
-        <dd class="col-sm-10">@Model.AangemaaktOp.ToString("dd/MM/yyyy HH:mm")</dd>
-
-        <dt class="col-sm-2">Laatst gewijzigd</dt>
-        <dd class="col-sm-10">@((Model.GewijzigdOp.HasValue ? Model.GewijzigdOp.Value.ToString("dd/MM/yyyy HH:mm") : "Nog niet gewijzigd"))</dd>
-    </dl>
-</div>
-
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                    <dt class="col-sm-3">@L["MemberSince"]</dt>
+                    <dd class="col-sm-9">@Model.AangemaaktOp.ToString("dd/MM/yyyy HH:mm")</dd>
+                </dl>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> @L["Back"]
+                </a>
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                    <i class="bi bi-pencil"></i> @L["Edit"]
+                </a>
+            </div>
+        </div>
+    </div>
 </div>

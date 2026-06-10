@@ -2,6 +2,7 @@
 using FitnessClub.Models.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace FitnessClub.WPF.Views
@@ -18,7 +19,6 @@ namespace FitnessClub.WPF.Views
             optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=FitnessClubDb;Trusted_Connection=true;TrustServerCertificate=true;MultipleActiveResultSets=true");
 
             _context = new FitnessClubDbContext(optionsBuilder.Options);
-
             LaadInschrijvingen();
         }
 
@@ -37,11 +37,12 @@ namespace FitnessClub.WPF.Views
             }
             catch (System.Exception ex)
             {
-                System.Windows.MessageBox.Show($"Fout bij laden inschrijvingen: {ex.Message}");
+                MessageBox.Show($"Fout bij laden inschrijvingen: {ex.Message}");
             }
         }
 
-        private void VerwijderInschrijving_Click(object sender, System.Windows.RoutedEventArgs e)
+        // Naam overeenkomstig met XAML Click="VerwijderenClick"
+        private void VerwijderenClick(object sender, RoutedEventArgs e)
         {
             if (InschrijvingenDataGrid.SelectedItem is Inschrijving geselecteerdeInschrijving)
             {
@@ -57,12 +58,20 @@ namespace FitnessClub.WPF.Views
                 }
                 catch (System.Exception ex)
                 {
-                    System.Windows.MessageBox.Show($"Fout bij verwijderen inschrijving: {ex.Message}");
+                    MessageBox.Show($"Fout bij verwijderen inschrijving: {ex.Message}");
                 }
             }
         }
 
-        private void Refresh_Click(object sender, System.Windows.RoutedEventArgs e)
+        // Naam overeenkomstig met XAML Click="ToevoegenClick"
+        private void ToevoegenClick(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Selecteer een les en een lid om in te schrijven.", "Info");
+            LaadInschrijvingen();
+        }
+
+        // Naam overeenkomstig met XAML Click="RefreshClick"
+        private void RefreshClick(object sender, RoutedEventArgs e)
         {
             LaadInschrijvingen();
         }

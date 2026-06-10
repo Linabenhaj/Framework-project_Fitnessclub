@@ -1,44 +1,155 @@
-﻿@using Microsoft.AspNetCore.Mvc.Localization
-@inject IViewLocalizer Localizer
-
+@using FitnessClub.Models.Models
 @{
-    ViewData["Title"] = Localizer["AdminDashboard"];
+    ViewData["Title"] = "Admin Dashboard";
+    var aantalLeden = ViewBag.AantalLeden ?? 0;
+    var aantalLessen = ViewBag.AantalLessen ?? 0;
+    var aantalAbonnementen = ViewBag.AantalAbonnementen ?? 0;
+    var aantalInschrijvingen = ViewBag.AantalInschrijvingen ?? 0;
+    var aankomendeLessen = ViewBag.AankomendeLessen as List<Les> ?? new List<Les>();
+    var recenteLeden = ViewBag.RecenteLeden as List<Gebruiker> ?? new List<Gebruiker>();
 }
 
-<h1>@Localizer["AdminDashboard"]</h1>
-<p>@Localizer["WelcomeAdmin"]</p>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-1"><i class="bi bi-speedometer2 text-primary"></i> Admin Dashboard</h1>
+        <p class="text-muted">Welkom terug, @User.Identity?.Name. Hier vind je een overzicht van je fitnessclub.</p>
+    </div>
+</div>
 
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card">
+<!-- Statistieken-kaarten -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-white" style="background: linear-gradient(135deg, #4CAF50, #2e7d32);">
             <div class="card-body">
-                <h5 class="card-title">@Localizer["ManageUsers"]</h5>
-                <p class="card-text">Beheer alle gebruikersaccounts.</p>
-                <a asp-controller="Gebruikers" asp-action="Index" class="btn btn-primary">@Localizer["ManageUsers"]</a>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase text-white-50 mb-1">Leden</h6>
+                        <h2 class="mb-0">@aantalLeden</h2>
+                    </div>
+                    <i class="bi bi-people-fill" style="font-size: 2.5rem; opacity: 0.6;"></i>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card">
+    <div class="col-md-3">
+        <div class="card text-white" style="background: linear-gradient(135deg, #2196F3, #1565c0);">
             <div class="card-body">
-                <h5 class="card-title">@Localizer["ManageLessons"]</h5>
-                <p class="card-text">Beheer fitnesslessen en planning.</p>
-                <a asp-controller="Lessen" asp-action="Index" class="btn btn-primary">@Localizer["ManageLessons"]</a>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase text-white-50 mb-1">Actieve Lessen</h6>
+                        <h2 class="mb-0">@aantalLessen</h2>
+                    </div>
+                    <i class="bi bi-calendar-event-fill" style="font-size: 2.5rem; opacity: 0.6;"></i>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card">
+    <div class="col-md-3">
+        <div class="card text-white" style="background: linear-gradient(135deg, #FF9800, #e65100);">
             <div class="card-body">
-                <h5 class="card-title">@Localizer["ManageSubscriptions"]</h5>
-                <p class="card-text">Beheer abonnementen en prijzen.</p>
-                <a asp-controller="Abonnementen" asp-action="Index" class="btn btn-primary">@Localizer["ManageSubscriptions"]</a>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase text-white-50 mb-1">Abonnementen</h6>
+                        <h2 class="mb-0">@aantalAbonnementen</h2>
+                    </div>
+                    <i class="bi bi-credit-card-fill" style="font-size: 2.5rem; opacity: 0.6;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white" style="background: linear-gradient(135deg, #9C27B0, #6a1b9a);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase text-white-50 mb-1">Inschrijvingen</h6>
+                        <h2 class="mb-0">@aantalInschrijvingen</h2>
+                    </div>
+                    <i class="bi bi-clipboard-check-fill" style="font-size: 2.5rem; opacity: 0.6;"></i>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Terug naar home -->
-<div class="mt-4">
-    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">@Localizer["BackToHome"]</a>
+<!-- Twee kolommen: aankomende lessen + recente leden -->
+<div class="row g-4">
+
+    <!-- Aankomende lessen -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-calendar3"></i> Aankomende lessen</h5>
+                <a asp-controller="Lessen" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                    Bekijk alles
+                </a>
+            </div>
+            <div class="card-body">
+                @if (aankomendeLessen.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var les in aankomendeLessen)
+                        {
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">@les.Naam</h6>
+                                        <small class="text-muted">
+                                            <i class="bi bi-person"></i> @(les.Trainer ?? "Geen trainer")
+                                            &nbsp;|&nbsp;
+                                            <i class="bi bi-geo-alt"></i> @(les.Locatie ?? "Locatie n.v.t.")
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">
+                                        @les.StartTijd.ToString("dd/MM HH:mm")
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center mb-0">Geen geplande lessen.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Recente leden -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-person-plus"></i> Recente leden</h5>
+                <a asp-controller="Gebruikers" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                    Bekijk alles
+                </a>
+            </div>
+            <div class="card-body">
+                @if (recenteLeden.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var lid in recenteLeden)
+                        {
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">@lid.Voornaam @lid.Achternaam</h6>
+                                        <small class="text-muted"><i class="bi bi-envelope"></i> @lid.Email</small>
+                                    </div>
+                                    <small class="text-muted">
+                                        @lid.AangemaaktOp.ToString("dd/MM/yyyy")
+                                    </small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center mb-0">Geen leden gevonden.</p>
+                }
+            </div>
+        </div>
+    </div>
 </div>

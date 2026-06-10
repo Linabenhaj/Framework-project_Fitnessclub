@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36908.2
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessClub.MAUI", "..\FitnessClub.MAUI\FitnessClub.MAUI.csproj", "{EDF6E3A5-9824-FE5C-CF22-62DCAAE909AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessClub.Models", "FitnessClub.Models.csproj", "{5418104D-37B8-83CE-A7CE-4509A90CAA83}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EDF6E3A5-9824-FE5C-CF22-62DCAAE909AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDF6E3A5-9824-FE5C-CF22-62DCAAE909AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDF6E3A5-9824-FE5C-CF22-62DCAAE909AD}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{EDF6E3A5-9824-FE5C-CF22-62DCAAE909AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDF6E3A5-9824-FE5C-CF22-62DCAAE909AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5418104D-37B8-83CE-A7CE-4509A90CAA83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5418104D-37B8-83CE-A7CE-4509A90CAA83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5418104D-37B8-83CE-A7CE-4509A90CAA83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5418104D-37B8-83CE-A7CE-4509A90CAA83}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A3008B5E-F1A0-48CE-81BE-EC61955C6540}
+	EndGlobalSection
+EndGlobal

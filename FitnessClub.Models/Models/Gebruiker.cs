@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations.Schema; // Voeg deze using toe
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitnessClub.Models.Models
 {
@@ -14,6 +14,29 @@ namespace FitnessClub.Models.Models
         public DateTime? GewijzigdOp { get; set; }
         public bool IsVerwijderd { get; set; } = false;
 
+        //  zodat AccountController ook FirstName/LastName kan gebruiken
+        [NotMapped]
+        public string? FirstName
+        {
+            get => Voornaam;
+            set => Voornaam = value;
+        }
+
+        [NotMapped]
+        public string? LastName
+        {
+            get => Achternaam;
+            set => Achternaam = value;
+        }
+
+        //  voor CreatedAt (gebruikt in AccountController)
+        [NotMapped]
+        public DateTime CreatedAt
+        {
+            get => AangemaaktOp;
+            set => AangemaaktOp = value;
+        }
+
         // Relatie naar Abonnement
         public int? AbonnementId { get; set; }
         public virtual Abonnement? Abonnement { get; set; }
@@ -21,8 +44,7 @@ namespace FitnessClub.Models.Models
         // Collectie van Inschrijvingen
         public virtual ICollection<Inschrijving> Inschrijvingen { get; set; } = new List<Inschrijving>();
 
-        // Berekenende property voor Leeftijd
-        [NotMapped] // Zorgt dat deze NIET in de database komt
+        [NotMapped]
         public int? Leeftijd
         {
             get
@@ -33,14 +55,11 @@ namespace FitnessClub.Models.Models
                 var today = DateTime.Today;
                 var age = today.Year - Geboortedatum.Value.Year;
 
-                // Aanpassing als verjaardag dit jaar nog niet geweest is
                 if (Geboortedatum.Value.Date > today.AddYears(-age))
                     age--;
 
                 return age;
             }
         }
-
-      
     }
 }

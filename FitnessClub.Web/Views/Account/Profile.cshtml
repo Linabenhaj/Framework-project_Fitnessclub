@@ -1,5 +1,79 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using FitnessClub.Web.Translations
+@inject IHtmlLocalizer<SharedResource> L
+@model FitnessClub.Models.Models.Gebruiker
+
 @{
+    ViewData["Title"] = L["MyProfile"].Value;
 }
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-person-circle"></i> @L["MyProfile"]</h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <i class="bi bi-person-circle text-primary" style="font-size: 5rem;"></i>
+                    <h3 class="mt-2">@Model.Voornaam @Model.Achternaam</h3>
+                    <p class="text-muted">@Model.Email</p>
+                </div>
+                <hr />
+                <dl class="row">
+                    <dt class="col-sm-4">@L["FirstName"]</dt>
+                    <dd class="col-sm-8">@Model.Voornaam</dd>
+
+                    <dt class="col-sm-4">@L["LastName"]</dt>
+                    <dd class="col-sm-8">@Model.Achternaam</dd>
+
+                    <dt class="col-sm-4">@L["Email"]</dt>
+                    <dd class="col-sm-8">@Model.Email</dd>
+
+                    <dt class="col-sm-4">@L["Phone"]</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.PhoneNumber) ? "—" : Model.PhoneNumber)</dd>
+
+                    <dt class="col-sm-4">@L["MemberSince"]</dt>
+                    <dd class="col-sm-8">@Model.AangemaaktOp.ToString("dd MMMM yyyy")</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0"><i class="bi bi-credit-card"></i> @L["MySubscription"]</h4>
+            </div>
+            <div class="card-body">
+                @if (Model.Abonnement != null)
+                {
+                    <h5>
+                        <span class="badge bg-success">@Model.Abonnement.Naam</span>
+                        — € @Model.Abonnement.Prijs.ToString("F2") / @Model.Abonnement.DuurInMaanden mnd
+                    </h5>
+                    <p class="text-muted mt-2">@Model.Abonnement.Beschrijving</p>
+                }
+                else
+                {
+                    <div class="alert alert-warning mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> @L["NoSubscription"]
+                    </div>
+                }
+                <hr />
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-info-circle"></i> @L["ContactToChangeSubscription"]
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <a asp-controller="Inschrijvingen" asp-action="Index" class="btn btn-primary">
+                    <i class="bi bi-clipboard-check"></i> @L["MyEnrollments"]
+                </a>
+                <a asp-controller="Lessen" asp-action="Index" class="btn btn-info">
+                    <i class="bi bi-calendar-event"></i> @L["Lessons"]
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,30 +1,86 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:FitnessClub.MAUI.ViewModels"
+             xmlns:models="clr-namespace:FitnessClub.Models.Models;assembly=FitnessClub.Models"
              x:Class="FitnessClub.MAUI.Views.InschrijvingenPage"
-             Title="Mijn Inschrijvingen">
+             Title="{Binding Title}"
+             BackgroundColor="#F4F6F8">
 
-    <VerticalStackLayout Spacing="20" Padding="30">
+    <Grid RowDefinitions="Auto,Auto,*">
 
-        <Label Text="📅 Mijn Inschrijvingen" 
-               FontSize="24" 
-               FontAttributes="Bold"/>
+        <!-- Lading indicator -->
+        <ActivityIndicator Grid.Row="0"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           Color="#1B5E20"
+                           HorizontalOptions="Center"
+                           Margin="0,8" />
 
-        <VerticalStackLayout Spacing="10">
-            <Label Text="• Maandag 18:00 - HIIT Training" FontSize="16"/>
-            <Label Text="• Woensdag 19:00 - Yoga" FontSize="16"/>
-            <Label Text="• Vrijdag 17:00 - Strength Training" FontSize="16"/>
-        </VerticalStackLayout>
+        <!--  Titel banner -->
+        <Border Grid.Row="1"
+                BackgroundColor="White"
+                Padding="16,12"
+                StrokeThickness="0">
+            <Label Text="{Binding HeaderTitel}"
+                   FontSize="15"
+                   FontAttributes="Bold"
+                   TextColor="#1B5E20"
+                   HorizontalOptions="Start" />
+        </Border>
 
-        <Button Text="➕ Nieuwe inschrijving" 
-                BackgroundColor="#4CAF50"
-                TextColor="White"
-                CornerRadius="10"
-                HeightRequest="50"/>
+        <!-- Lijst -->
+        <RefreshView Grid.Row="2"
+                     IsRefreshing="{Binding IsRefreshing}"
+                     Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding MijnInschrijvingen}"
+                            EmptyView="Geen inschrijvingen gevonden"
+                            Margin="0,4">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:LocalInschrijving">
+                        <Border Margin="12,5"
+                                BackgroundColor="White"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 10">
+                            <Border.Shadow>
+                                <Shadow Brush="#22000000" Offset="0,2" Radius="5" Opacity="0.1" />
+                            </Border.Shadow>
+                            <Grid ColumnDefinitions="6,*">
+                                <BoxView Grid.Column="0"
+                                         BackgroundColor="#2E7D32"
+                                         HorizontalOptions="Fill"
+                                         VerticalOptions="Fill" />
+                                <VerticalStackLayout Grid.Column="1" Padding="12,10" Spacing="3">
+                                    <Label Text="{Binding Les.Naam}"
+                                           FontSize="15" FontAttributes="Bold" TextColor="#212121" />
+                                    <Label Text="{Binding GebruikerNaam, StringFormat='Lid: {0}'}"
+                                           FontSize="12" TextColor="#1B5E20" FontAttributes="Bold"
+                                           IsVisible="{Binding GebruikerNaam, Converter={x:Static vm:StringNotEmptyConverter.Instance}}" />
+                                    <Label Text="{Binding Les.StartTijd, StringFormat='Datum: {0:dd/MM/yyyy · HH:mm}'}"
+                                           FontSize="12" TextColor="#616161" />
+                                    <Label Text="{Binding Status, StringFormat='Status: {0}'}"
+                                           FontSize="11" TextColor="#388E3C" FontAttributes="Bold" />
+                                    <Label Text="{Binding InschrijfDatum, StringFormat='Ingeschreven op {0:dd/MM/yyyy}'}"
+                                           FontSize="11" TextColor="#9E9E9E" />
 
-        <Button Text="🔙 Terug" 
-                Clicked="OnBackClicked"
-                Margin="0,20,0,0"/>
+                                    <!-- Uitschrijven knop -->
+                                    <Button Text="Uitschrijven"
+                                            BackgroundColor="#D32F2F"
+                                            TextColor="White"
+                                            FontSize="12"
+                                            CornerRadius="8"
+                                            Padding="10,6"
+                                            HorizontalOptions="End"
+                                            Clicked="OnUitschrijvenClicked"
+                                            CommandParameter="{Binding .}"
+                                            Margin="0,4,0,0" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
 
-    </VerticalStackLayout>
+    </Grid>
 </ContentPage>

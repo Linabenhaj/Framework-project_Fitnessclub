@@ -20,9 +20,11 @@ namespace FitnessClub.WPF.Views
         {
             try
             {
-                using (var context = new FitnessClubDbContext())
+                var optionsBuilder = new DbContextOptionsBuilder<FitnessClubDbContext>();
+                optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=FitnessClubDb;Trusted_Connection=true;TrustServerCertificate=true;MultipleActiveResultSets=true");
+
+                using (var context = new FitnessClubDbContext(optionsBuilder.Options))
                 {
-                    // gebruik eerste lid met abonnement
                     var gebruiker = context.Users
                         .Include(u => u.Abonnement)
                         .FirstOrDefault(u => u.AbonnementId != null);
@@ -30,11 +32,10 @@ namespace FitnessClub.WPF.Views
                     if (gebruiker?.Abonnement != null)
                     {
                         var abonnement = gebruiker.Abonnement;
-
                         AbonnementNaamText.Text = abonnement.Naam;
                         AbonnementPrijsText.Text = $"€{abonnement.Prijs:0.00} per maand";
-                        AbonnementOmschrijvingText.Text = abonnement.Omschrijving ?? "Geen omschrijving beschikbaar";
-                        AbonnementLooptijdText.Text = $"Looptijd: {abonnement.LooptijdMaanden} maand(en)";
+                        AbonnementOmschrijvingText.Text = abonnement.Beschrijving ?? "Geen omschrijving beschikbaar";
+                        AbonnementLooptijdText.Text = $"Looptijd: {abonnement.DuurInMaanden} maand(en)";
                     }
                     else
                     {
@@ -45,7 +46,7 @@ namespace FitnessClub.WPF.Views
                     }
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show($"Fout bij laden abonnement: {ex.Message}", "Fout");
             }

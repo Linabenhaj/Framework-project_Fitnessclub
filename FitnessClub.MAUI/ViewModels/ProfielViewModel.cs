@@ -1,69 +1,93 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FitnessClub.MAUI.Services;
 
 namespace FitnessClub.MAUI.ViewModels
 {
-    public partial class ProfielViewModel : BaseViewModel  // ViewModel voor profiel pagina
+    // ViewModel voor de profielpagina
+    public partial class ProfielViewModel : BaseViewModel
     {
-        [ObservableProperty]
-        private string volledigeNaam = "Test Gebruiker";  // Gebruikersnaam
+        private readonly ApiService _apiService;
 
-        [ObservableProperty]
-        private string email = "test@fitness.com";  // Email adres
+        [ObservableProperty] private string voornaam = "";
+        [ObservableProperty] private string achternaam = "";
+        [ObservableProperty] private string email = "";
+        [ObservableProperty] private string telefoon = "Niet ingevuld";
+        [ObservableProperty] private string rol = "";
+        [ObservableProperty] private string abonnementNaam = "Geen abonnement";
+        [ObservableProperty] private string abonnementPrijs = "";
+        [ObservableProperty] private int aantalInschrijvingen = 0;
 
-        [ObservableProperty]
-        private string telefoon = "012 34 56 78";  // Telefoonnummer
+        public string ContactEmail => "klantendienst@fitnessclub.be";
+        public string ContactTelefoon => "+32 3 123 45 67";
+        public bool MagKlantendienstZien => General.IsLid;
 
-        [ObservableProperty]
-        private DateTime geboortedatum = new(1990, 1, 1);  // Geboortedatum
-
-        [ObservableProperty]
-        private string abonnementNaam = "Premium - €29.99/maand";  // Abonnementsinfo
-
-        [ObservableProperty]
-        private int aantalInschrijvingen = 3;  // Aantal actieve inschrijvingen
-
-        [ObservableProperty]
-        private bool isEditing = false;  // Bewerkmodus status
-
-        public ProfielViewModel()
+        public ProfielViewModel(ApiService apiService)
         {
+            _apiService = apiService;
             Title = "Mijn Profiel";
+            LoadProfile();
         }
 
-        // Activeer bewerkmodus
-        [RelayCommand]
-        private void EditProfile() => IsEditing = true;
-
-        // Sla profiel wijzigingen op
-        [RelayCommand]
-        private async Task SaveProfile()
+        private void LoadProfile()
         {
-            if (IsBusy) return;
-            IsBusy = true;
+            Voornaam = string.IsNullOrEmpty(General.UserFirstName) ? "Gebruiker" : General.UserFirstName;
+            Achternaam = General.UserLastName ?? "";
+            Email = General.UserEmail ?? "";
+            Rol = General.UserRole ?? "Lid";
 
+            _ = LoadExtraInfoAsync();
+        }
+
+        private async Task LoadExtraInfoAsync()
+        {
             try
             {
-                if (string.IsNullOrWhiteSpace(VolledigeNaam))  // Valideer verplichte velden
+                if (!string.IsNullOrEmpty(General.UserId))
                 {
-                    await Application.Current.MainPage.DisplayAlert("Fout", "Naam is verplicht", "OK");
-                    return;
+                    var insResult = await _apiService.GetUserInschrijvingenAsync(General.UserId);
+                    if (insResult.Success && insResult.Data != null)
+                    {
+                        AantalInschrijvingen = insResult.Data.Count(i => i.Status == "Actief");
+                    }
                 }
 
-                await Application.Current.MainPage.DisplayAlert("Succes",
-                    $"Profiel opgeslagen!\nNaam: {VolledigeNaam}", "OK");
+                if (Rol.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+                {
+                    AbonnementNaam = "Beheerder (geen abonnement nodig)";
+                }
+                else if (Rol.Equals("Trainer", StringComparison.OrdinalIgnoreCase))
+                {
+                    AbonnementNaam = "Trainer-account";
+                }
+                else
+                {
+                    AbonnementNaam = "Basic";
+                    AbonnementPrijs = "€19.99/maand";
+                }
+            }
+            catch { }
+        }
 
-                IsEditing = false;  // Schakel bewerkmodus uit
-            }
-            catch (Exception ex)
-            {
-                await Application.Current.MainPage.DisplayAlert("Fout",
-                    $"Kon profiel niet opslaan: {ex.Message}", "OK");
-            }
-            finally
-            {
-                IsBusy = false;
-            }
+        [RelayCommand]
+        private async Task ContactKlantendienst()
+        {
+            await Application.Current!.Windows[0]!.Page!.DisplayAlert(
+                "Klantendienst",
+                $"Voor het wijzigen van persoonlijke gegevens of abonnement:\n\n" +
+                $"📧 {ContactEmail}\n" +
+                $"📞 {ContactTelefoon}\n\n" +
+                $"Onze klantendienst is bereikbaar van maandag tot vrijdag, 9u-18u.",
+                "OK");
+        }
+
+        [RelayCommand]
+        private async Task Refresh()
+        {
+            IsBusy = true;
+            LoadProfile();
+            await Task.Delay(300);
+            IsBusy = false;
         }
     }
 }

@@ -1,142 +1,245 @@
-﻿using Microsoft.AspNetCore.Cors;
+using FitnessClub.Models.Data;
+using FitnessClub.Models.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Basis services registreren voor API functionaliteit
-builder.Services.AddControllers();  // Voegt controller ondersteuning toe
-builder.Services.AddEndpointsApiExplorer();  // API explorer voor endpoints
-builder.Services.AddSwaggerGen();  // Genereert Swagger documentatie
+// ========== DATABASE CONFIGURATIE ==========
+builder.Services.AddDbContext<FitnessClubDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// CORS configuratie - staat alle cross-origin requests toe voor MAUI
+builder.Services.AddScoped<IFitnessClubDbContext>(sp =>
+    sp.GetRequiredService<FitnessClubDbContext>());
+
+// ========== IDENTITY CONFIGURATIE ==========
+builder.Services.AddIdentity<Gebruiker, IdentityRole>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;   // schoolproject: geen mailbevestiging nodig
+    options.User.RequireUniqueEmail = true;
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = true;
+})
+.AddEntityFrameworkStores<FitnessClubDbContext>()
+.AddDefaultTokenProviders();
+
+// ========== JWT CONFIGURATIE ==========
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var key = Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? "YourVeryLongSecretKeyForJWT32CharactersMinimum");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings["Issuer"] ?? "FitnessClubAPI",
+        ValidateAudience = true,
+        ValidAudience = jwtSettings["Audience"] ?? "FitnessClubMobileApp",
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+// ========== SERVICES ==========
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Voorkomt crashes bij circulaire referenties in EF navigation properties
+        options.JsonSerializerOptions.ReferenceHandler =
+            System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        // camelCase voor alle API responses (activityId, lesId, ...)
+        options.JsonSerializerOptions.PropertyNamingPolicy =
+            System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
+builder.Services.AddEndpointsApiExplorer();
+
+// Swagger met JWT ondersteuning
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "FitnessClub API",
+        Version = "v1",
+        Description = "API voor FitnessClub Web en MAUI app"
+    });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header: Bearer {token}",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// CORS voor MAUI en Web
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()       // Accepteert requests vanaf elke bron
-              .AllowAnyMethod()       // Staat alle HTTP methodes toe (GET, POST, etc.)
-              .AllowAnyHeader();      // Accepteert alle headers
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
 
 var app = builder.Build();
 
-// Swagger UI alleen in development omgeving
+// ========== MIDDLEWARE PIPELINE ==========
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();  // Voegt Swagger middleware toe
-    app.UseSwaggerUI();  // Voegt Swagger UI interface toe
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "FitnessClub API v1");
+        c.RoutePrefix = "swagger";
+    });
 }
 
-// CORS policy toepassen
+// Geen HTTPS-redirect in dev — anders bereikt Android-emulator de API niet
+// app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
-// Authorization middleware toevoegen
+app.UseAuthentication();
 app.UseAuthorization();
 
-// Health check endpoint - controleert of API draait
+app.MapControllers();
+
+// Health check endpoint
 app.MapGet("/api/health", () =>
 {
-    Console.WriteLine($"Health check op: {DateTime.Now}");
     return Results.Ok(new
     {
         status = "API is running",
         timestamp = DateTime.Now,
-        message = "Ready for MAUI app"
+        version = "1.0",
+        environment = app.Environment.EnvironmentName
     });
 });
 
-// Login endpoint - verwerkt gebruikersauthenticatie
-app.MapPost("/api/gebruikers/login", (LoginRequest request) =>
+// ========== DATABASE MIGRATIE + SEEDING ==========
+using (var scope = app.Services.CreateScope())
 {
-    Console.WriteLine($"Login poging: {request.Email}");
-
-    // Hardcoded login voor testdoeleinden
-    if (request.Email == "admin@fitness.com" && request.Password == "admin123")
+    var services = scope.ServiceProvider;
+    try
     {
-        return Results.Ok(new
+        var context = services.GetRequiredService<FitnessClubDbContext>();
+        var userManager = services.GetRequiredService<UserManager<Gebruiker>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+        // 1. Database aanmaken / migraties uitvoeren
+        await context.Database.MigrateAsync();
+
+        // 2. Rollen aanmaken — alleen Admin + Member (trainers staan als data op een Les)
+        string[] roles = { "Admin", "Lid" };
+        foreach (var role in roles)
         {
-            success = true,
-            token = "fake-jwt-token-admin-12345",  // Test token voor admin
-            email = "admin@fitness.com",
-            voornaam = "Admin",
-            achternaam = "User",
-            id = "1",
-            roles = new[] { "Admin" }
-        });
-    }
-
-    if (request.Email == "user@fitness.com" && request.Password == "user123")
-    {
-        return Results.Ok(new
-        {
-            success = true,
-            token = "fake-jwt-token-user-67890",  // Test token voor gebruiker
-            email = "user@fitness.com",
-            voornaam = "Regular",
-            achternaam = "User",
-            id = "2",
-            roles = new[] { "Gebruiker" }
-        });
-    }
-
-    // Retourneert unauthorized bij foute credentials
-    return Results.Unauthorized();
-});
-
-// Lessen endpoint - retourneert lesdata
-app.MapGet("/api/lessen", () =>
-{
-    var lessen = new[]
-    {
-        new {
-            id = 1,
-            naam = "Morning Yoga",
-            beschrijving = "Ontspannende yoga sessie",
-            startTijd = DateTime.Today.AddDays(1).AddHours(9),
-            eindTijd = DateTime.Today.AddDays(1).AddHours(10),
-            locatie = "Zaal 1",
-            trainer = "Anna",
-            maxDeelnemers = 20,
-            isActief = true,
-            lastSynced = DateTime.Now
-        },
-        new {
-            id = 2,
-            naam = "HIIT Workout",
-            beschrijving = "High Intensity Interval Training",
-            startTijd = DateTime.Today.AddDays(2).AddHours(18),
-            eindTijd = DateTime.Today.AddDays(2).AddHours(19),
-            locatie = "Zaal 2",
-            trainer = "Mike",
-            maxDeelnemers = 15,
-            isActief = true,
-            lastSynced = DateTime.Now
+            if (!await roleManager.RoleExistsAsync(role))
+                await roleManager.CreateAsync(new IdentityRole(role));
         }
-    };
 
-    return Results.Ok(new
+        // 3. Admin-account aanmaken (als hij nog niet bestaat)
+        var adminEmail = "admin@fitnessclub.be";
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUser == null)
+        {
+            adminUser = new Gebruiker
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                Voornaam = "Admin",
+                Achternaam = "FitnessClub",
+                EmailConfirmed = true
+            };
+            var result = await userManager.CreateAsync(adminUser, "Admin123!");
+            if (result.Succeeded)
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+        }
+
+        // 4. Demo-gebruiker aanmaken
+        var memberEmail = "user@fitnessclub.be";
+        var memberUser = await userManager.FindByEmailAsync(memberEmail);
+        if (memberUser == null)
+        {
+            memberUser = new Gebruiker
+            {
+                UserName = memberEmail,
+                Email = memberEmail,
+                Voornaam = "Lid",
+                Achternaam = "Demo",
+                EmailConfirmed = true
+            };
+            var result = await userManager.CreateAsync(memberUser, "User123!");
+            if (result.Succeeded)
+                await userManager.AddToRoleAsync(memberUser, "Lid");
+        }
+
+        // 5. Abonnementen seeden — Basic / Medium / Pro
+        if (!context.Abonnementen.Any())
+        {
+            context.Abonnementen.AddRange(
+                new Abonnement { Naam = "Basic",  Type = "Basic",  Prijs = 19.99m, DuurInMaanden = 1, Beschrijving = "Toegang tot fitnesszaal",         IsActief = true },
+                new Abonnement { Naam = "Medium", Type = "Medium", Prijs = 34.99m, DuurInMaanden = 1, Beschrijving = "Fitnesszaal + groepslessen",       IsActief = true },
+                new Abonnement { Naam = "Pro",    Type = "Pro",    Prijs = 54.99m, DuurInMaanden = 1, Beschrijving = "Alles + persoonlijke begeleiding", IsActief = true }
+            );
+            await context.SaveChangesAsync();
+        }
+
+        // 6. Mock-lessen opruimen (van eerdere seeding) — admin maakt lessen handmatig aan
+        var mockTrainers = new[] { "John Smith", "Marie Dubois", "Lukas Janssens", "Sophie Peeters", "Anna Verhoeven", "Tom De Wit" };
+        var mockLessen = await context.Lessen.Where(l => mockTrainers.Contains(l.Trainer)).ToListAsync();
+        if (mockLessen.Any())
+        {
+            context.Lessen.RemoveRange(mockLessen);
+            await context.SaveChangesAsync();
+            Console.WriteLine($"🧹 {mockLessen.Count} mock-lessen verwijderd");
+        }
+
+        Console.WriteLine("✅ Database geseed (Admin + Member + abonnementen klaar)");
+    }
+    catch (Exception ex)
     {
-        success = true,
-        data = lessen,
-        message = $"{lessen.Length} lessen geladen"
-    });
-});
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Fout tijdens database seeding van API.");
+    }
+}
 
-// Token validatie endpoint - controleert token geldigheid
-app.MapGet("/api/gebruikers/validate", () =>
-{
-    // Retourneert altijd true voor testdoeleinden
-    return Results.Ok(new { valid = true });
-});
+Console.WriteLine("🚀 FitnessClub API gestart");
+Console.WriteLine($"📡 Mode: {app.Environment.EnvironmentName}");
+Console.WriteLine("🔐 JWT Authentication: ACTIEF");
+Console.WriteLine("👤 Admin login: admin@fitnessclub.be / Admin123!");
+Console.WriteLine("👤 Member login: user@fitnessclub.be / User123!");
 
-// Console output voor startup informatie
-Console.WriteLine("🚀 Starting FitnessClub API...");
-Console.WriteLine("📡 Listening on ALL interfaces (0.0.0.0:5000)");
-Console.WriteLine("🌐 Swagger UI: http://localhost:5000/swagger");
-Console.WriteLine("📱 MAUI endpoint: http://172.20.96.1:5000/api/");
-
-// Start API en luister op alle netwerkinterfaces
-app.Run("http://0.0.0.0:5000");
-
-// DTO (Data Transfer Object) voor login requests
-public record LoginRequest(string Email, string Password);
+app.Run();

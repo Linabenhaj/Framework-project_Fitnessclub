@@ -1,41 +1,94 @@
-﻿@model FitnessClub.Web.Controllers.RegisterModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using FitnessClub.Web.Translations
+@inject IHtmlLocalizer<SharedResource> L
+@model FitnessClub.Web.Models.RegisterModel
 
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = L["Register"].Value;
 }
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>@ViewData["Title"]</h2>
-
-        <form asp-action="Register" method="post">
-            <div asp-validation-summary="All" class="text-danger"></div>
-
-            <div class="form-group">
-                <label asp-for="Email"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0"><i class="bi bi-person-plus"></i> @L["CreateAccount"]</h3>
             </div>
+            <div class="card-body">
+                <form asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <div class="form-group">
-                <label asp-for="Password"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Voornaam" class="form-label">@L["FirstName"]</label>
+                            <input asp-for="Voornaam" class="form-control" />
+                            <span asp-validation-for="Voornaam" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Achternaam" class="form-label">@L["LastName"]</label>
+                            <input asp-for="Achternaam" class="form-control" />
+                            <span asp-validation-for="Achternaam" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">@L["Email"]</label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Telefoonnummer" class="form-label">@L["Phone"]</label>
+                        <input asp-for="Telefoonnummer" class="form-control" />
+                        <span asp-validation-for="Telefoonnummer" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Wachtwoord" class="form-label">@L["Password"]</label>
+                        <input asp-for="Wachtwoord" class="form-control" type="password" />
+                        <span asp-validation-for="Wachtwoord" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="BevestigWachtwoord" class="form-label">@L["ConfirmPassword"]</label>
+                        <input asp-for="BevestigWachtwoord" class="form-control" type="password" />
+                        <span asp-validation-for="BevestigWachtwoord" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="AbonnementId" class="form-label">@L["Subscription"]</label>
+                        <select asp-for="AbonnementId" asp-items="ViewBag.AbonnementenList" class="form-select">
+                            <option value="">—</option>
+                        </select>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="AccepteerVoorwaarden" class="form-check-input" />
+                        <label asp-for="AccepteerVoorwaarden" class="form-check-label">
+                            @L["Register"]
+                        </label>
+                        <span asp-validation-for="AccepteerVoorwaarden" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-person-plus"></i> @L["CreateAccount"]
+                        </button>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> @L["Back"]
+                        </a>
+                    </div>
+                </form>
             </div>
-
-            <div class="form-group">
-                <label asp-for="ConfirmPassword"></label>
-                <input asp-for="ConfirmPassword" class="form-control" />
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            <div class="card-footer text-center">
+                <small class="text-muted">
+                    <a asp-action="Login">@L["Login"]</a>
+                </small>
             </div>
-
-            <button type="submit" class="btn btn-primary">Register</button>
-        </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }

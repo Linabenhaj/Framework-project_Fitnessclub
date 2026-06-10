@@ -40,7 +40,10 @@ namespace FitnessClub.Models.Models
         [Display(Name = "Actief")]
         public bool IsActief { get; set; } = true;
 
-
+        // Type-veld voor filtering 
+        [Display(Name = "Type")]
+        [StringLength(50)]
+        public string Type { get; set; } = string.Empty;
 
         public string KorteInfo => $"{Naam} ({StartTijd:HH:mm})";
         public string DagVanWeek => StartTijd.ToString("dddd");
@@ -49,7 +52,6 @@ namespace FitnessClub.Models.Models
         // Navigation property
         public ICollection<Inschrijving> Inschrijvingen { get; set; } = new List<Inschrijving>();
 
-        //  properties
         public string DisplayInfo => $"{Naam} - {StartTijd:dd/MM/yyyy HH:mm} ({Locatie})";
         public int Duur => (int)(EindTijd - StartTijd).TotalMinutes;
         public bool IsToekomstig => StartTijd > DateTime.Now;

@@ -1,5 +1,33 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+@using Microsoft.AspNetCore.Mvc.Localization
+@using FitnessClub.Web.Translations
+@inject IHtmlLocalizer<SharedResource> L
+@model FitnessClub.Models.Models.Inschrijving
+
+@{ ViewData["Title"] = L["Unenroll"].Value; }
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> @L["Unenroll"]</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">@L["Lessons"]</dt>
+                    <dd class="col-sm-8">@Model.Les?.Naam</dd>
+                    <dt class="col-sm-4">@L["StartTime"]</dt>
+                    <dd class="col-sm-8">@Model.Les?.StartTijd.ToString("dd/MM/yyyy HH:mm")</dd>
+                </dl>
+
+                <form asp-action="Delete" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">@L["Cancel"]</a>
+                        <button type="submit" class="btn btn-danger">@L["Unenroll"]</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,4 @@
-using FitnessClub.Models.Data;
+﻿using FitnessClub.Models.Data;
 using FitnessClub.Models.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -14,15 +14,12 @@ namespace FitnessClub.WPF.Windows
         public AbonnementBewerkenWindow(int abonnementId)
         {
             InitializeComponent();
-
             _abonnementId = abonnementId;
 
-            // CORRECTE DB CONTEXT INIT
             var optionsBuilder = new DbContextOptionsBuilder<FitnessClubDbContext>();
             optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=FitnessClubDb;Trusted_Connection=true;TrustServerCertificate=true;MultipleActiveResultSets=true");
 
             _context = new FitnessClubDbContext(optionsBuilder.Options);
-
             LaadAbonnement();
         }
 
@@ -36,8 +33,8 @@ namespace FitnessClub.WPF.Windows
                 {
                     NaamTextBox.Text = abonnement.Naam;
                     PrijsTextBox.Text = abonnement.Prijs.ToString("F2");
-                    LooptijdTextBox.Text = abonnement.LooptijdMaanden.ToString();
-                    OmschrijvingTextBox.Text = abonnement.Omschrijving;
+                    LooptijdTextBox.Text = abonnement.DuurInMaanden.ToString();
+                    OmschrijvingTextBox.Text = abonnement.Beschrijving;  // Omschrijving → Beschrijving
                 }
             }
             catch (Exception ex)
@@ -64,17 +61,15 @@ namespace FitnessClub.WPF.Windows
                 }
 
                 if (!int.TryParse(LooptijdTextBox.Text, out int looptijd))
-                {
                     looptijd = 1;
-                }
 
                 var abonnement = _context.Abonnementen.FirstOrDefault(a => a.Id == _abonnementId);
                 if (abonnement != null)
                 {
                     abonnement.Naam = NaamTextBox.Text;
                     abonnement.Prijs = prijs;
-                    abonnement.LooptijdMaanden = looptijd;
-                    abonnement.Omschrijving = OmschrijvingTextBox.Text;
+                    abonnement.DuurInMaanden = looptijd;
+                    abonnement.Beschrijving = OmschrijvingTextBox.Text;  // Omschrijving → Beschrijving
 
                     _context.SaveChanges();
                     MessageBox.Show("Abonnement bijgewerkt!");

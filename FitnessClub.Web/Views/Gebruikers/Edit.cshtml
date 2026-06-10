@@ -1,96 +1,66 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using FitnessClub.Web.Translations
+@inject IHtmlLocalizer<SharedResource> L
 @model FitnessClub.Models.Models.Gebruiker
 
-@{
-    ViewData["Title"] = "Gebruiker Bewerken";
-}
+@{ ViewData["Title"] = L["Edit"].Value; }
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-warning text-white">
-                    <h4 class="mb-0">
-                        <i class="bi bi-pencil-square"></i> Gebruiker Bewerken
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <form asp-action="Edit">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                        <input type="hidden" asp-for="Id" />
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0"><i class="bi bi-pencil-square"></i> @L["Edit"] @L["Users"]</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label asp-for="Voornaam" class="form-label"></label>
-                                <input asp-for="Voornaam" class="form-control" />
-                                <span asp-validation-for="Voornaam" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="Achternaam" class="form-label"></label>
-                                <input asp-for="Achternaam" class="form-control" />
-                                <span asp-validation-for="Achternaam" class="text-danger"></span>
-                            </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">@L["FirstName"]</label>
+                            <input name="Voornaam" value="@Model.Voornaam" class="form-control" required />
                         </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Email" class="form-label"></label>
-                            <input asp-for="Email" class="form-control" type="email" />
-                            <span asp-validation-for="Email" class="text-danger"></span>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">@L["LastName"]</label>
+                            <input name="Achternaam" value="@Model.Achternaam" class="form-control" required />
                         </div>
+                    </div>
 
-                        <div class="mb-3">
-                            <label asp-for="PhoneNumber" class="form-label">Telefoon</label>
-                            <input asp-for="PhoneNumber" class="form-control" />
-                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">@L["Email"]</label>
+                        <input name="Email" value="@Model.Email" class="form-control" type="email" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">@L["Phone"]</label>
+                        <input name="Telefoon" value="@Model.PhoneNumber" class="form-control" />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">@L["Role"]</label>
+                            <select name="Rol" asp-items="ViewBag.RollenList" class="form-select"></select>
                         </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Geboortedatum" class="form-label"></label>
-                            <input asp-for="Geboortedatum" class="form-control" type="date" />
-                            <span asp-validation-for="Geboortedatum" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="AbonnementId" class="form-label">Abonnement</label>
-                            <select asp-for="AbonnementId" class="form-control"
-                                    asp-items="ViewBag.Abonnementen">
-                                <option value="">-- Selecteer abonnement --</option>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">@L["Subscription"]</label>
+                            <select name="AbonnementId" asp-items="ViewBag.AbonnementenList" class="form-select">
+                                <option value="">—</option>
                             </select>
                         </div>
+                    </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Rollen</label>
-                            @if (ViewBag.AllRoles is string[] roles)
-                            {
-                                <select name="selectedRoles" class="form-select" multiple>
-                                    @foreach (var role in roles)
-                                    {
-                                        <option value="@role"
-                                                selected="@(ViewBag.UserRoles is List<string> userRoles && userRoles.Contains(role))">
-                                            @role
-                                        </option>
-                                    }
-                                </select>
-                            }
-                            <small class="text-muted">Hou Ctrl ingedrukt om meerdere rollen te selecteren</small>
-                        </div>
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-check-circle"></i> Opslaan
-                            </button>
-                            <a asp-action="Index" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Terug
-                            </a>
-                        </div>
-                    </form>
-                </div>
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> @L["Back"]
+                        </a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-check-circle"></i> @L["Save"]
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}

@@ -1,238 +1,118 @@
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.Localization
+@using FitnessClub.Models.Models
+@using FitnessClub.Web.Translations
 @inject UserManager<Gebruiker> UserManager
 @inject SignInManager<Gebruiker> SignInManager
+@inject IHtmlLocalizer<SharedResource> L
 
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="@System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Fitness Club</title>
 
-    <!-- Bootstrap  -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <!-- DataTables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <!-- Toastr notifications -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <!-- Mijn CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-
-    <style>
-        :root {
-            --primary-dark: #2c3e50;
-            --secondary-dark: #34495e;
-            --admin-red: #e74c3c;
-            --register-green: #27ae60;
-            --login-blue: #3498db;
-            --about-gray: #95a5a6;
-            --light-gray: #ecf0f1;
-        }
-
-        body {
-            background-color: var(--primary-dark);
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .navbar-dark.bg-primary {
-            background-color: var(--secondary-dark) !important;
-        }
-
-        .navbar-brand {
-            font-size: 22px;
-            font-weight: bold;
-        }
-
-            .navbar-brand i {
-                color: var(--admin-red);
-            }
-
-        .main-content {
-            flex: 1;
-            padding: 20px;
-        }
-
-        .card {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-
-        .card-header {
-            background-color: rgba(255, 255, 255, 0.15);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .table-dark {
-            background-color: rgba(52, 73, 94, 0.9);
-        }
-
-        .ajax-loading {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .spinner-border {
-            width: 3rem;
-            height: 3rem;
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-        }
-
-        .btn-primary {
-            background-color: var(--login-blue);
-            border-color: var(--login-blue);
-        }
-
-        .btn-success {
-            background-color: var(--register-green);
-            border-color: var(--register-green);
-        }
-
-        .btn-danger {
-            background-color: var(--admin-red);
-            border-color: var(--admin-red);
-        }
-
-        .pagination .page-link {
-            background-color: var(--secondary-dark);
-            border-color: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-
-        .pagination .page-item.active .page-link {
-            background-color: var(--login-blue);
-            border-color: var(--login-blue);
-        }
-
-        .filter-section {
-            background-color: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-
-        .footer {
-            background-color: var(--secondary-dark);
-            color: white;
-            padding: 15px 0;
-            margin-top: auto;
-        }
-
-        @@media (max-width: 768px) {
-            .navbar-nav {
-                padding-top: 10px;
-            }
-        }
-    </style>
 
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <!-- Loading spinner for AJAX -->
-    <div id="ajaxLoading" class="ajax-loading">
-        <div class="spinner-border text-light" role="status">
-            <span class="visually-hidden">Laden...</span>
-        </div>
-    </div>
-
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-activity"></i> Fitness Club
-                </a>
-
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-3">
+        <div class="container">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-heart-pulse-fill"></i> Fitness Club
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    @if (SignInManager.IsSignedIn(User))
+                    {
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">
-                                <i class="bi bi-house"></i> Home
+                            <a class="nav-link text-light" asp-controller="Lessen" asp-action="Index">@L["Lessons"]</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-controller="Inschrijvingen" asp-action="Index">
+                                @(User.IsInRole("Admin") ? L["Enrollments"] : L["MyEnrollments"])
                             </a>
                         </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Lessen" asp-action="Index">
-                                <i class="bi bi-calendar"></i> Lessen
-                            </a>
-                        </li>
-
-                        @if (SignInManager.IsSignedIn(User))
+                        @if (User.IsInRole("Admin"))
                         {
-                            @if (User.IsInRole("Admin") || User.IsInRole("Trainer"))
-                            {
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                        <i class="bi bi-gear"></i> Beheer
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        @if (User.IsInRole("Admin"))
-                                        {
-                                            <li>
-                                                <a class="dropdown-item" asp-controller="Gebruikers" asp-action="Index">
-                                                    <i class="bi bi-people"></i> Gebruikers
-                                                </a>
-                                            </li>
-                                        }
-                                        <li>
-                                            <a class="dropdown-item" asp-controller="Lessen" asp-action="Create">
-                                                <i class="bi bi-plus-circle"></i> Nieuwe Les
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            }
-
                             <li class="nav-item">
-                                <a class="nav-link" href="#" onclick="alert('Profiel pagina komt later')">
-                                    <i class="bi bi-person"></i> Mijn Profiel
-                                </a>
+                                <a class="nav-link text-light" asp-controller="Abonnementen" asp-action="Index">@L["Subscriptions"]</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-controller="Gebruikers" asp-action="Index">@L["Users"]</a>
                             </li>
                         }
-                    </ul>
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-controller="Account" asp-action="Profile">@L["MyProfile"]</a>
+                            </li>
+                        }
+                    }
+                </ul>
 
-                    <!-- Login/Logout -->
-                    <partial name="_LoginPartial" />
-                </div>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-translate"></i> @L["Language"]
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" asp-controller="Home" asp-action="SetLanguage"
+                                   asp-route-culture="nl" asp-route-returnUrl="@Context.Request.Path">🇳🇱 Nederlands</a></li>
+                            <li><a class="dropdown-item" asp-controller="Home" asp-action="SetLanguage"
+                                   asp-route-culture="en" asp-route-returnUrl="@Context.Request.Path">🇬🇧 English</a></li>
+                            <li><a class="dropdown-item" asp-controller="Home" asp-action="SetLanguage"
+                                   asp-route-culture="fr" asp-route-returnUrl="@Context.Request.Path">🇫🇷 Français</a></li>
+                        </ul>
+                    </li>
+
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <li class="nav-item">
+                            <span class="nav-link text-light">
+                                <i class="bi bi-person-circle"></i> @User.Identity?.Name
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-flex">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="nav-link btn btn-link text-light">@L["Logout"]</button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-controller="Account" asp-action="Register">@L["Register"]</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" asp-controller="Account" asp-action="Login">@L["Login"]</a>
+                        </li>
+                    }
+                </ul>
             </div>
-        </nav>
-    </header>
+        </div>
+    </nav>
 
-    <main class="main-content container">
-        <!-- Display success/error messages -->
+    <main class="container mt-4">
         @if (TempData["SuccessMessage"] != null)
         {
             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                @TempData["SuccessMessage"]
+                <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
-
         @if (TempData["ErrorMessage"] != null)
         {
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                @TempData["ErrorMessage"]
+                <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
@@ -240,39 +120,16 @@
         @RenderBody()
     </main>
 
-    <footer class="footer">
-        <div class="container text-center">
-            &copy; @DateTime.Now.Year - Fitness Club -
-            <a asp-controller="Home" asp-action="Privacy" class="text-light">Privacy</a> -
-            <a asp-controller="Home" asp-action="About" class="text-light">Over</a>
+    <footer class="border-top footer text-muted mt-5">
+        <div class="container py-3">
+            &copy; @DateTime.Now.Year - Fitness Club &middot; Lina Benhaj
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-    <script>
-        function getToken() {
-            return $('input[name="__RequestVerificationToken"]').val();
-        }
-
-        $(document).ajaxSend(function (event, xhr, options) {
-            if (options.type.toUpperCase() === "POST") {
-                xhr.setRequestHeader("X-CSRF-TOKEN", getToken());
-            }
-        });
-
-        $(document).ajaxStart(function () {
-            $('#ajaxLoading').show();
-        }).ajaxStop(function () {
-            $('#ajaxLoading').hide();
-        });
-    </script>
-
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @* Unobtrusive Ajax — voor declaratieve AJAX via data-ajax-* attributen (school-stijl) *@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajax-unobtrusive/3.2.6/jquery.unobtrusive-ajax.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)

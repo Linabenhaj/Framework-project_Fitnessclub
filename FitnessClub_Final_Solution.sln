@@ -17,8 +17,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessClub.Web", "FitnessC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessClub.MAUI", "FitnessClub.MAUI\FitnessClub.MAUI.csproj", "{A0C4F13F-7BBC-45CD-9414-B6B09A4675CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessClub.API", "FitnessClub.API\FitnessClub.API.csproj", "{E1638BA9-CB5A-C0D5-FA94-50D9022C7F9E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessClub.API", "FitnessClub.API\FitnessClub.API.csproj", "{B8E47A19-2F3D-4C5E-9A1B-7D3F8C2E4B6A}"
 EndProject
+
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,10 +43,11 @@ Global
 		{A0C4F13F-7BBC-45CD-9414-B6B09A4675CC}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{A0C4F13F-7BBC-45CD-9414-B6B09A4675CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0C4F13F-7BBC-45CD-9414-B6B09A4675CC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E1638BA9-CB5A-C0D5-FA94-50D9022C7F9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E1638BA9-CB5A-C0D5-FA94-50D9022C7F9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E1638BA9-CB5A-C0D5-FA94-50D9022C7F9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E1638BA9-CB5A-C0D5-FA94-50D9022C7F9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8E47A19-2F3D-4C5E-9A1B-7D3F8C2E4B6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8E47A19-2F3D-4C5E-9A1B-7D3F8C2E4B6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8E47A19-2F3D-4C5E-9A1B-7D3F8C2E4B6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8E47A19-2F3D-4C5E-9A1B-7D3F8C2E4B6A}.Release|Any CPU.Build.0 = Release|Any CPU
+
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

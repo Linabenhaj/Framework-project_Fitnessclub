@@ -1,9 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FitnessClub.MAUI.Models
+namespace FitnessClub.Models.Models
 {
+    // Model voor lessen in de MAUI-app
     public class LocalLes
     {
         public int Id { get; set; }
@@ -37,15 +39,18 @@ namespace FitnessClub.MAUI.Models
         // Navigation property voor inschrijvingen
         public List<LocalInschrijving> Inschrijvingen { get; set; } = new();
 
-        // Berekenende properties
         public string DisplayNaam => $"{Naam} ({StartTijd:HH:mm})";
         public bool IsToekomstig => StartTijd > DateTime.Now;
         public bool IsBezig => DateTime.Now >= StartTijd && DateTime.Now <= EindTijd;
         public bool IsVerleden => EindTijd < DateTime.Now;
-
-        //Helper property voor aantal ingeschreven
         public int AantalIngeschreven => Inschrijvingen?.Count ?? 0;
         public int BeschikbarePlaatsen => MaxDeelnemers - AantalIngeschreven;
         public bool IsVol => BeschikbarePlaatsen <= 0;
+
+        [NotMapped]
+        public bool IsIngeschrevenDoorMij { get; set; }
+
+        [NotMapped]
+        public bool IsNietIngeschrevenDoorMij => !IsIngeschrevenDoorMij;
     }
 }

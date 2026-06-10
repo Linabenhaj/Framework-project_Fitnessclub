@@ -1,103 +1,64 @@
-﻿using FitnessClub.Models.Models;
+﻿using FitnessClub.Models.Data;
+using FitnessClub.Models.Models;
+using FitnessClub.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessClub.Web.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly SignInManager<Gebruiker> _signInManager;
         private readonly UserManager<Gebruiker> _userManager;
-        private readonly ILogger<AccountController> _logger;
-        private readonly IStringLocalizer<AccountController> _localizer;
+        private readonly SignInManager<Gebruiker> _signInManager;
+        private readonly FitnessClubDbContext _context;
 
         public AccountController(
-            SignInManager<Gebruiker> signInManager,
             UserManager<Gebruiker> userManager,
-            ILogger<AccountController> logger,
-            IStringLocalizer<AccountController> localizer)
+            SignInManager<Gebruiker> signInManager,
+            FitnessClubDbContext context)
         {
-            _signInManager = signInManager;
             _userManager = userManager;
-            _logger = logger;
-            _localizer = localizer;
+            _signInManager = signInManager;
+            _context = context;
         }
 
-        // GET: /Account/Login
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login(string returnUrl = null)
+        public async Task<IActionResult> Register()
         {
-            ViewData["ReturnUrl"] = returnUrl;
+            await PopulateAbonnementenAsync();
             return View();
         }
 
-        // POST: /Account/Login
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginModel model, string returnUrl = null)
+        private async Task PopulateAbonnementenAsync(int? selected = null)
         {
-            ViewData["ReturnUrl"] = returnUrl;
-
-            if (ModelState.IsValid)
-            {
-                _logger.LogInformation($"Login poging voor gebruiker: {model.Email}");
-
-                var user = await _userManager.FindByEmailAsync(model.Email);
-                if (user != null)
+            var abonnementen = await _context.Abonnementen
+                .Where(a => a.IsActief && !a.IsVerwijderd)
+                .OrderBy(a => a.Prijs)
+                .Select(a => new
                 {
-                    // Controleer e-mail verificatie
-                    if (!await _userManager.IsEmailConfirmedAsync(user))
-                    {
-                        ModelState.AddModelError(string.Empty, _localizer["EmailNotConfirmed"]);
-                        return View(model);
-                    }
-                }
-
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
-
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation($"Gebruiker {model.Email} ingelogd.");
-
-                    if (await _userManager.IsInRoleAsync(user, "Admin"))
-                    {
-                        return RedirectToAction("Dashboard", "Admin");
-                    }
-                    return RedirectToLocal(returnUrl);
-                }
-                else if (result.IsLockedOut)
-                {
-                    _logger.LogWarning($"Account gelocked voor gebruiker: {model.Email}");
-                    return View("Lockout");
-                }
-
-                ModelState.AddModelError(string.Empty, _localizer["InvalidLoginAttempt"]);
-            }
-
-            return View(model);
+                    a.Id,
+                    Display = $"{a.Naam} — € {a.Prijs:F2} / maand"
+                })
+                .ToListAsync();
+            ViewBag.AbonnementenList = new SelectList(abonnementen, "Id", "Display", selected);
         }
 
-        // GET: /Account/Register
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult Register()
-        {
-            return View();
-        }
-
-        // POST: /Account/Register
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterModel model)
         {
+            // Voorwaarden-validatie handmatig 
+            if (!model.AccepteerVoorwaarden)
+            {
+                ModelState.AddModelError(nameof(model.AccepteerVoorwaarden),
+                    "Je moet akkoord gaan met de voorwaarden om je te registreren.");
+            }
+
             if (ModelState.IsValid)
             {
                 var user = new Gebruiker
@@ -106,27 +67,18 @@ namespace FitnessClub.Web.Controllers
                     Email = model.Email,
                     Voornaam = model.Voornaam,
                     Achternaam = model.Achternaam,
-                    Geboortedatum = model.Geboortedatum
+                    PhoneNumber = model.Telefoonnummer,
+                    AbonnementId = model.AbonnementId  // bij registratie meteen een abo kiezen
                 };
 
-                var result = await _userManager.CreateAsync(user, model.Password);
+                var result = await _userManager.CreateAsync(user, model.Wachtwoord);
 
                 if (result.Succeeded)
                 {
-                    // Standaard rol toekennen (bijv. "Lid")
                     await _userManager.AddToRoleAsync(user, "Lid");
-
-                    // Email verificatie token genereren
-                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var callbackUrl = Url.Action("ConfirmEmail", "Account",
-                        new { userId = user.Id, token = token }, protocol: HttpContext.Request.Scheme);
-
-                    // Email versturen (hier implementeer je je email service)
-                    await SendConfirmationEmail(user.Email, callbackUrl);
-
-                    _logger.LogInformation($"Nieuwe gebruiker geregistreerd: {model.Email}");
-
-                    return View("RegisterConfirmation", new { Email = model.Email });
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    TempData["SuccessMessage"] = "Welkom! Je account is aangemaakt.";
+                    return RedirectToAction("Index", "Home");
                 }
 
                 foreach (var error in result.Errors)
@@ -135,108 +87,116 @@ namespace FitnessClub.Web.Controllers
                 }
             }
 
+            await PopulateAbonnementenAsync(model.AbonnementId);
             return View(model);
         }
 
-        // GET: /Account/ConfirmEmail
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        public IActionResult Login()
         {
-            if (userId == null || token == null)
-            {
-                return RedirectToAction("Index", "Home");
-            }
-
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var result = await _userManager.ConfirmEmailAsync(user, token);
-            if (result.Succeeded)
-            {
-                return View("ConfirmEmail");
-            }
-
-            return View("Error");
+            return View();
         }
 
-        // POST: /Account/Logout
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _signInManager.PasswordSignInAsync(
+                    model.Email, model.Wachtwoord, model.Onthouden, false);
+
+                if (result.Succeeded)
+                {
+                    TempData["SuccessMessage"] = "Succesvol ingelogd!";
+                    return RedirectToAction("Index", "Home");
+                }
+
+                ModelState.AddModelError(string.Empty, "Ongeldige login poging. Controleer je e-mail en wachtwoord.");
+            }
+
+            return View(model);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            _logger.LogInformation("Gebruiker uitgelogd.");
+            TempData["SuccessMessage"] = "Je bent uitgelogd.";
             return RedirectToAction("Index", "Home");
         }
 
-        private async Task SendConfirmationEmail(string email, string callbackUrl)
+        [Authorize]
+        public async Task<IActionResult> Profile()
         {
-            // Implementeer je email service hier
-            // Gebruik bv. SendGrid, SMTP, etc.
-        }
-
-        private IActionResult RedirectToLocal(string returnUrl)
-        {
-            if (Url.IsLocalUrl(returnUrl))
-            {
-                return Redirect(returnUrl);
-            }
-            else
-            {
+            // Admins hebben geen profielpagina  zij gebruiken Gebruikers-beheer
+            if (User.IsInRole("Admin"))
                 return RedirectToAction("Index", "Home");
-            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("Login");
+
+            // Herlaad met Abonnement
+            user = await _context.Gebruikers
+                .Include(g => g.Abonnement)
+                .FirstOrDefaultAsync(g => g.Id == user.Id);
+
+            // Lijst met beschikbare abonnementen om uit te kiezen (met prijs)
+            var abonnementen = await _context.Abonnementen
+                .Where(a => a.IsActief && !a.IsVerwijderd)
+                .OrderBy(a => a.Prijs)
+                .Select(a => new
+                {
+                    a.Id,
+                    Display = $"{a.Naam} — € {a.Prijs:F2} / maand"
+                })
+                .ToListAsync();
+            ViewBag.AbonnementenList = new SelectList(abonnementen, "Id", "Display", user!.AbonnementId);
+
+            return View(user);
         }
-    }
 
-    public class LoginModel
-    {
-        [Required(ErrorMessage = "Email is verplicht")]
-        [EmailAddress(ErrorMessage = "Ongeldig emailadres")]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> WijzigAbonnement(int? abonnementId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login");
 
-        [Required(ErrorMessage = "Wachtwoord is verplicht")]
-        [DataType(DataType.Password)]
-        [Display(Name = "Wachtwoord")]
-        public string Password { get; set; }
+            try
+            {
+                user.AbonnementId = abonnementId;
+                user.GewijzigdOp = DateTime.UtcNow;
+                var result = await _userManager.UpdateAsync(user);
 
-        [Display(Name = "Onthoud mij")]
-        public bool RememberMe { get; set; }
-    }
+                if (result.Succeeded)
+                {
+                    if (abonnementId.HasValue)
+                    {
+                        var abo = await _context.Abonnementen.FindAsync(abonnementId.Value);
+                        TempData["SuccessMessage"] = $"Je abonnement is gewijzigd naar '{abo?.Naam}'.";
+                    }
+                    else
+                    {
+                        TempData["SuccessMessage"] = "Je abonnement is verwijderd.";
+                    }
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Kon abonnement niet wijzigen.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Fout: {ex.Message}";
+            }
 
-    public class RegisterModel
-    {
-        [Required(ErrorMessage = "Voornaam is verplicht")]
-        [Display(Name = "Voornaam")]
-        public string Voornaam { get; set; }
-
-        [Required(ErrorMessage = "Achternaam is verplicht")]
-        [Display(Name = "Achternaam")]
-        public string Achternaam { get; set; }
-
-        [Required(ErrorMessage = "Email is verplicht")]
-        [EmailAddress(ErrorMessage = "Ongeldig emailadres")]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
-
-        [Required(ErrorMessage = "Wachtwoord is verplicht")]
-        [StringLength(100, ErrorMessage = "Het wachtwoord moet minimaal {2} en maximaal {1} tekens lang zijn.", MinimumLength = 6)]
-        [DataType(DataType.Password)]
-        [Display(Name = "Wachtwoord")]
-        public string Password { get; set; }
-
-        [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "Wachtwoorden komen niet overeen")]
-        [Display(Name = "Bevestig wachtwoord")]
-        public string ConfirmPassword { get; set; }
-
-        [Required(ErrorMessage = "Geboortedatum is verplicht")]
-        [DataType(DataType.Date)]
-        [Display(Name = "Geboortedatum")]
-        public DateTime Geboortedatum { get; set; }
+            return RedirectToAction(nameof(Profile));
+        }
     }
 }

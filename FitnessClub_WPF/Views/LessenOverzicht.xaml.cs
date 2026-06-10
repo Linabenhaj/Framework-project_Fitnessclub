@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Controls;
 using FitnessClub.Models.Data;
-using FitnessClub.Models;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using FitnessClub.WPF.Windows;
@@ -11,17 +10,27 @@ namespace FitnessClub.WPF.Views
 {
     public partial class LessenOverzicht : UserControl
     {
+        private static readonly string _connectionString =
+            "Server=(localdb)\\mssqllocaldb;Database=FitnessClubDb;Trusted_Connection=true;TrustServerCertificate=true;MultipleActiveResultSets=true";
+
         public LessenOverzicht()
         {
             InitializeComponent();
             LaadLessen();
         }
 
+        private FitnessClubDbContext MaakContext()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<FitnessClubDbContext>();
+            optionsBuilder.UseSqlServer(_connectionString);
+            return new FitnessClubDbContext(optionsBuilder.Options);
+        }
+
         private void LaadLessen()
         {
             try
             {
-                using (var context = new FitnessClubDbContext())
+                using (var context = MaakContext())
                 {
                     var lessen = context.Lessen
                         .Where(l => !l.IsVerwijderd)
@@ -37,20 +46,14 @@ namespace FitnessClub.WPF.Views
             }
         }
 
-        // zonder dubbele success message
         private void ToevoegenClick(object sender, RoutedEventArgs e)
         {
             try
             {
                 var nieuweLesWindow = new NieuweLesWindow();
                 var result = nieuweLesWindow.ShowDialog();
-
-                // Alleen refreshen als er effectief iets is toegevoegd
                 if (result == true)
-                {
                     LaadLessen();
-                    
-                }
             }
             catch (System.Exception ex)
             {
@@ -58,7 +61,6 @@ namespace FitnessClub.WPF.Views
             }
         }
 
-        // VERWIJDEREN METHODE
         private void VerwijderenClick(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
@@ -67,21 +69,18 @@ namespace FitnessClub.WPF.Views
                 try
                 {
                     var result = MessageBox.Show(
-                        $"Weet u zeker dat u de les '{les.Naam}' wilt verwijderen?\n\n" +
-                        $"Start: {les.StartTijd:dd/MM/yyyy HH:mm}\n" +
-                        $"Eind: {les.EindTijd:dd/MM/yyyy HH:mm}",
+                        $"Weet u zeker dat u de les '{les.Naam}' wilt verwijderen?",
                         "Bevestig verwijdering",
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Question);
 
                     if (result == MessageBoxResult.Yes)
                     {
-                        using (var context = new FitnessClubDbContext())
+                        using (var context = MaakContext())
                         {
                             var lesInDb = context.Lessen.Find(les.Id);
                             if (lesInDb != null)
                             {
-                                // Soft delete
                                 lesInDb.IsVerwijderd = true;
                                 context.SaveChanges();
                                 LaadLessen();
@@ -97,7 +96,6 @@ namespace FitnessClub.WPF.Views
             }
         }
 
-        // REFRESH METHODE
         private void RefreshClick(object sender, RoutedEventArgs e)
         {
             LaadLessen();

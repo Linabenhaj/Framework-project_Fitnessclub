@@ -1,58 +1,93 @@
-﻿using FitnessClub.MAUI.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.EntityFrameworkCore;
+using FitnessClub.Models.Models;
+using FitnessClub.Models.Data;
+using FitnessClub.MAUI.Services;
 using System.Collections.ObjectModel;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitnessClub.MAUI.ViewModels
 {
-    public partial class InschrijvingenViewModel : BaseViewModel  // ViewModel voor inschrijvingen pagina
+    // ViewModel voor de inschrijvingenpagina
+    public partial class InschrijvingenViewModel : BaseViewModel
     {
-        private readonly LocalDbContext _context;
+        private readonly ApiService _apiService;
+        private readonly LocalDbContext _db;
 
-        [ObservableProperty]
-        private ObservableCollection<LocalInschrijving> mijnInschrijvingen = new();  // Gebruikersinschrijvingen collectie
+        [ObservableProperty] private ObservableCollection<LocalInschrijving> mijnInschrijvingen = new();
+        [ObservableProperty] private bool toonAlleenActief = true;
+        [ObservableProperty] private bool isRefreshing;
 
-        [ObservableProperty]
-        private bool toonAlleenActief = true;  // Filter voor actieve inschrijvingen
+        public string HeaderTitel => General.IsAdmin ? "Ingeschreven gebruikers" : "Jouw actieve inschrijvingen";
 
-        public InschrijvingenViewModel(LocalDbContext context)
+        private List<LocalInschrijving> _allInschrijvingen = new();
+
+        public InschrijvingenViewModel(ApiService apiService, LocalDbContext db)
         {
-            _context = context;
-            Title = "Mijn Inschrijvingen";
-            LoadInschrijvingen();  // Laad inschrijvingen bij opstart
+            _apiService = apiService;
+            _db = db;
+            Title = General.IsAdmin ? "Alle inschrijvingen" : "Mijn inschrijvingen";
+            _ = LoadInschrijvingenAsync();
         }
 
-        // Laad inschrijvingen van huidige gebruiker
-        public async void LoadInschrijvingen()
+        public async Task LoadInschrijvingenAsync()
         {
             if (IsBusy) return;
             IsBusy = true;
-            MijnInschrijvingen.Clear();  // Maak lijst leeg
+            MijnInschrijvingen.Clear();
 
             try
             {
-                if (string.IsNullOrEmpty(General.UserId))  // Controleer of gebruiker ingelogd is
+                if (General.IsAdmin)
                 {
-                    await Application.Current.MainPage.DisplayAlert("Info", "Log in om je inschrijvingen te zien", "OK");
-                    return;
+                    var result = await _apiService.GetAllBookingsAsync();
+                    if (result.Success && result.Data != null)
+                    {
+                        _allInschrijvingen = result.Data;
+                        ApplyFilter();
+                    }
+                    else
+                    {
+                        await Shell.Current.DisplayAlert("Fout",
+                            result.Message ?? "API niet bereikbaar", "OK");
+                    }
                 }
+                else
+                {
+                    var cached = await _db.Inschrijvingen
+                        .Where(i => i.GebruikerId == General.UserId)
+                        .ToListAsync();
+                    if (cached.Count > 0)
+                    {
+                        _allInschrijvingen = cached;
+                        ApplyFilter();
+                    }
 
-                var query = _context.Inschrijvingen
-                    .Include(i => i.Les)  // Include les details
-                    .Where(i => i.GebruikerId == General.UserId && i.Les != null);  // Filter op gebruiker
+                    var result = await _apiService.GetUserInschrijvingenAsync(General.UserId);
+                    if (result.Success && result.Data != null)
+                    {
+                        var lessenResult = await _apiService.GetAllLessenAsync();
+                        if (lessenResult.Success && lessenResult.Data != null)
+                        {
+                            foreach (var ins in result.Data)
+                                ins.Les = lessenResult.Data.FirstOrDefault(l => l.Id == ins.LesId);
+                        }
 
-                if (ToonAlleenActief)
-                    query = query.Where(i => i.Status == "Actief" && i.Les!.StartTijd > DateTime.Now);  // Filter actieve toekomstige lessen
+                        _allInschrijvingen = result.Data;
+                        ApplyFilter();
 
-                var inschrijvingen = await query.OrderByDescending(i => i.Les!.StartTijd).ToListAsync();  // Sorteer op datum
-
-                foreach (var inschrijving in inschrijvingen)
-                    MijnInschrijvingen.Add(inschrijving);  // Voeg toe aan observable collectie
+                        await SyncToSqliteAsync(result.Data);
+                    }
+                    else if (cached.Count == 0)
+                    {
+                        await Shell.Current.DisplayAlert("Fout",
+                            result.Message ?? "API niet bereikbaar", "OK");
+                    }
+                }
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Fout", $"Kon inschrijvingen niet laden: {ex.Message}", "OK");
+                await Shell.Current.DisplayAlert("Fout", $"Fout bij laden: {ex.Message}", "OK");
             }
             finally
             {
@@ -60,76 +95,81 @@ namespace FitnessClub.MAUI.ViewModels
             }
         }
 
-        // Schrijf gebruiker uit van les
+        private void ApplyFilter()
+        {
+            MijnInschrijvingen.Clear();
+            var filtered = _allInschrijvingen.AsEnumerable();
+
+            if (ToonAlleenActief)
+                filtered = filtered.Where(i => i.Status == "Actief");
+
+            foreach (var ins in filtered.OrderByDescending(i => i.InschrijfDatum))
+                MijnInschrijvingen.Add(ins);
+        }
+
+        private async Task SyncToSqliteAsync(List<LocalInschrijving> inschrijvingen)
+        {
+            try
+            {
+                foreach (var ins in inschrijvingen)
+                {
+                    var existing = await _db.Inschrijvingen.FindAsync(ins.Id);
+                    if (existing == null)
+                        _db.Inschrijvingen.Add(ins);
+                    else
+                        existing.Status = ins.Status;
+                }
+                await _db.SaveChangesAsync();
+            }
+            catch { }
+        }
+
         [RelayCommand]
         private async Task Uitschrijven(LocalInschrijving inschrijving)
         {
             if (inschrijving == null) return;
 
-            bool confirm = await Application.Current.MainPage.DisplayAlert(
+            bool confirm = await Shell.Current.DisplayAlert(
                 "Uitschrijven",
-                $"Weet je zeker dat je wilt uitschrijven voor '{inschrijving.Les?.Naam}'?",  // Bevestigingsdialoog
+                $"Uitschrijven voor '{inschrijving.Les?.Naam ?? "deze les"}'?",
                 "Ja", "Nee");
 
-            if (confirm)
+            if (!confirm) return;
+
+            IsBusy = true;
+            try
             {
-                try
+                var result = await _apiService.DeleteInschrijvingAsync(inschrijving.Id);
+                if (result.Success)
                 {
-                    // Controleer uitschrijftermijn (24 uur voor les)
-                    if (inschrijving.Les != null && inschrijving.Les.StartTijd <= DateTime.Now.AddHours(24))
-                    {
-                        await Application.Current.MainPage.DisplayAlert("Fout", "Uitschrijven is alleen mogelijk tot 24 uur voor de les", "OK");
-                        return;
-                    }
+                    MijnInschrijvingen.Remove(inschrijving);
+                    _allInschrijvingen.RemoveAll(i => i.Id == inschrijving.Id);
 
-                    inschrijving.Status = "Geannuleerd";  // Update status
-                    _context.Inschrijvingen.Update(inschrijving);
-                    await _context.SaveChangesAsync();  // Sla wijzigingen op
+                    await Shell.Current.DisplayAlert("Succes", "Je bent uitgeschreven", "OK");
 
-                    MijnInschrijvingen.Remove(inschrijving);  // Verwijder uit lijst
-                    await Application.Current.MainPage.DisplayAlert("Succes", "Succesvol uitgeschreven", "OK");
+                    _ = LoadInschrijvingenAsync();
                 }
-                catch (Exception ex)
+                else
                 {
-                    await Application.Current.MainPage.DisplayAlert("Fout", $"Uitschrijven mislukt: {ex.Message}", "OK");
+                    await Shell.Current.DisplayAlert("Fout",
+                        result.Message ?? "Uitschrijven mislukt", "OK");
                 }
             }
+            finally { IsBusy = false; }
         }
 
-        // Toon details van specifieke inschrijving
         [RelayCommand]
-        private async Task ViewLesDetails(LocalInschrijving inschrijving)
-        {
-            if (inschrijving?.Les == null) return;
+        private void FilterChanged() => ApplyFilter();
 
-            var les = inschrijving.Les;
-            await Application.Current.MainPage.DisplayAlert(
-                les.Naam,
-                $"Status: {inschrijving.Status}\n" +
-                $"Inschrijfdatum: {inschrijving.InschrijfDatum:dd/MM/yyyy HH:mm}\n" +
-                $"Les datum: {les.StartTijd:dd/MM/yyyy HH:mm}\n" +
-                $"Trainer: {les.Trainer}\n" +
-                $"Locatie: {les.Locatie}\n" +
-                $"Beschrijving: {les.Beschrijving}",  // Toon alle details
-                "OK");
-        }
-
-        // Herlaad inschrijvingen bij filter wijziging
-        [RelayCommand]
-        private void FilterChanged() => LoadInschrijvingen();
-
-        // Vernieuw inschrijvingen lijst
         [RelayCommand]
         private async Task Refresh()
         {
             IsRefreshing = true;
-            LoadInschrijvingen();
-            await Task.Delay(500);
+            await LoadInschrijvingenAsync();
             IsRefreshing = false;
         }
 
-        // Navigeer naar lessen pagina voor nieuwe inschrijving
         [RelayCommand]
-        private async Task NieuweInschrijving() => await Shell.Current.GoToAsync("//LessenPage");
+        private async Task NieuweInschrijving() => await Shell.Current.GoToAsync("//LessenShell");
     }
 }

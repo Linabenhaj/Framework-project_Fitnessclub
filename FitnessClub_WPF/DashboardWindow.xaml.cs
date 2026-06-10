@@ -29,7 +29,7 @@ namespace FitnessClub.WPF
 
             ProfileInfoText.Text = $"Naam: {_user.Voornaam} {_user.Achternaam}\n" +
                                   $"E-mail: {_user.Email}\n" +
-                                  $"Telefoon: {_user.Telefoon}\n" +
+                                  $"Telefoon: {_user.PhoneNumber}\n" +    // Telefoon → PhoneNumber
                                   $"Geboortedatum: {_user.Geboortedatum:dd/MM/yyyy}\n" +
                                   $"Rol: {string.Join(", ", _roles)}\n\n" +
                                   $"Welkom bij Fitness Club!";
@@ -96,27 +96,23 @@ namespace FitnessClub.WPF
 
         private void SetupLidTabs()
         {
-            // TOON Lid functionaliteit tabs
             MijnAbonnementTab.Visibility = Visibility.Visible;
             MijnInschrijvingenTab.Visibility = Visibility.Visible;
             LessenLidTab.Visibility = Visibility.Visible;
 
-            // LAAD Lid views
             MijnAbonnementTab.Content = new MijnAbonnement();
 
             var mijnInschrijvingen = new MijnInschrijvingen();
             mijnInschrijvingen.SetHuidigeGebruiker(_user.Id);
             MijnInschrijvingenTab.Content = mijnInschrijvingen;
 
-            LessenLidTab.Content = new LessenOverzichtLid();
+            LessenLidTab.Content = new LessenOverzicht();  // LessenOverzichtLid → LessenOverzicht
 
-            // VERBERG Admin tabs
             LedenTab.Visibility = Visibility.Collapsed;
             AbonnementTab.Visibility = Visibility.Collapsed;
             InschrijvingenTab.Visibility = Visibility.Collapsed;
             LessenTab.Visibility = Visibility.Collapsed;
 
-            // Selecteer eerste lid tab
             MainTabControl.SelectedItem = MijnAbonnementTab;
         }
 

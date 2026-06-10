@@ -1,6 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FitnessClub.MAUI.Models;
+using FitnessClub.Models.Models;
 using FitnessClub.MAUI.Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -9,6 +9,8 @@ namespace FitnessClub.MAUI.ViewModels
 {
     public partial class DashboardViewModel : BaseViewModel
     {
+        private readonly ApiService _apiService;
+
         [ObservableProperty]
         private string welcomeMessage = "Welkom bij FitnessClub!";
 
@@ -21,13 +23,14 @@ namespace FitnessClub.MAUI.ViewModels
         [ObservableProperty]
         private ObservableCollection<LocalLes> upcomingLessons = [];
 
-        public DashboardViewModel() // 🔴 LEEGE CONSTRUCTOR - GEEN dependencies!
+        public DashboardViewModel(ApiService apiService)
         {
+            _apiService = apiService;
             Title = "Dashboard";
-            LoadDashboardData();
+            _ = LoadDashboardDataAsync();
         }
 
-        private async void LoadDashboardData()
+        public async Task LoadDashboardDataAsync()
         {
             if (IsBusy) return;
             IsBusy = true;
@@ -37,32 +40,33 @@ namespace FitnessClub.MAUI.ViewModels
                 if (!string.IsNullOrEmpty(General.UserFirstName))
                     WelcomeMessage = $"Welkom, {General.UserFirstName}!";
 
-                // Demo data 
-                ActiveLessonsCount = 5;
-                MyRegistrationsCount = 3;
-
-                // Demo lessen
-                UpcomingLessons.Clear();
-                UpcomingLessons.Add(new LocalLes
+                var lessenResult = await _apiService.GetAllLessenAsync();
+                if (lessenResult.Success && lessenResult.Data != null)
                 {
-                    Naam = "Yoga Basics",
-                    StartTijd = DateTime.Now.AddDays(1),
-                    Trainer = "Anna",
-                    Locatie = "Zaal 1"
-                });
-                UpcomingLessons.Add(new LocalLes
-                {
-                    Naam = "HIIT Training",
-                    StartTijd = DateTime.Now.AddDays(2),
-                    Trainer = "Mike",
-                    Locatie = "Zaal 2"
-                });
+                    var toekomstig = lessenResult.Data
+                        .Where(l => l.IsActief && l.StartTijd > DateTime.Now)
+                        .OrderBy(l => l.StartTijd)
+                        .ToList();
 
-                Debug.WriteLine("✅ Dashboard data loaded (demo)");
+                    ActiveLessonsCount = toekomstig.Count;
+
+                    UpcomingLessons.Clear();
+                    foreach (var les in toekomstig.Take(3))
+                        UpcomingLessons.Add(les);
+                }
+
+                var insResult = await _apiService.GetUserInschrijvingenAsync(General.UserId);
+                if (insResult.Success && insResult.Data != null)
+                {
+                    MyRegistrationsCount = insResult.Data
+                        .Count(i => i.Status == "Actief");
+                }
+
+                Debug.WriteLine("Dashboard data geladen via API");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"❌ Error loading dashboard: {ex.Message}");
+                Debug.WriteLine($"Fout bij laden dashboard: {ex.Message}");
             }
             finally
             {
@@ -73,57 +77,38 @@ namespace FitnessClub.MAUI.ViewModels
         [RelayCommand]
         private async Task NavigateToLessons()
         {
-            await Shell.Current.GoToAsync("//LessenPage");
+            await Shell.Current.GoToAsync("LessenPage");
         }
 
         [RelayCommand]
         private async Task NavigateToRegistrations()
         {
-            await Shell.Current.GoToAsync("//InschrijvingenPage");
+            await Shell.Current.GoToAsync("InschrijvingenPage");
         }
 
         [RelayCommand]
         private async Task NavigateToProfile()
         {
-            await Shell.Current.GoToAsync("//ProfielPage");
+            await Shell.Current.GoToAsync("ProfielPage");
         }
 
         [RelayCommand]
         private async Task ManualSync()
         {
-            IsBusy = true;
-            try
-            {
-                //  Simpele sync zonder database
-                Debug.WriteLine("🔄 Manual sync started (demo)");
-                await Task.Delay(1000); // Simulatie
-
-                // Herlaad data
-                LoadDashboardData();
-
-                await Application.Current.MainPage.DisplayAlert("Succes",
-                    "Synchronisatie voltooid! (demo)", "OK");
-            }
-            catch (Exception ex)
-            {
-                await Application.Current.MainPage.DisplayAlert("Fout",
-                    $"Synchronisatie mislukt: {ex.Message}", "OK");
-            }
-            finally
-            {
-                IsBusy = false;
-            }
+            await LoadDashboardDataAsync();
+            await Application.Current!.Windows[0]!.Page!.DisplayAlert("Succes", "Gegevens vernieuwd!", "OK");
         }
 
         [RelayCommand]
         private async Task Logout()
         {
-            bool confirm = await Application.Current.MainPage.DisplayAlert(
+            bool confirm = await Application.Current!.Windows[0]!.Page!.DisplayAlert(
                 "Uitloggen", "Weet je zeker dat je wilt uitloggen?", "Ja", "Nee");
 
             if (confirm)
             {
                 General.ClearUserInfo();
+                _apiService.SetToken(null);
                 await Shell.Current.GoToAsync("//HomePage");
             }
         }
@@ -131,7 +116,7 @@ namespace FitnessClub.MAUI.ViewModels
         [RelayCommand]
         private async Task RefreshDashboard()
         {
-            LoadDashboardData();
+            await LoadDashboardDataAsync();
         }
     }
 }

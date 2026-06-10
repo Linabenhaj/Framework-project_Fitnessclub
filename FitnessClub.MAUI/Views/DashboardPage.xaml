@@ -12,13 +12,13 @@
                    FontSize="28" 
                    FontAttributes="Bold" 
                    HorizontalOptions="Center"
-                   TextColor="{StaticResource PrimaryColor}" />
+                   TextColor="{StaticResource Primary}" />
 
             <!-- Stats Grid -->
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" 
                   ColumnSpacing="15" RowSpacing="15">
 
-                <!-- Active Lessons Card -->
+                <!-- Actieve lessen -->
                 <Frame Grid.Column="0" Grid.Row="0" 
                        CornerRadius="15" 
                        BackgroundColor="#4CAF50"
@@ -37,7 +37,7 @@
                     </VerticalStackLayout>
                 </Frame>
 
-                <!-- My Registrations Card -->
+                <!-- Mijn inschrijven-->
                 <Frame Grid.Column="1" Grid.Row="0" 
                        CornerRadius="15" 
                        BackgroundColor="#2196F3"
@@ -56,7 +56,7 @@
                     </VerticalStackLayout>
                 </Frame>
 
-                <!-- Lessons Button -->
+                <!-- Lessen Button -->
                 <Button Grid.Column="0" Grid.Row="1"
                         Text="📋 Lessen Bekijken" 
                         Command="{Binding NavigateToLessonsCommand}"
@@ -66,7 +66,7 @@
                         HeightRequest="50"
                         FontSize="14"/>
 
-                <!-- Registrations Button -->
+                <!-- Registratie Button -->
                 <Button Grid.Column="1" Grid.Row="1"
                         Text="📝 Mijn Inschrijvingen" 
                         Command="{Binding NavigateToRegistrationsCommand}"
@@ -77,13 +77,13 @@
                         FontSize="14"/>
             </Grid>
 
-            <!-- Upcoming Lessons Section -->
+            <!-- Opkomende lessen Section -->
             <Frame CornerRadius="15" Padding="20" HasShadow="True">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="🎯 Komende Lessen" 
                            FontSize="20" 
                            FontAttributes="Bold"
-                           TextColor="{StaticResource SecondaryColor}"/>
+                           TextColor="{StaticResource Secondary}"/>
 
                     <CollectionView ItemsSource="{Binding UpcomingLessons}"
                                     HeightRequest="180">
@@ -117,7 +117,7 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Action Buttons -->
+            <!-- Actie Buttons -->
             <VerticalStackLayout Spacing="15">
                 <Button Text="🔄 Synchroniseren" 
                         Command="{Binding ManualSyncCommand}"

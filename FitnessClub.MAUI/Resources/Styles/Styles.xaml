@@ -13,7 +13,7 @@
         <Setter Property="TextColor" Value="{StaticResource OnBackground}" />
     </Style>
 
-    <!-- Entry (MAUI correct: GEEN CornerRadius) -->
+    <!-- Entry -->
     <Style TargetType="Entry">
         <Setter Property="TextColor" Value="{StaticResource OnBackground}" />
         <Setter Property="BackgroundColor" Value="Transparent" />
@@ -22,7 +22,7 @@
         <Setter Property="FontSize" Value="16" />
     </Style>
 
-    <!-- Border voor afgeronde invoervelden -->
+    <!-- Border -->
     <Style TargetType="Border">
         <Setter Property="Stroke" Value="{StaticResource Border}" />
         <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
@@ -53,24 +53,43 @@
         <Setter Property="BackgroundColor" Value="Transparent" />
     </Style>
 
-    <!-- Custom Button Styles -->
-    <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource Button}">
+    <Style x:Key="PrimaryButton" TargetType="Button">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="Padding" Value="20,10" />
         <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
     </Style>
 
-    <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource Button}">
+    <Style x:Key="SecondaryButton" TargetType="Button">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="Padding" Value="20,10" />
         <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
     </Style>
 
-    <Style x:Key="AccentButton" TargetType="Button" BasedOn="{StaticResource Button}">
+    <Style x:Key="AccentButton" TargetType="Button">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="Padding" Value="20,10" />
         <Setter Property="BackgroundColor" Value="{StaticResource Accent}" />
     </Style>
 
-    <Style x:Key="WarningButton" TargetType="Button" BasedOn="{StaticResource Button}">
+    <Style x:Key="WarningButton" TargetType="Button">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="Padding" Value="20,10" />
         <Setter Property="BackgroundColor" Value="{StaticResource Warning}" />
     </Style>
 
-    <Style x:Key="ErrorButton" TargetType="Button" BasedOn="{StaticResource Button}">
+    <Style x:Key="ErrorButton" TargetType="Button">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="Padding" Value="20,10" />
         <Setter Property="BackgroundColor" Value="{StaticResource Error}" />
     </Style>
 

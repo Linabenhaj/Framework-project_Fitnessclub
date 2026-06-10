@@ -1,32 +1,109 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<Shell x:Class="FitnessClub.MAUI.AppShell"
-       xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
        xmlns:views="clr-namespace:FitnessClub.MAUI.Views"
-       Shell.FlyoutBehavior="Disabled">
+       x:Class="FitnessClub.MAUI.AppShell"
+       FlyoutBehavior="Flyout"
+       FlyoutWidth="260"
+       FlyoutBackgroundColor="#121212"
+       Shell.TabBarIsVisible="False"
+       BackgroundColor="#1B5E20"
+       Shell.BackgroundColor="#1B5E20"
+       Shell.ForegroundColor="White"
+       Shell.TitleColor="White"
+       Shell.NavBarHasShadow="False">
 
-    <!-- Startpagina (Home) -->
-    <ShellContent Route="HomePage" 
-                  ContentTemplate="{DataTemplate views:HomePage}" />
+    <Shell.Resources>
+        <Style TargetType="FlyoutItem">
+            <Setter Property="Shell.BackgroundColor" Value="#121212" />
+            <Setter Property="Shell.ForegroundColor" Value="White" />
+        </Style>
+    </Shell.Resources>
 
-    <!-- Login pagina -->
-    <ShellContent Route="LoginPage" 
-                  ContentTemplate="{DataTemplate views:LoginPage}" />
+    <!-- Flyout item template forceert witte tekst op donkere achtergrond -->
+    <Shell.ItemTemplate>
+        <DataTemplate>
+            <Grid BackgroundColor="#121212" HeightRequest="50">
+                <Label Text="{Binding Title}"
+                       TextColor="White"
+                       FontSize="15"
+                       VerticalOptions="Center"
+                       Margin="20,0" />
+            </Grid>
+        </DataTemplate>
+    </Shell.ItemTemplate>
 
-    <!-- User Dashboard -->
-    <ShellContent Route="DashboardPage" 
-                  ContentTemplate="{DataTemplate views:DashboardPage}" />
+    <!-- (Afmelden): rode accentkleur -->
+    <Shell.MenuItemTemplate>
+        <DataTemplate>
+            <Grid BackgroundColor="#121212" HeightRequest="50">
+                <Label Text="{Binding Text}"
+                       TextColor="#EF5350"
+                       FontSize="15"
+                       VerticalOptions="Center"
+                       Margin="20,0" />
+            </Grid>
+        </DataTemplate>
+    </Shell.MenuItemTemplate>
 
-    <!-- Admin Dashboard -->
-    <ShellContent Route="AdminDashboardPage" 
-                  ContentTemplate="{DataTemplate views:AdminDashboardPage}" />
+    <!--  header -->
+    <Shell.FlyoutHeader>
+        <Grid BackgroundColor="#1B5E20" HeightRequest="110" Padding="16,0">
+            <VerticalStackLayout VerticalOptions="Center" Spacing="4">
+                <Label Text="FC"
+                       FontSize="40"
+                       FontAttributes="Bold"
+                       TextColor="White" />
+                <Label Text="FitnessClub"
+                       FontSize="13"
+                       TextColor="#C8E6C9" />
+                <Label x:Name="UserNameLabel"
+                       Text="Welkom"
+                       FontSize="11"
+                       TextColor="#A5D6A7" />
+            </VerticalStackLayout>
+        </Grid>
+    </Shell.FlyoutHeader>
 
-    <!-- Overige pagina's -->
-    <ShellContent Route="LessenPage" 
-                  ContentTemplate="{DataTemplate views:LessenPage}" />
+    <!-- Lessen (iedereen) -->
+    <FlyoutItem x:Name="LessenItem"
+                Title="Lessen"
+                Route="LessenShell">
+        <ShellContent ContentTemplate="{DataTemplate views:LessenPage}" />
+    </FlyoutItem>
 
-    <!-- Registratiepagina  -->
-    <ShellContent Route="RegisterPage" 
-                  ContentTemplate="{DataTemplate views:RegisterPage}" />
+    <!-- Mijn inschrijvingen (iedereen) -->
+    <FlyoutItem x:Name="InschrijvingenItem"
+                Title="Inschrijvingen"
+                Route="InschrijvingenShell">
+        <ShellContent ContentTemplate="{DataTemplate views:InschrijvingenPage}" />
+    </FlyoutItem>
+
+    <!-- Admin dashboard (alleen admin) -->
+    <FlyoutItem x:Name="AdminDashboardItem"
+                Title="Beheer"
+                Route="AdminShell"
+                IsVisible="False">
+        <ShellContent ContentTemplate="{DataTemplate views:AdminDashboardPage}" />
+    </FlyoutItem>
+
+    <!-- Gebruikerslijst (alleen admin) -->
+    <FlyoutItem x:Name="GebruikersItem"
+                Title="Gebruikers"
+                Route="GebruikersShell"
+                IsVisible="False">
+        <ShellContent ContentTemplate="{DataTemplate views:GebruikersPage}" />
+    </FlyoutItem>
+
+    <!-- Profiel (iedereen) -->
+    <FlyoutItem x:Name="ProfielItem"
+                Title="Mijn profiel"
+                Route="ProfielShell">
+        <ShellContent ContentTemplate="{DataTemplate views:ProfielPage}" />
+    </FlyoutItem>
+
+    <!-- Afmelden -->
+    <MenuItem Text="Afmelden"
+              Clicked="OnLogoutClicked" />
 
 </Shell>

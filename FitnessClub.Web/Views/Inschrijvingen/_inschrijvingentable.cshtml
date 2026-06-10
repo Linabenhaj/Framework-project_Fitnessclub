@@ -1,0 +1,100 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using FitnessClub.Web.Translations
+@inject IHtmlLocalizer<SharedResource> L
+@model FitnessClub.Web.Models.PaginatedList<FitnessClub.Models.Models.Inschrijving>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i>
+        @if (User.IsInRole("Admin"))
+        {
+            <text>Er zijn nog geen inschrijvingen.</text>
+        }
+        else
+        {
+            <text>Je hebt nog geen inschrijvingen. </text>
+            <a asp-controller="Lessen" asp-action="Index" class="alert-link">Bekijk de lessen om je in te schrijven →</a>
+        }
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>@L["Lessons"]</th>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <th>@L["Users"]</th>
+                    }
+                    <th>@L["StartTime"]</th>
+                    <th>@L["Status"]</th>
+                    <th class="text-end">@L["Actions"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var i in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@i.Les?.Naam</strong>
+                            <br /><small class="text-muted">@i.Les?.StartTijd.ToString("dd/MM/yyyy HH:mm") · @i.Les?.Locatie</small>
+                        </td>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <td>
+                                @i.Gebruiker?.Voornaam @i.Gebruiker?.Achternaam
+                                <br /><small class="text-muted">@i.Gebruiker?.Email</small>
+                            </td>
+                        }
+                        <td>@i.InschrijfDatum.ToString("dd/MM/yyyy")</td>
+                        <td><span class="badge @(i.Status == "Actief" ? "bg-success" : "bg-secondary")">@i.Status</span></td>
+                        <td class="text-end">
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-controller="Gebruikers" asp-action="Edit" asp-route-id="@i.GebruikerId" class="btn btn-warning btn-sm" title="@L["Edit"]">
+                                    <i class="bi bi-person-gear"></i>
+                                </a>
+                            }
+                            <form asp-action="Uitschrijf" asp-route-id="@i.Id" method="post" class="d-inline"
+                                  onsubmit="return confirm('?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-x-circle"></i> @L["Unenroll"]
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <nav>
+        <ul class="pagination justify-content-center">
+            @if (Model.HasPreviousPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="#"
+                       data-ajax="true" data-ajax-method="GET"
+                       data-ajax-url="@Url.Action("LoadInschrijvingenPartial", new { pageNumber = Model.PageIndex - 1 })"
+                       data-ajax-mode="replace" data-ajax-update="#inschrijvingenContainer">
+                        @L["Back"]
+                    </a>
+                </li>
+            }
+            <li class="page-item active"><span class="page-link">@Model.PageIndex / @Model.TotalPages</span></li>
+            @if (Model.HasNextPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="#"
+                       data-ajax="true" data-ajax-method="GET"
+                       data-ajax-url="@Url.Action("LoadInschrijvingenPartial", new { pageNumber = Model.PageIndex + 1 })"
+                       data-ajax-mode="replace" data-ajax-update="#inschrijvingenContainer">→</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

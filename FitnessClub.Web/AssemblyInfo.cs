@@ -14,11 +14,10 @@ using Microsoft.AspNetCore.Identity.UI;
 
 [assembly: ComVisible(false)]
 
-// De volgende GUID is voor de ID van de typelib als dit project wordt blootgesteld aan COM
 [assembly: Guid("b99c4fb2-0ef0-4f96-9e26-aecc08f7a5b5")]
 
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-// UIFrameworkAttribute 
+
 [assembly: UIFramework("Bootstrap5")]

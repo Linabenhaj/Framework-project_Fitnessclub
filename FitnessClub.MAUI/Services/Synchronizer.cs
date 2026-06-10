@@ -2,7 +2,8 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using FitnessClub.MAUI.Models;
+using FitnessClub.Models.Data;
+using FitnessClub.Models.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitnessClub.MAUI.Services

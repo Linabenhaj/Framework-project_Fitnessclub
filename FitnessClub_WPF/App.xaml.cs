@@ -69,21 +69,21 @@ namespace FitnessClub.WPF
                         new Abonnement {
                             Naam = "Starter",
                             Prijs = 19.99m,
-                            Omschrijving = "Perfect voor beginners - basis toegang",
+                            Beschrijving = "Perfect voor beginners - basis toegang",
                             LooptijdMaanden = 1,
                             IsActief = true
                         },
                         new Abonnement {
                             Naam = "Premium",
                             Prijs = 39.99m,
-                            Omschrijving = "All-inclusive - toegang tot alle lessen",
+                            Beschrijving = "All-inclusive - toegang tot alle lessen",
                             LooptijdMaanden = 1,
                             IsActief = true
                         },
                         new Abonnement {
                             Naam = "VIP",
                             Prijs = 59.99m,
-                            Omschrijving = "VIP behandeling + persoonlijke trainer",
+                            Beschrijving = "VIP behandeling + persoonlijke trainer",
                             LooptijdMaanden = 1,
                             IsActief = true
                         }

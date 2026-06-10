@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace FitnessClub.MAUI.ViewModels
@@ -13,46 +13,19 @@ namespace FitnessClub.MAUI.ViewModels
         [RelayCommand]
         private async Task NavigateToLogin()
         {
-            await Shell.Current.GoToAsync("//LoginPage");
+            await Shell.Current.GoToAsync(nameof(Views.LoginPage));
         }
 
         [RelayCommand]
         private async Task NavigateToRegister()
         {
-            //  RegisterPage.xaml gerelateerd
-            await Shell.Current.GoToAsync("//RegisterPage");
+            await Shell.Current.GoToAsync(nameof(Views.RegisterPage));
         }
 
         [RelayCommand]
         private async Task NavigateAsGuest()
         {
-            // Navigeer naar lessen als gast
-            await Shell.Current.GoToAsync("//LessenPage");
-        }
-
-        [RelayCommand]
-        private void ChangeLanguage(string languageCode)
-        {
-            // Simpele taalwisseling 
-            string languageName = GetLanguageName(languageCode);
-
-            // Toon melding
-            Application.Current?.MainPage?.DisplayAlert(
-                "Taal",
-                $"Taal gewijzigd naar: {languageName}",
-                "OK"
-            );
-        }
-
-        private string GetLanguageName(string code)
-        {
-            return code switch
-            {
-                "nl" => "Nederlands",
-                "en" => "English",
-                "fr" => "Français",
-                _ => "Onbekend"
-            };
+            await Shell.Current.GoToAsync(nameof(Views.LessenPage));
         }
     }
 }

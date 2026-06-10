@@ -1,26 +1,30 @@
-﻿using FitnessClub.MAUI.Services;
+using FitnessClub.MAUI.ViewModels;
 
 namespace FitnessClub.MAUI.Views
 {
     public partial class AdminDashboardPage : ContentPage
     {
-        public AdminDashboardPage()
+        private readonly AdminDashboardViewModel? _viewModel;
+
+        public AdminDashboardPage(AdminDashboardViewModel viewModel)
         {
             InitializeComponent();
+            _viewModel = viewModel;
+            BindingContext = _viewModel;
+
+            Shell.SetFlyoutBehavior(this, FlyoutBehavior.Flyout);
+            Shell.SetBackButtonBehavior(this, new BackButtonBehavior { IsVisible = false });
+            Shell.SetBackgroundColor(this, Color.FromArgb("#1B5E20"));
+            Shell.SetTitleColor(this, Colors.White);
+            Shell.SetForegroundColor(this, Colors.White);
         }
 
-        private async void OnLogoutClicked(object sender, EventArgs e)
-        {
-            bool confirm = await DisplayAlert(
-                "Uitloggen",
-                "Weet je zeker dat je wilt uitloggen?",
-                "Ja", "Nee");
+        public AdminDashboardPage() { InitializeComponent(); }
 
-            if (confirm)
-            {
-                General.ClearUserInfo();
-                await Shell.Current.GoToAsync("//HomePage");
-            }
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            _ = _viewModel?.LoadStatsAsync();
         }
     }
 }

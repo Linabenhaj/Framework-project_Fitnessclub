@@ -1,76 +1,64 @@
-@model FitnessClub.Models.Models.Les
-@using Microsoft.AspNetCore.Mvc.Localization
-@inject IViewLocalizer Localizer
+@model FitnessClub.Models.Models.Inschrijving
 
 @{
-    ViewData["Title"] = Localizer["Nieuwe Les"];
+    ViewData["Title"] = "Nieuwe inschrijving";
 }
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0"><i class="bi bi-calendar-plus"></i> @Localizer["Nieuwe Les"]</h4>
-                </div>
-                <div class="card-body">
-                    <form asp-action="Create">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0"><i class="bi bi-clipboard-plus"></i> Nieuwe inschrijving</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
+                    <div class="mb-3">
+                        <label asp-for="LesId" class="form-label fw-bold">Les</label>
+                        <select asp-for="LesId" asp-items="ViewBag.LessenList" class="form-select">
+                            <option value="">-- Kies een les --</option>
+                        </select>
+                        <span asp-validation-for="LesId" class="text-danger"></span>
+                    </div>
+
+                    @if (User.IsInRole("Admin"))
+                    {
                         <div class="mb-3">
-                            <label asp-for="Naam" class="form-label"></label>
-                            <input asp-for="Naam" class="form-control" />
-                            <span asp-validation-for="Naam" class="text-danger"></span>
+                            <label asp-for="GebruikerId" class="form-label fw-bold">Gebruiker</label>
+                            <select asp-for="GebruikerId" asp-items="ViewBag.GebruikersList" class="form-select">
+                                <option value="">-- Kies een gebruiker --</option>
+                            </select>
+                            <span asp-validation-for="GebruikerId" class="text-danger"></span>
                         </div>
+                    }
+                    else
+                    {
+                        <input type="hidden" asp-for="GebruikerId" />
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Je schrijft jezelf in voor deze les.
+                        </div>
+                    }
 
-                        <div class="mb-3">
-                            <label asp-for="Beschrijving" class="form-label"></label>
-                            <textarea asp-for="Beschrijving" class="form-control" rows="3"></textarea>
-                            <span asp-validation-for="Beschrijving" class="text-danger"></span>
-                        </div>
+                    <div class="mb-3">
+                        <label asp-for="Opmerkingen" class="form-label fw-bold">Opmerkingen (optioneel)</label>
+                        <textarea asp-for="Opmerkingen" class="form-control" rows="2"
+                                  placeholder="Eventuele bijzonderheden..."></textarea>
+                    </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label asp-for="StartTijd" class="form-label"></label>
-                                <input asp-for="StartTijd" class="form-control" type="datetime-local" />
-                                <span asp-validation-for="StartTijd" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="EindTijd" class="form-label"></label>
-                                <input asp-for="EindTijd" class="form-control" type="datetime-local" />
-                                <span asp-validation-for="EindTijd" class="text-danger"></span>
-                            </div>
-                        </div>
+                    <input type="hidden" asp-for="InschrijfDatum" value="@DateTime.UtcNow" />
+                    <input type="hidden" asp-for="Status" value="Actief" />
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label asp-for="Trainer" class="form-label"></label>
-                                <input asp-for="Trainer" class="form-control" />
-                                <span asp-validation-for="Trainer" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="MaxDeelnemers" class="form-label"></label>
-                                <input asp-for="MaxDeelnemers" class="form-control" type="number" min="1" max="100" />
-                                <span asp-validation-for="MaxDeelnemers" class="text-danger"></span>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Locatie" class="form-label"></label>
-                            <input asp-for="Locatie" class="form-control" />
-                            <span asp-validation-for="Locatie" class="text-danger"></span>
-                        </div>
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-circle"></i> @Localizer["Aanmaken"]
-                            </button>
-                            <a asp-action="Index" class="btn btn-secondary">
-                                <i class="bi bi-x-circle"></i> @Localizer["Annuleren"]
-                            </a>
-                        </div>
-                    </form>
-                </div>
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Terug
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Inschrijven
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -80,12 +68,4 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
-    <script>
-        // Set min date/time to current
-        var now = new Date();
-        var nowString = now.toISOString().slice(0, 16);
-        document.getElementById('StartTijd').min = nowString;
-        document.getElementById('EindTijd').min = nowString;
-    </script>
 }

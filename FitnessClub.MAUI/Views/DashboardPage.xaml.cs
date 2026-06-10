@@ -14,11 +14,8 @@ namespace FitnessClub.MAUI.Views
         {
             base.OnAppearing();
 
-            // Refresh data wanneer pagina verschijnt
             if (BindingContext is DashboardViewModel viewModel)
-            {
-                
-            }
+                _ = viewModel.LoadDashboardDataAsync();
         }
     }
 }

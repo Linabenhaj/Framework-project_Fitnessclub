@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 
-namespace FitnessClub.MAUI.Models
+namespace FitnessClub.Models.Models
 {
+    // Afgeleid model van Inschrijving voor lokale opslag (SQLite) in de MAUI-app.
     public class LocalInschrijving
     {
         public int Id { get; set; }
 
-       
         public string GebruikerId { get; set; } = string.Empty;
 
         public int LesId { get; set; }
@@ -17,7 +17,7 @@ namespace FitnessClub.MAUI.Models
         // Navigation properties
         public LocalLes? Les { get; set; }
 
-        //gebruiker info nodig hebt
+        // Optionele gebruikersinformatie
         public string? GebruikerNaam { get; set; }
         public string? GebruikerEmail { get; set; }
     }

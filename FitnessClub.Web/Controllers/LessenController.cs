@@ -1,5 +1,6 @@
 using FitnessClub.Models.Data;
 using FitnessClub.Models.Models;
+using FitnessClub.Web.Models;  // Referentie naar je PaginatedList
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-
 
 namespace FitnessClub.Web.Controllers
 {
@@ -23,7 +23,6 @@ namespace FitnessClub.Web.Controllers
             _userManager = userManager;
         }
 
-        // GET: Lessen
         public async Task<IActionResult> Index(string sortOrder, string currentFilter,
             string searchString, int? pageNumber, string filterTrainer = "all")
         {
@@ -47,13 +46,11 @@ namespace FitnessClub.Web.Controllers
                          where !l.IsVerwijderd && l.IsActief
                          select l;
 
-            // Filter op trainer
             if (!string.IsNullOrEmpty(filterTrainer) && filterTrainer != "all")
             {
                 lessen = lessen.Where(l => l.Trainer == filterTrainer);
             }
 
-            // Search
             if (!string.IsNullOrEmpty(searchString))
             {
                 lessen = lessen.Where(l => l.Naam.Contains(searchString)
@@ -62,7 +59,6 @@ namespace FitnessClub.Web.Controllers
                     || l.Locatie.Contains(searchString));
             }
 
-            // Sorting
             lessen = sortOrder switch
             {
                 "naam_desc" => lessen.OrderByDescending(l => l.Naam),
@@ -73,7 +69,6 @@ namespace FitnessClub.Web.Controllers
                 _ => lessen.OrderBy(l => l.StartTijd)
             };
 
-            // Get unique trainers for filter dropdown
             var trainers = await _context.Lessen
                 .Where(l => !l.IsVerwijderd && l.IsActief)
                 .Select(l => l.Trainer)
@@ -82,11 +77,9 @@ namespace FitnessClub.Web.Controllers
 
             ViewData["Trainers"] = trainers;
 
-            // Pagination
             int pageSize = 5;
             var paginatedLessen = await PaginatedList<Les>.CreateAsync(lessen.AsNoTracking(), pageNumber ?? 1, pageSize);
 
-            // AJAX check
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return PartialView("_LessenTable", paginatedLessen);
@@ -95,7 +88,6 @@ namespace FitnessClub.Web.Controllers
             return View(paginatedLessen);
         }
 
-        // AJAX: Load lessons partial
         [HttpGet]
         public async Task<IActionResult> LoadLessenPartial(string sortOrder, string searchString, string filterTrainer, int? pageNumber)
         {
@@ -131,7 +123,6 @@ namespace FitnessClub.Web.Controllers
             return PartialView("_LessenTable", paginatedLessen);
         }
 
-        // AJAX: Get lesson details
         [HttpGet]
         public async Task<IActionResult> GetLessonDetails(int id)
         {
@@ -166,7 +157,88 @@ namespace FitnessClub.Web.Controllers
             });
         }
 
-        // AJAX: Register for lesson
+        // Trainer geeft zichzelf aan voor een les (vult Trainer-veld in)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Trainer")]
+        public async Task<IActionResult> ClaimAsTrainer(int id, string trainerName)
+        {
+            if (string.IsNullOrWhiteSpace(trainerName))
+            {
+                TempData["ErrorMessage"] = "Vul je naam in om je aan te geven als trainer.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var les = await _context.Lessen.FirstOrDefaultAsync(l => l.Id == id && !l.IsVerwijderd);
+            if (les == null)
+            {
+                TempData["ErrorMessage"] = "Les niet gevonden.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (!string.IsNullOrEmpty(les.Trainer))
+            {
+                TempData["ErrorMessage"] = $"Deze les heeft al een trainer ({les.Trainer}).";
+                return RedirectToAction(nameof(Index));
+            }
+
+            les.Trainer = trainerName.Trim();
+            les.GewijzigdOp = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Je bent aangegeven als trainer voor '{les.Naam}'.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Eén-klik inschrijven  voor de simpele knop op de lessen-pagina
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SchrijfIn(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+                return RedirectToAction("Login", "Account");
+
+            var les = await _context.Lessen
+                .Include(l => l.Inschrijvingen)
+                .FirstOrDefaultAsync(l => l.Id == id && !l.IsVerwijderd);
+
+            if (les == null)
+            {
+                TempData["ErrorMessage"] = "Les niet gevonden.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Al ingeschreven?
+            var bestaande = await _context.Inschrijvingen
+                .FirstOrDefaultAsync(i => i.GebruikerId == userId && i.LesId == id && i.Status == "Actief" && !i.IsVerwijderd);
+            if (bestaande != null)
+            {
+                TempData["ErrorMessage"] = "Je bent al ingeschreven voor deze les.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Les vol?
+            if (les.Inschrijvingen.Count(i => i.Status == "Actief") >= les.MaxDeelnemers)
+            {
+                TempData["ErrorMessage"] = "Deze les is vol.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            _context.Inschrijvingen.Add(new Inschrijving
+            {
+                GebruikerId = userId,
+                LesId = id,
+                InschrijfDatum = DateTime.UtcNow,
+                Status = "Actief",
+                AangemaaktOp = DateTime.UtcNow
+            });
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Je bent ingeschreven voor '{les.Naam}'.";
+            return RedirectToAction("Index", "Inschrijvingen");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegisterForLesson(int lessonId)
@@ -186,7 +258,6 @@ namespace FitnessClub.Web.Controllers
                 return Json(new { success = false, message = "Les niet gevonden" });
             }
 
-            // Check if already registered
             var existingRegistration = await _context.Inschrijvingen
                 .FirstOrDefaultAsync(i => i.GebruikerId == userId && i.LesId == lessonId && i.Status == "Actief");
 
@@ -195,14 +266,12 @@ namespace FitnessClub.Web.Controllers
                 return Json(new { success = false, message = "Je bent al ingeschreven voor deze les" });
             }
 
-            // Check available spots
             var registeredCount = les.Inschrijvingen.Count(i => i.Status == "Actief");
             if (registeredCount >= les.MaxDeelnemers)
             {
                 return Json(new { success = false, message = "Deze les is vol" });
             }
 
-            // Create registration
             var inschrijving = new Inschrijving
             {
                 GebruikerId = userId,
@@ -215,7 +284,6 @@ namespace FitnessClub.Web.Controllers
             _context.Inschrijvingen.Add(inschrijving);
             await _context.SaveChangesAsync();
 
-            // Return updated available spots
             var newAvailableSpots = les.MaxDeelnemers - (registeredCount + 1);
 
             return Json(new
@@ -228,7 +296,54 @@ namespace FitnessClub.Web.Controllers
             });
         }
 
-        // GET: Lessen/Details/5
+        [HttpGet]
+        public async Task<IActionResult> LoadSpecialLessons(string type)
+        {
+            IQueryable<Les> query = _context.Lessen
+                .Include(l => l.Inschrijvingen)
+                .Where(l => !l.IsVerwijderd && l.IsActief);
+
+            switch (type.ToLower())
+            {
+                case "today":
+                    var today = DateTime.Today;
+                    query = query.Where(l => l.StartTijd.Date == today)
+                                 .OrderBy(l => l.StartTijd);
+                    break;
+
+                case "available":
+                    query = query.Where(l => l.StartTijd > DateTime.Now)
+                                 .OrderBy(l => l.StartTijd)
+                                 .AsEnumerable()
+                                 .Where(l =>
+                                     l.MaxDeelnemers - l.Inschrijvingen.Count(i => i.Status == "Actief") > 0)
+                                 .AsQueryable();
+                    break;
+
+                case "myregistrations":
+                    var userId = _userManager.GetUserId(User);
+                    var registeredLessonIds = await _context.Inschrijvingen
+                        .Where(i => i.GebruikerId == userId && i.Status == "Actief")
+                        .Select(i => i.LesId)
+                        .ToListAsync();
+
+                    query = query.Where(l => registeredLessonIds.Contains(l.Id))
+                                 .OrderBy(l => l.StartTijd);
+                    break;
+            }
+
+            var lessen = await query.ToListAsync();
+
+            ViewData["CurrentSort"] = "";
+            ViewData["CurrentFilter"] = "";
+            ViewData["CurrentTrainerFilter"] = "all";
+
+            var pageSize = 10;
+            var paginatedList = new PaginatedList<Les>(lessen, lessen.Count, 1, pageSize);
+
+            return PartialView("_LessenTable", paginatedList);
+        }
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -246,7 +361,6 @@ namespace FitnessClub.Web.Controllers
                 return NotFound();
             }
 
-            // Check if current user is registered
             var userId = _userManager.GetUserId(User);
             ViewData["IsRegistered"] = await _context.Inschrijvingen
                 .AnyAsync(i => i.GebruikerId == userId && i.LesId == id && i.Status == "Actief");
@@ -254,19 +368,31 @@ namespace FitnessClub.Web.Controllers
             return View(les);
         }
 
-        // GET: Lessen/Create
-        [Authorize(Roles = "Admin,Trainer")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
-            return View();
+            // Standaardwaarden zodat het form geen valid-fouten geeft
+            return View(new Les
+            {
+                IsActief = true,
+                MaxDeelnemers = 20,
+                StartTijd = DateTime.Today.AddDays(1).AddHours(9),
+                EindTijd = DateTime.Today.AddDays(1).AddHours(10),
+                Trainer = string.Empty
+            });
         }
 
-        // POST: Lessen/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin,Trainer")]
-        public async Task<IActionResult> Create([Bind("Naam,Beschrijving,StartTijd,EindTijd,MaxDeelnemers,Locatie,Trainer,IsActief")] Les les)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create([Bind("Naam,Beschrijving,StartTijd,EindTijd,MaxDeelnemers,Locatie,IsActief")] Les les)
         {
+            // Trainer wordt later toegevoegd door de trainer zelf — niet binden vanuit form
+            les.Trainer = string.Empty;
+
+            // ModelState kan een fout bevatten voor Trainer  — verwijderen
+            ModelState.Remove(nameof(Les.Trainer));
+
             if (ModelState.IsValid)
             {
                 les.AangemaaktOp = DateTime.UtcNow;
@@ -279,8 +405,7 @@ namespace FitnessClub.Web.Controllers
             return View(les);
         }
 
-        // GET: Lessen/Edit/5
-        [Authorize(Roles = "Admin,Trainer")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -296,16 +421,19 @@ namespace FitnessClub.Web.Controllers
             return View(les);
         }
 
-        // POST: Lessen/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin,Trainer")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Naam,Beschrijving,StartTijd,EindTijd,MaxDeelnemers,Locatie,Trainer,IsActief,AangemaaktOp")] Les les)
         {
             if (id != les.Id)
             {
                 return NotFound();
             }
+
+            // Trainer mag leeg zijn — niet-nullable validatie negeren
+            ModelState.Remove(nameof(Les.Trainer));
+            les.Trainer ??= string.Empty;
 
             if (ModelState.IsValid)
             {
@@ -333,7 +461,6 @@ namespace FitnessClub.Web.Controllers
             return View(les);
         }
 
-        // GET: Lessen/Delete/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -353,7 +480,6 @@ namespace FitnessClub.Web.Controllers
             return View(les);
         }
 
-        // POST: Lessen/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]

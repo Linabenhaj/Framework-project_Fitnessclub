@@ -1,5 +1,69 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+@using Microsoft.AspNetCore.Mvc.Localization
+@using FitnessClub.Web.Translations
+@inject IHtmlLocalizer<SharedResource> L
+@model FitnessClub.Models.Models.Abonnement
+
+@{ ViewData["Title"] = L["Edit"].Value; }
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0"><i class="bi bi-pencil-square"></i> @L["Edit"] @L["Subscriptions"]</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="Type" />
+                    <input type="hidden" asp-for="AangemaaktOp" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Type</label>
+                        <input value="@Model.Type" class="form-control" disabled />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Naam" class="form-label fw-bold">@L["Name"]</label>
+                        <input asp-for="Naam" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Beschrijving" class="form-label fw-bold">@L["Description"]</label>
+                        <textarea asp-for="Beschrijving" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Prijs" class="form-label fw-bold">@L["Price"] (€)</label>
+                            <input asp-for="Prijs" class="form-control" type="number" step="0.01" min="0" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="DuurInMaanden" class="form-label fw-bold">Maanden</label>
+                            <input asp-for="DuurInMaanden" class="form-control" type="number" min="1" max="36" />
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="IsActief" class="form-check-input" />
+                        <label asp-for="IsActief" class="form-check-label">@L["Available"]</label>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> @L["Back"]
+                        </a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-check-circle"></i> @L["Save"]
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }

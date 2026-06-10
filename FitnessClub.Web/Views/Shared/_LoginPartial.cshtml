@@ -1,39 +1,23 @@
-﻿@using FitnessClub.Models.Models
-@using Microsoft.AspNetCore.Identity
+﻿@using Microsoft.AspNetCore.Identity
+@using FitnessClub.Models.Models
 @inject SignInManager<Gebruiker> SignInManager
 @inject UserManager<Gebruiker> UserManager
 
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
     {
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
+        <li class="nav-item">
+            <a class="nav-link text-light" asp-controller="Account" asp-action="Profile">
                 <i class="bi bi-person-circle"></i> @User.Identity?.Name
             </a>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li>
-                    <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
-                        <i class="bi bi-gear"></i> Account
-                    </a>
-                </li>
-                @if (User.IsInRole("Admin"))
-                {
-                    <li>
-                        <a class="dropdown-item" asp-controller="Admin" asp-action="ManageUsers">
-                            <i class="bi bi-shield-lock"></i> Gebruikersbeheer
-                        </a>
-                    </li>
-                }
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                    <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="dropdown-item">
-                            <i class="bi bi-box-arrow-right"></i> Uitloggen
-                        </button>
-                    </form>
-                </li>
-            </ul>
+        </li>
+        <li class="nav-item">
+            <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="nav-link btn btn-link text-light">
+                    <i class="bi bi-box-arrow-right"></i> Uitloggen
+                </button>
+            </form>
         </li>
     }
     else

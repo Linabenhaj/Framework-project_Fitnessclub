@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AppName" xml:space="preserve"><value>FitnessClub</value></data>
+  <data name="Home" xml:space="preserve"><value>Accueil</value></data>
+  <data name="Lessons" xml:space="preserve"><value>Cours</value></data>
+  <data name="Subscriptions" xml:space="preserve"><value>Abonnements</value></data>
+  <data name="MyEnrollments" xml:space="preserve"><value>Mes inscriptions</value></data>
+  <data name="Enrollments" xml:space="preserve"><value>Inscriptions</value></data>
+  <data name="Users" xml:space="preserve"><value>Utilisateurs</value></data>
+  <data name="Admin" xml:space="preserve"><value>Admin</value></data>
+  <data name="Login" xml:space="preserve"><value>Connexion</value></data>
+  <data name="Logout" xml:space="preserve"><value>Déconnexion</value></data>
+  <data name="Register" xml:space="preserve"><value>S'inscrire</value></data>
+  <data name="Welcome" xml:space="preserve"><value>Bienvenue chez FitnessClub Pro</value></data>
+  <data name="WelcomeBack" xml:space="preserve"><value>Bon retour</value></data>
+  <data name="Language" xml:space="preserve"><value>Langue</value></data>
+  <data name="Save" xml:space="preserve"><value>Enregistrer</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Annuler</value></data>
+  <data name="Delete" xml:space="preserve"><value>Supprimer</value></data>
+  <data name="Edit" xml:space="preserve"><value>Modifier</value></data>
+  <data name="Add" xml:space="preserve"><value>Ajouter</value></data>
+  <data name="Back" xml:space="preserve"><value>Retour</value></data>
+  <data name="Details" xml:space="preserve"><value>Détails</value></data>
+  <data name="Search" xml:space="preserve"><value>Rechercher</value></data>
+  <data name="Status" xml:space="preserve"><value>Statut</value></data>
+  <data name="Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="Name" xml:space="preserve"><value>Nom</value></data>
+  <data name="Email" xml:space="preserve"><value>E-mail</value></data>
+  <data name="Phone" xml:space="preserve"><value>Téléphone</value></data>
+  <data name="Password" xml:space="preserve"><value>Mot de passe</value></data>
+  <data name="ConfirmPassword" xml:space="preserve"><value>Confirmer mot de passe</value></data>
+  <data name="FirstName" xml:space="preserve"><value>Prénom</value></data>
+  <data name="LastName" xml:space="preserve"><value>Nom de famille</value></data>
+  <data name="Price" xml:space="preserve"><value>Prix</value></data>
+  <data name="Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Trainer" xml:space="preserve"><value>Entraîneur</value></data>
+  <data name="Location" xml:space="preserve"><value>Lieu</value></data>
+  <data name="StartTime" xml:space="preserve"><value>Heure de début</value></data>
+  <data name="EndTime" xml:space="preserve"><value>Heure de fin</value></data>
+  <data name="Role" xml:space="preserve"><value>Rôle</value></data>
+  <data name="Subscription" xml:space="preserve"><value>Abonnement</value></data>
+  <data name="Available" xml:space="preserve"><value>Disponible</value></data>
+  <data name="Enroll" xml:space="preserve"><value>S'inscrire</value></data>
+  <data name="Unenroll" xml:space="preserve"><value>Se désinscrire</value></data>
+  <data name="Info" xml:space="preserve"><value>Info</value></data>
+  <data name="WelcomeSubtitle" xml:space="preserve"><value>Votre plateforme centrale pour cours, abonnements et inscriptions.</value></data>
+  <data name="OurLessons" xml:space="preserve"><value>Nos cours</value></data>
+  <data name="OurLessonsDesc" xml:space="preserve"><value>Yoga, HIIT, basketball, natation et plus.</value></data>
+  <data name="FlexibleSubs" xml:space="preserve"><value>Abonnements flexibles</value></data>
+  <data name="FlexibleSubsDesc" xml:space="preserve"><value>Basic, Medium ou Pro.</value></data>
+  <data name="PersonalGuidance" xml:space="preserve"><value>Accompagnement personnel</value></data>
+  <data name="PersonalGuidanceDesc" xml:space="preserve"><value>Nos entraîneurs vous aident.</value></data>
+  <data name="DemoAccounts" xml:space="preserve"><value>Comptes de démonstration</value></data>
+  <data name="CreateAccount" xml:space="preserve"><value>Créer un compte</value></data>
+  <data name="MyProfile" xml:space="preserve"><value>Mon profil</value></data>
+  <data name="MySubscription" xml:space="preserve"><value>Mon abonnement</value></data>
+  <data name="ContactToChangeSubscription" xml:space="preserve"><value>Voulez-vous changer votre abonnement ? Contactez-nous au +32 123 45 67 89.</value></data>
+  <data name="MemberSince" xml:space="preserve"><value>Membre depuis</value></data>
+  <data name="NoSubscription" xml:space="preserve"><value>Vous n'avez pas encore choisi d'abonnement.</value></data>
+</root>
