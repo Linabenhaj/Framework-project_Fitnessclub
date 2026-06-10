@@ -80,4 +80,3 @@ Github Copilot en ChatGPT technologieën werden gebruikt bij het debuggen van er
 
 ## logout pagina
 
-<img width="1810" height="860" alt="image" src="https://github.com/user-attachments/assets/93e2b9c4-35eb-4ea5-9e96-a278123f1c9f" />
