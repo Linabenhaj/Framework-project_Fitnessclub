@@ -1,6 +1,6 @@
 # Projectvoorstel: Fitnessclub Applicatie
 
-Dit project is een desktopapplicatie ontwikkeld in C# met .NET WPF voor het beheren van een fitnessclub. De applicatie ondersteunt verschillende rollen: Admin, Medewerker en Lid. Elke rol heeft zijn eigen dashboard en functies.
+Dit project is een desktopapplicatie ontwikkeld in C# met .NET voor het beheren van een fitnessclub zowel in web versie als mobiele versie. De applicatie ondersteunt verschillende rollen: Admin, Medewerker en Lid. Elke rol heeft zijn eigen dashboard en functies.
 
 ## Interne logica van de applicatie
 
@@ -12,7 +12,7 @@ Het lid kan beschikbare lessen bekijken via het lessenoverzicht, eigen abonnemen
 
 De belangrijkste vensters in de applicatie zijn het loginvenster, het registratievenster, het dashboard, het lessenoverzicht voor leden, het venster om nieuwe lessen toe te voegen en het venster om leden te bewerken. Het loginvenster wordt gebruikt voor het aanmelden via ASP.NET Identity, het registratievenster voor het aanmaken van een nieuwe gebruiker met keuze van abonnement, en het dashboard toont verschillende tabbladen afhankelijk van de gebruikersrol.
 
-De gebruikte technologieën zijn .NET 9 met WPF, Class Library, Entity Framework Core, ASP.NET Identity, SQL Server en het MVVM-ontwerppatroon. De applicatie ondersteunt soft delete-functionaliteit en toegangsbeheer op basis van rollen.
+De gebruikte technologieën zijn .NET 9 met  Class Library, Entity Framework Core, ASP.NET Identity, SQL Server en het MVVM-ontwerppatroon. De applicatie ondersteunt soft delete-functionaliteit en toegangsbeheer op basis van rollen.
 
 ## Installatie
 
