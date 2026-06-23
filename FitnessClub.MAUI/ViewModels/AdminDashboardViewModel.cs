@@ -10,8 +10,7 @@ namespace FitnessClub.MAUI.ViewModels
     {
         private readonly ApiService _apiService;
 
-        [ObservableProperty] private int totaalGebruikers;
-        [ObservableProperty] private int totaalLessen;
+        // voornaam van de admin gebruikt in begroeting
         [ObservableProperty] private string adminNaam = "Admin";
 
         public AdminDashboardViewModel(ApiService apiService)
@@ -19,44 +18,22 @@ namespace FitnessClub.MAUI.ViewModels
             _apiService = apiService;
             Title = "Admin Dashboard";
             AdminNaam = string.IsNullOrEmpty(General.UserFirstName) ? "Admin" : General.UserFirstName;
-            _ = LoadStatsAsync();
         }
 
-        public async Task LoadStatsAsync()
-        {
-            IsBusy = true;
-            try
-            {
-                await Task.Delay(150);
-
-                var lessenResult = await _apiService.GetAllLessenAsync();
-                if (lessenResult.Success && lessenResult.Data != null)
-                    TotaalLessen = lessenResult.Data.Count(l => l.IsActief);
-                else
-                    TotaalLessen = 0;
-
-                var usersResult = await _apiService.GetAllUsersAsync();
-                if (usersResult.Success && usersResult.Data != null)
-                    TotaalGebruikers = usersResult.Data.Count;
-                else
-                    TotaalGebruikers = 0;
-            }
-            catch { }
-            finally
-            {
-                IsBusy = false;
-            }
-        }
-
+        // navigeer naar lessenpagina
         [RelayCommand]
         private async Task BeheerLessen() => await Shell.Current.GoToAsync("//LessenShell");
 
+        // navigeer naar inschrijvingenpagina
         [RelayCommand]
         private async Task BeheerInschrijvingen() => await Shell.Current.GoToAsync("//InschrijvingenShell");
 
+        // navigeer naar gebruikerslijst
         [RelayCommand]
         private async Task BekijkGebruikers() => await Shell.Current.GoToAsync("//GebruikersShell");
 
+        // admin maakt een nieuwe les aan via prompts
+        // trainer veld blijft leeg en wordt later geclaimd door een trainer
         [RelayCommand]
         private async Task NieuweLes()
         {
@@ -75,6 +52,7 @@ namespace FitnessClub.MAUI.ViewModels
             IsBusy = true;
             try
             {
+                // POST naar de API voor nieuwe les
                 var result = await _apiService.CreateLesAsync(new NewLesDto
                 {
                     Naam = naam,
@@ -93,7 +71,6 @@ namespace FitnessClub.MAUI.ViewModels
                         "Aangemaakt",
                         $"Les '{naam}' is aangemaakt!\nEen trainer kan zich nu opgeven via de Lessen-pagina.",
                         "OK");
-                    await LoadStatsAsync();
                 }
                 else
                 {
@@ -104,9 +81,7 @@ namespace FitnessClub.MAUI.ViewModels
             finally { IsBusy = false; }
         }
 
-        [RelayCommand]
-        private async Task Refresh() => await LoadStatsAsync();
-
+        // afmelden wist token en stuurt naar login
         [RelayCommand]
         private async Task Logout()
         {

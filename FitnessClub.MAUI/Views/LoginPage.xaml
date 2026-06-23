@@ -121,32 +121,28 @@
                     </Label>
                 </HorizontalStackLayout>
 
-                <!-- Snelknoppen voor testen (zichtbaarheid via code-behind) -->
-                <StackLayout x:Name="DevPanel" IsVisible="False" Spacing="8">
-                    <BoxView HeightRequest="1" BackgroundColor="#E0E0E0" />
-                    <Label Text="Testaccounts"
-                           FontSize="11"
-                           TextColor="#9E9E9E"
-                           HorizontalOptions="Center" />
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Button Grid.Column="0"
-                                Text="Admin"
-                                Clicked="OnAutofillAdminClicked"
-                                BackgroundColor="#37474F"
-                                TextColor="White"
-                                FontSize="12"
-                                CornerRadius="8"
-                                HeightRequest="40" />
-                        <Button Grid.Column="1"
-                                Text="Lid"
-                                Clicked="OnAutofillLidClicked"
-                                BackgroundColor="#546E7A"
-                                TextColor="White"
-                                FontSize="12"
-                                CornerRadius="8"
-                                HeightRequest="40" />
-                    </Grid>
-                </StackLayout>
+                <!-- Test accounts in tekstvorm voor demo -->
+                <BoxView HeightRequest="1" BackgroundColor="#E0E0E0" Margin="0,6,0,4" />
+                <Label Text="Test accounts"
+                       FontSize="11"
+                       FontAttributes="Bold"
+                       TextColor="#9E9E9E"
+                       HorizontalOptions="Center" />
+                <Label FontSize="11"
+                       TextColor="#616161"
+                       HorizontalTextAlignment="Center"
+                       LineBreakMode="WordWrap">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Admin: " FontAttributes="Bold" />
+                            <Span Text="admin@fitnessclub.be / Admin123!" />
+                            <Span Text="&#10;Trainer: " FontAttributes="Bold" />
+                            <Span Text="trainer@fitnessclub.be / Trainer123!" />
+                            <Span Text="&#10;Lid: " FontAttributes="Bold" />
+                            <Span Text="user@fitnessclub.be / User123!" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
 
             </VerticalStackLayout>
         </ScrollView>

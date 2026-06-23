@@ -10,9 +10,7 @@
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Globally registered value converters -->
-            <converters:StatusColorConverter x:Key="StatusColorConverter" />
-            <converters:AvailabilityConverter x:Key="AvailabilityConverter" />
+            <!-- converter voor MultiBinding AND-logica in LessenPage -->
             <converters:AllTrueConverter x:Key="AllTrueConverter" />
         </ResourceDictionary>
     </Application.Resources>

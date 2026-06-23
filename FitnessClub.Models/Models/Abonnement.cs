@@ -17,7 +17,7 @@ namespace FitnessClub.Models.Models
         public string Type { get; set; } = string.Empty;
 
         [Required]
-        [Column(TypeName = "decimal(18,2)")]
+        [Column(TypeName = "decimal(18,2)")] //nodig?
         public decimal Prijs { get; set; }
 
         [Range(1, 36)]

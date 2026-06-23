@@ -35,14 +35,14 @@ builder.Services.AddIdentity<Gebruiker, IdentityRole>(options =>
 .AddDefaultUI()
 .AddDefaultTokenProviders();
 
-//  Meertaligheid (NL / EN / FR) 
-// FitnessClub.Web.Resources, localizer zoekt automatisch in de juiste map
+//  Meertaligheid 
+// localizer zoekt automatisch in de juiste map
 builder.Services.AddLocalization();
 
 builder.Services.AddControllersWithViews(options =>
     {
         
-        // automatisch als [Required] behandelt — anders krijg je validatie-fouten
+        // automatisch als required gevraagd  anders krijg je validatie fouten
         
         options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
     })
@@ -66,7 +66,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 var app = builder.Build();
 
-// Pipeline
+// Pipeline opbouwen
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -80,11 +80,11 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// Lokalisatie pipeline 
-var localizationOptions = app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<RequestLocalizationOptions>>().Value;
+// Lokalisatie pipeline doet de juiste taal instellen op basis van cookie of browser voorkeur
+var localizationOptions = app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<RequestLocalizationOptions>>().Value; 
 app.UseRequestLocalization(localizationOptions);
 
-// Eigen middleware logt elk request
+// Eigen middleware logt elk request 
 app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseRouting();
@@ -97,7 +97,7 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
-// Seed
+// Database Seeden en migratie uitvoeren bij opstarten van de applicatie
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -109,7 +109,7 @@ using (var scope = app.Services.CreateScope())
 
         await context.Database.MigrateAsync();
 
-        // Min. 3 rollen voor de criteria Admin, Lid, Trainer
+        // Min. 3 rollen 
         
         string[] roles = { "Admin", "Lid", "Trainer" };
         foreach (var role in roles)
@@ -128,6 +128,7 @@ using (var scope = app.Services.CreateScope())
                 Email = adminEmail,
                 Voornaam = "Admin",
                 Achternaam = "FitnessClub",
+                PhoneNumber = "+32470123456",
                 EmailConfirmed = true
             };
             var result = await userManager.CreateAsync(adminUser, "Admin123!");
@@ -146,6 +147,7 @@ using (var scope = app.Services.CreateScope())
                 Email = trainerEmail,
                 Voornaam = "Trainer",
                 Achternaam = "Demo",
+                PhoneNumber = "+32470234567",
                 EmailConfirmed = true
             };
             var result = await userManager.CreateAsync(trainerUser, "Trainer123!");
@@ -153,7 +155,7 @@ using (var scope = app.Services.CreateScope())
                 await userManager.AddToRoleAsync(trainerUser, "Trainer");
         }
 
-        // Abonnementen seeden — Basic / Medium / Pro
+        // Abonnementen seeden 
         if (!context.Abonnementen.Any())
         {
             context.Abonnementen.AddRange(
@@ -186,14 +188,27 @@ using (var scope = app.Services.CreateScope())
             await context.SaveChangesAsync();
         }
 
-        // Mock-lessen opruimen (oude seeded data)
-        var mockTrainers = new[] { "John Smith", "Marie Dubois", "Lukas Janssens", "Sophie Peeters", "Anna Verhoeven", "Tom De Wit" };
-        var mockLessen = context.Lessen.Where(l => mockTrainers.Contains(l.Trainer)).ToList();
-        if (mockLessen.Any())
+        // Demo Lid-account aanmaken met Pro abonnement en telefoonnummer
+        var lidEmail = "user@fitnessclub.be";
+        var lidUser = await userManager.FindByEmailAsync(lidEmail);
+        if (lidUser == null)
         {
-            context.Lessen.RemoveRange(mockLessen);
-            await context.SaveChangesAsync();
+            var proAbo = await context.Abonnementen.FirstOrDefaultAsync(a => a.Naam == "Pro");
+            lidUser = new Gebruiker
+            {
+                UserName = lidEmail,
+                Email = lidEmail,
+                Voornaam = "Demo",
+                Achternaam = "Lid",
+                PhoneNumber = "+32470345678",
+                EmailConfirmed = true,
+                AbonnementId = proAbo?.Id
+            };
+            var result = await userManager.CreateAsync(lidUser, "User123!");
+            if (result.Succeeded)
+                await userManager.AddToRoleAsync(lidUser, "Lid");
         }
+
     }
     catch (Exception ex)
     {

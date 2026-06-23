@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitnessClub.Models.Models
 {
-    // Model voor lessen in de MAUI-app
+    // Model voor lessen in de MAUI app
     public class LocalLes
     {
         public int Id { get; set; }

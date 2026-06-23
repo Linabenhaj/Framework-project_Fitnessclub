@@ -9,6 +9,7 @@ namespace FitnessClub.MAUI.ViewModels
     {
         private readonly ApiService _apiService;
 
+        // properties met data van de ingelogde gebruiker
         [ObservableProperty] private string voornaam = "";
         [ObservableProperty] private string achternaam = "";
         [ObservableProperty] private string email = "";
@@ -18,8 +19,11 @@ namespace FitnessClub.MAUI.ViewModels
         [ObservableProperty] private string abonnementPrijs = "";
         [ObservableProperty] private int aantalInschrijvingen = 0;
 
+        // vaste contact info voor de klantendienst tekstbox
         public string ContactEmail => "klantendienst@fitnessclub.be";
         public string ContactTelefoon => "+32 3 123 45 67";
+
+        // klantendienst tekstbox alleen tonen voor leden
         public bool MagKlantendienstZien => General.IsLid;
 
         public ProfielViewModel(ApiService apiService)
@@ -29,6 +33,7 @@ namespace FitnessClub.MAUI.ViewModels
             LoadProfile();
         }
 
+        // laadt voornaam achternaam email en rol uit General
         private void LoadProfile()
         {
             Voornaam = string.IsNullOrEmpty(General.UserFirstName) ? "Gebruiker" : General.UserFirstName;
@@ -39,6 +44,7 @@ namespace FitnessClub.MAUI.ViewModels
             _ = LoadExtraInfoAsync();
         }
 
+        // haalt aantal inschrijvingen op via de API en zet de abonnement label op basis van rol
         private async Task LoadExtraInfoAsync()
         {
             try
@@ -53,13 +59,9 @@ namespace FitnessClub.MAUI.ViewModels
                 }
 
                 if (Rol.Equals("Admin", StringComparison.OrdinalIgnoreCase))
-                {
                     AbonnementNaam = "Beheerder (geen abonnement nodig)";
-                }
                 else if (Rol.Equals("Trainer", StringComparison.OrdinalIgnoreCase))
-                {
                     AbonnementNaam = "Trainer-account";
-                }
                 else
                 {
                     AbonnementNaam = "Basic";
@@ -69,18 +71,7 @@ namespace FitnessClub.MAUI.ViewModels
             catch { }
         }
 
-        [RelayCommand]
-        private async Task ContactKlantendienst()
-        {
-            await Application.Current!.Windows[0]!.Page!.DisplayAlert(
-                "Klantendienst",
-                $"Voor het wijzigen van persoonlijke gegevens of abonnement:\n\n" +
-                $"📧 {ContactEmail}\n" +
-                $"📞 {ContactTelefoon}\n\n" +
-                $"Onze klantendienst is bereikbaar van maandag tot vrijdag, 9u-18u.",
-                "OK");
-        }
-
+        // herlaadt het profiel telkens de pagina opent
         [RelayCommand]
         private async Task Refresh()
         {

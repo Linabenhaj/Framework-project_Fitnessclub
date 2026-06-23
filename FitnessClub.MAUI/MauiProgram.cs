@@ -8,12 +8,12 @@ using Microsoft.Extensions.Logging;
 
 namespace FitnessClub.MAUI
 {
-   
+    // startpunt van de MAUI app
     public static class MauiProgram
     {
         public static MauiApp CreateMauiApp()
         {
-            // SQLite native bibliotheek initialiseren vóór alles
+            // initialiseer SQLite voor de app start
             SQLitePCL.Batteries_V2.Init();
 
             var builder = MauiApp.CreateBuilder();
@@ -25,7 +25,7 @@ namespace FitnessClub.MAUI
 
             var app = builder.Build();
 
-            // Token vroeg instellen zodat de eerste pagina al auth heeft
+            // auto re-login als er nog een geldig token bestaat
             if (General.IsLoggedIn && !string.IsNullOrEmpty(General.Token))
             {
                 var api = app.Services.GetRequiredService<ApiService>();
@@ -55,34 +55,31 @@ namespace FitnessClub.MAUI
         {
             var services = builder.Services;
 
-            // ── Core / app state ──
-            // SecurityViewModel is een singleton die login-status bijhoudt (net als bij Kiran)
+            // singleton voor login status
             services.AddSingleton<SecurityViewModel>();
 
-            // ── Database (SQLite) ──
+            // SQLite database voor lokale opslag
             var dbPath = Path.Combine(FileSystem.AppDataDirectory, "fitnessclub.db");
             services.AddDbContext<LocalDbContext>(
                 options => options.UseSqlite($"Data Source={dbPath}"),
                 ServiceLifetime.Transient);
 
-            // ── API-services ──
+            // service voor API calls
             services.AddSingleton<ApiService>(sp =>
                 new ApiService(sp.GetRequiredService<IHttpClientFactory>().CreateClient("FitnessApi")));
             services.AddSingleton<AuthService>();
 
-            // ── ViewModels (Transient = nieuwe instantie per pagina) ──
+            // ViewModels per pagina
             services.AddTransient<DashboardViewModel>();
             services.AddTransient<AdminDashboardViewModel>();
             services.AddTransient<LessenViewModel>();
             services.AddTransient<InschrijvingenViewModel>();
             services.AddTransient<ProfielViewModel>();
-            services.AddTransient<SettingsViewModel>();
-            services.AddTransient<AboutViewModel>();
             services.AddTransient<RegisterViewModel>();
             services.AddTransient<HomeViewModel>();
             services.AddTransient<GebruikersViewModel>();
 
-            // ── Pages (Transient) ──
+            // pagina registraties
             services.AddTransient<LoginPage>();
             services.AddTransient<RegisterPage>();
             services.AddTransient<LessenPage>();
@@ -90,12 +87,10 @@ namespace FitnessClub.MAUI
             services.AddTransient<AdminDashboardPage>();
             services.AddTransient<DashboardPage>();
             services.AddTransient<ProfielPage>();
-            services.AddTransient<SettingsPage>();
-            services.AddTransient<AboutPage>();
             services.AddTransient<HomePage>();
             services.AddTransient<GebruikersPage>();
 
-            // ── Shell (Singleton – vereist door MAUI) ──
+            // hoofdshell van de app
             services.AddSingleton<AppShell>();
         }
 

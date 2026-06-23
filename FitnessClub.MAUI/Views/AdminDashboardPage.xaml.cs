@@ -24,7 +24,6 @@ namespace FitnessClub.MAUI.Views
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            _ = _viewModel?.LoadStatsAsync();
         }
     }
 }

@@ -1,7 +1,7 @@
-@using Microsoft.AspNetCore.Identity
+﻿@using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.Mvc.Localization
 @using FitnessClub.Models.Models
-@using FitnessClub.Web.Translations
+@using FitnessClub.Web.Resources
 @inject UserManager<Gebruiker> UserManager
 @inject SignInManager<Gebruiker> SignInManager
 @inject IHtmlLocalizer<SharedResource> L
@@ -35,11 +35,15 @@
                         <li class="nav-item">
                             <a class="nav-link text-light" asp-controller="Lessen" asp-action="Index">@L["Lessons"]</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-controller="Inschrijvingen" asp-action="Index">
-                                @(User.IsInRole("Admin") ? L["Enrollments"] : L["MyEnrollments"])
-                            </a>
-                        </li>
+                        @* Inschrijvingen-link niet voor Trainer alleen Admin en Lid *@
+                        @if (!User.IsInRole("Trainer"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-controller="Inschrijvingen" asp-action="Index">
+                                    @(User.IsInRole("Admin") ? L["Enrollments"] : L["MyEnrollments"])
+                                </a>
+                            </li>
+                        }
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item">

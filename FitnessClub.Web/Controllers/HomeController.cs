@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace FitnessClub.Web.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : Controller //Behandelt de homepagina, taalwissel en error-pagina
     {
         private readonly ILogger<HomeController> _logger;
 
@@ -23,10 +23,6 @@ namespace FitnessClub.Web.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
 
         // Taal wisselen  bewaart de keuze in een cookie zodat hij op alle pagina's geldt
         [HttpGet]
@@ -35,7 +31,7 @@ namespace FitnessClub.Web.Controllers
             Response.Cookies.Append(
                 CookieRequestCultureProvider.DefaultCookieName,
                 CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
-                new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) });
+                new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }); //voor een jaar
 
             return LocalRedirect(returnUrl);
         }

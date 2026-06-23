@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FitnessClub.Models.Data
 {
-    public interface IFitnessClubDbContext
+    public interface IFitnessClubDbContext //interface voor de DbContext van de FitnessClub-applicatie zodat het kan worden gebruikt in dependency injection en unit testing
     {
         DbSet<Gebruiker> Gebruikers { get; set; }
         DbSet<Abonnement> Abonnementen { get; set; }

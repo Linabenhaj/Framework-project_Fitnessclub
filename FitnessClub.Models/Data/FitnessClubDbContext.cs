@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessClub.Models.Data
 {
-    public class FitnessClubDbContext : IdentityDbContext<Gebruiker>, IFitnessClubDbContext
+    public class FitnessClubDbContext : IdentityDbContext<Gebruiker>, IFitnessClubDbContext //Identity DbContext koppelt aan de DbContext van de applicatie zo kan het IdentityUser en Gebruiker samenwerken
     {
         public FitnessClubDbContext(DbContextOptions<FitnessClubDbContext> options)
             : base(options)
@@ -19,7 +19,7 @@ namespace FitnessClub.Models.Data
         //  LogError DbSet 
         public DbSet<LogError> LogErrors { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder builder) //configugratie van de entiteiten in database door instellingen de definieren
         {
             base.OnModelCreating(builder);
 

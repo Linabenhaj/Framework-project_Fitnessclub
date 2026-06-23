@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitnessClub.Models.Models
 {
-    public class Gebruiker : IdentityUser
+    public class Gebruiker : IdentityUser //Identity User klasse erft van IdentityUser
     {
         public string? Voornaam { get; set; }
         public string? Achternaam { get; set; }
@@ -41,11 +41,11 @@ namespace FitnessClub.Models.Models
         public int? AbonnementId { get; set; }
         public virtual Abonnement? Abonnement { get; set; }
 
-        // Collectie van Inschrijvingen
+        // Collectie van Inschrijvingen: belangrijk voor relatie naar inschrijvingen
         public virtual ICollection<Inschrijving> Inschrijvingen { get; set; } = new List<Inschrijving>();
 
         [NotMapped]
-        public int? Leeftijd
+        public int? Leeftijd //enige property die not mapped is, omdat het niet wordt opgeslagen in database enkel berekend
         {
             get
             {

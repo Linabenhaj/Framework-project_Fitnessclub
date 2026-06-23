@@ -10,7 +10,7 @@ using FitnessClub.Models.Models;   // LocalLes, LocalUser, LocalInschrijving
 
 namespace FitnessClub.MAUI.Services
 {
-    // Service voor alle HTTP-calls naar de API
+    // service voor alle HTTP calls naar de API
     public class ApiService
     {
         private readonly HttpClient _httpClient;

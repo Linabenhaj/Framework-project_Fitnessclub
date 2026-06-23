@@ -7,22 +7,26 @@
        FlyoutWidth="260"
        FlyoutBackgroundColor="#121212"
        Shell.TabBarIsVisible="False"
-       BackgroundColor="#1B5E20"
-       Shell.BackgroundColor="#1B5E20"
        Shell.ForegroundColor="White"
        Shell.TitleColor="White"
        Shell.NavBarHasShadow="False">
 
     <Shell.Resources>
+        <!-- style voor flyout items zwarte achtergrond witte tekst -->
         <Style TargetType="FlyoutItem">
             <Setter Property="Shell.BackgroundColor" Value="#121212" />
             <Setter Property="Shell.ForegroundColor" Value="White" />
+        </Style>
+
+        <!-- style voor Shell zelf groene navigatiebalk -->
+        <Style TargetType="Shell" ApplyToDerivedTypes="True">
+            <Setter Property="Shell.BackgroundColor" Value="#1B5E20" />
         </Style>
     </Shell.Resources>
 
     <!-- Flyout item template forceert witte tekst op donkere achtergrond -->
     <Shell.ItemTemplate>
-        <DataTemplate>
+        <DataTemplate x:DataType="BaseShellItem">
             <Grid BackgroundColor="#121212" HeightRequest="50">
                 <Label Text="{Binding Title}"
                        TextColor="White"
@@ -35,7 +39,7 @@
 
     <!-- (Afmelden): rode accentkleur -->
     <Shell.MenuItemTemplate>
-        <DataTemplate>
+        <DataTemplate x:DataType="MenuItem">
             <Grid BackgroundColor="#121212" HeightRequest="50">
                 <Label Text="{Binding Text}"
                        TextColor="#EF5350"

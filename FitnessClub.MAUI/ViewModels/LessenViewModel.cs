@@ -17,6 +17,7 @@ namespace FitnessClub.MAUI.ViewModels
         [ObservableProperty] private bool isRefreshing;
         [ObservableProperty] private bool isOffline;
 
+        // rol-gebaseerde zichtbaarheid van knoppen
         public bool MagInschrijven => !General.IsAdmin && !General.IsTrainer;
         public bool MagBewerken => General.IsAdmin;
         public bool MagClaimen => General.IsTrainer;

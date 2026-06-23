@@ -17,8 +17,6 @@ namespace FitnessClub.MAUI
             Routing.RegisterRoute("LessenPage", typeof(LessenPage));
             Routing.RegisterRoute("InschrijvingenPage", typeof(InschrijvingenPage));
             Routing.RegisterRoute("ProfielPage", typeof(ProfielPage));
-            Routing.RegisterRoute("SettingsPage", typeof(SettingsPage));
-            Routing.RegisterRoute("AboutPage", typeof(AboutPage));
         }
     }
 }

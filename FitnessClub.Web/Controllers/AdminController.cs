@@ -27,7 +27,7 @@ namespace FitnessClub.Web.Controllers
         {
             ViewData["Title"] = "Admin Dashboard";
 
-            // Asynchroon ophalen van alle counts
+            // Asynchroon ophalen van alle leden
             var totaalLeden = await _userManager.GetUsersInRoleAsync("Lid");
             var aantalLeden = totaalLeden.Count;
 
@@ -35,14 +35,14 @@ namespace FitnessClub.Web.Controllers
             var aantalAbonnementen = await _context.Abonnementen.CountAsync();
             var aantalInschrijvingen = await _context.Inschrijvingen.CountAsync();
 
-            // Volgende 5 lessen
+            // Volgende 5 lessen bijvoorbeeld voor snelle toegang tot de planning
             var aankomendeLessen = await _context.Lessen
                 .Where(l => l.IsActief && l.StartTijd >= DateTime.Now)
                 .OrderBy(l => l.StartTijd)
                 .Take(5)
                 .ToListAsync();
 
-            // Recente leden (laatste 5)
+            // Recente leden (laatste 5) ook
             var recenteLeden = totaalLeden
                 .OrderByDescending(u => u.AangemaaktOp)
                 .Take(5)

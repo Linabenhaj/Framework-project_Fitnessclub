@@ -66,7 +66,7 @@ namespace FitnessClub.Web.Controllers
             const int pageSize = 10;
             var model = await PaginatedList<Inschrijving>.CreateAsync(query, pageNumber, pageSize);
 
-            // Alleen admin: lijst van lessen waarvoor een trainer zich heeft aangegeven
+            // Alleen admin lijst van lessen waarvoor een trainer zich heeft aangegeven
             if (isAdmin)
             {
                 ViewBag.LessenMetTrainer = await _context.Lessen
@@ -78,7 +78,7 @@ namespace FitnessClub.Web.Controllers
             return View(model);
         }
 
-        // AJAX-endpoint: levert alleen de tabel als partial view (Unobtrusive Ajax)
+        // AJAX-endpoint levert alleen de tabel als partial view 
         [HttpGet]
         public async Task<IActionResult> LoadInschrijvingenPartial(string searchString, string sortOrder, int pageNumber = 1)
         {
@@ -140,7 +140,7 @@ namespace FitnessClub.Web.Controllers
             return View(inschrijving);
         }
 
-        // GET: Inschrijvingen/Create — leden kunnen zelf inschrijven, admin ook
+        // GET Inschrijvingen/Create leden kunnen zelf inschrijven, admin ook
         public async Task<IActionResult> Create()
         {
             await PopulateDropdowns();
@@ -226,7 +226,7 @@ namespace FitnessClub.Web.Controllers
             return await UitschrijfInternalAsync(id);
         }
 
-        // POST: Inschrijvingen/Uitschrijf/5 — één-klik uitschrijven (hard delete)
+        // POST: Inschrijvingen/Uitschrijf/5  één-klik uitschrijven (hard delete)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Uitschrijf(int id)

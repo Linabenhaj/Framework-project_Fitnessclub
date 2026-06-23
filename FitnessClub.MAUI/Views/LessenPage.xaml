@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:FitnessClub.MAUI.ViewModels"
              xmlns:models="clr-namespace:FitnessClub.Models.Models;assembly=FitnessClub.Models"
+             x:DataType="vm:LessenViewModel"
              x:Class="FitnessClub.MAUI.Views.LessenPage"
              Title="{Binding Title}"
              BackgroundColor="#F4F6F8">

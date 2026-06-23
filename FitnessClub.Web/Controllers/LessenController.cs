@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace FitnessClub.Web.Controllers
 {
     [Authorize]
-    public class LessenController : Controller
+    public class LessenController : Controller //Behandelt alle acties  lessen, inschrijven, filteren, sorteren en CRUD-operaties voor beheerders
     {
         private readonly FitnessClubDbContext _context;
         private readonly UserManager<Gebruiker> _userManager;
@@ -24,7 +24,7 @@ namespace FitnessClub.Web.Controllers
         }
 
         public async Task<IActionResult> Index(string sortOrder, string currentFilter,
-            string searchString, int? pageNumber, string filterTrainer = "all")
+            string searchString, int? pageNumber, string filterTrainer = "all") // Lijst van lessen met filteren, sorteren en paginering
         {
             ViewData["CurrentSort"] = sortOrder;
             ViewData["NaamSortParm"] = string.IsNullOrEmpty(sortOrder) ? "naam_desc" : "";
@@ -35,7 +35,7 @@ namespace FitnessClub.Web.Controllers
 
             if (searchString != null)
             {
-                pageNumber = 1;
+                pageNumber = 1; //bij nieuwe zoekopdracht terug naar eerste pagina
             }
             else
             {
@@ -46,12 +46,12 @@ namespace FitnessClub.Web.Controllers
                          where !l.IsVerwijderd && l.IsActief
                          select l;
 
-            if (!string.IsNullOrEmpty(filterTrainer) && filterTrainer != "all")
+            if (!string.IsNullOrEmpty(filterTrainer) && filterTrainer != "all") // filteren op trainer
             {
                 lessen = lessen.Where(l => l.Trainer == filterTrainer);
             }
 
-            if (!string.IsNullOrEmpty(searchString))
+            if (!string.IsNullOrEmpty(searchString)) // filteren op alle zoektermen
             {
                 lessen = lessen.Where(l => l.Naam.Contains(searchString)
                     || l.Beschrijving.Contains(searchString)
@@ -59,7 +59,7 @@ namespace FitnessClub.Web.Controllers
                     || l.Locatie.Contains(searchString));
             }
 
-            lessen = sortOrder switch
+            lessen = sortOrder switch // kolommen sorteren
             {
                 "naam_desc" => lessen.OrderByDescending(l => l.Naam),
                 "StartTijd" => lessen.OrderBy(l => l.StartTijd),
@@ -69,7 +69,7 @@ namespace FitnessClub.Web.Controllers
                 _ => lessen.OrderBy(l => l.StartTijd)
             };
 
-            var trainers = await _context.Lessen
+            var trainers = await _context.Lessen 
                 .Where(l => !l.IsVerwijderd && l.IsActief)
                 .Select(l => l.Trainer)
                 .Distinct()
@@ -77,7 +77,7 @@ namespace FitnessClub.Web.Controllers
 
             ViewData["Trainers"] = trainers;
 
-            int pageSize = 5;
+            int pageSize = 5; // aantal lessen per pagina voorbeeld
             var paginatedLessen = await PaginatedList<Les>.CreateAsync(lessen.AsNoTracking(), pageNumber ?? 1, pageSize);
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -89,7 +89,8 @@ namespace FitnessClub.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> LoadLessenPartial(string sortOrder, string searchString, string filterTrainer, int? pageNumber)
+        // AJAX-aanroep voor het dynamisch laden van de lessen-tabel
+        public async Task<IActionResult> LoadLessenPartial(string sortOrder, string searchString, string filterTrainer, int? pageNumber) 
         {
             var lessen = from l in _context.Lessen
                          where !l.IsVerwijderd && l.IsActief
@@ -121,40 +122,6 @@ namespace FitnessClub.Web.Controllers
             var paginatedLessen = await PaginatedList<Les>.CreateAsync(lessen.AsNoTracking(), pageNumber ?? 1, pageSize);
 
             return PartialView("_LessenTable", paginatedLessen);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetLessonDetails(int id)
-        {
-            var les = await _context.Lessen
-                .Include(l => l.Inschrijvingen)
-                .FirstOrDefaultAsync(l => l.Id == id && !l.IsVerwijderd);
-
-            if (les == null)
-            {
-                return Json(new { success = false, message = "Les niet gevonden" });
-            }
-
-            var availableSpots = les.MaxDeelnemers - les.Inschrijvingen.Count(i => i.Status == "Actief");
-
-            return Json(new
-            {
-                success = true,
-                les = new
-                {
-                    les.Id,
-                    les.Naam,
-                    les.Beschrijving,
-                    StartTijd = les.StartTijd.ToString("dd/MM/yyyy HH:mm"),
-                    EindTijd = les.EindTijd.ToString("dd/MM/yyyy HH:mm"),
-                    les.Locatie,
-                    les.Trainer,
-                    les.MaxDeelnemers,
-                    AvailableSpots = availableSpots,
-                    IsFull = availableSpots <= 0,
-                    Duration = (les.EindTijd - les.StartTijd).TotalMinutes
-                }
-            });
         }
 
         // Trainer geeft zichzelf aan voor een les (vult Trainer-veld in)
@@ -240,7 +207,7 @@ namespace FitnessClub.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken] 
         public async Task<IActionResult> RegisterForLesson(int lessonId)
         {
             var userId = _userManager.GetUserId(User);
@@ -255,7 +222,7 @@ namespace FitnessClub.Web.Controllers
 
             if (les == null)
             {
-                return Json(new { success = false, message = "Les niet gevonden" });
+                return Json(new { success = false, message = "Les niet gevonden" }); 
             }
 
             var existingRegistration = await _context.Inschrijvingen
@@ -296,54 +263,6 @@ namespace FitnessClub.Web.Controllers
             });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> LoadSpecialLessons(string type)
-        {
-            IQueryable<Les> query = _context.Lessen
-                .Include(l => l.Inschrijvingen)
-                .Where(l => !l.IsVerwijderd && l.IsActief);
-
-            switch (type.ToLower())
-            {
-                case "today":
-                    var today = DateTime.Today;
-                    query = query.Where(l => l.StartTijd.Date == today)
-                                 .OrderBy(l => l.StartTijd);
-                    break;
-
-                case "available":
-                    query = query.Where(l => l.StartTijd > DateTime.Now)
-                                 .OrderBy(l => l.StartTijd)
-                                 .AsEnumerable()
-                                 .Where(l =>
-                                     l.MaxDeelnemers - l.Inschrijvingen.Count(i => i.Status == "Actief") > 0)
-                                 .AsQueryable();
-                    break;
-
-                case "myregistrations":
-                    var userId = _userManager.GetUserId(User);
-                    var registeredLessonIds = await _context.Inschrijvingen
-                        .Where(i => i.GebruikerId == userId && i.Status == "Actief")
-                        .Select(i => i.LesId)
-                        .ToListAsync();
-
-                    query = query.Where(l => registeredLessonIds.Contains(l.Id))
-                                 .OrderBy(l => l.StartTijd);
-                    break;
-            }
-
-            var lessen = await query.ToListAsync();
-
-            ViewData["CurrentSort"] = "";
-            ViewData["CurrentFilter"] = "";
-            ViewData["CurrentTrainerFilter"] = "all";
-
-            var pageSize = 10;
-            var paginatedList = new PaginatedList<Les>(lessen, lessen.Count, 1, pageSize);
-
-            return PartialView("_LessenTable", paginatedList);
-        }
-
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -368,6 +287,7 @@ namespace FitnessClub.Web.Controllers
             return View(les);
         }
 
+        // enkel admin kan lessen aanmaken, bewerken of verwijderen
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
@@ -405,7 +325,8 @@ namespace FitnessClub.Web.Controllers
             return View(les);
         }
 
-        [Authorize(Roles = "Admin")]
+        // Admin en Trainer mogen lessen bewerken
+        [Authorize(Roles = "Admin,Trainer")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -423,7 +344,7 @@ namespace FitnessClub.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Trainer")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Naam,Beschrijving,StartTijd,EindTijd,MaxDeelnemers,Locatie,Trainer,IsActief,AangemaaktOp")] Les les)
         {
             if (id != les.Id)

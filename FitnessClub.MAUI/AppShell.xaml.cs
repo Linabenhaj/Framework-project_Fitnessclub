@@ -21,7 +21,6 @@ namespace FitnessClub.MAUI
 
             Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
             Routing.RegisterRoute(nameof(RegisterPage), typeof(RegisterPage));
-            Routing.RegisterRoute(nameof(AboutPage), typeof(AboutPage));
 
             FlyoutBehavior = FlyoutBehavior.Disabled;
 

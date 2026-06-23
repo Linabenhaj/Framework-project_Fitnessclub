@@ -1,11 +1,12 @@
 ﻿namespace FitnessClub.MAUI
 {
-    public static class General  
+    // statische klasse die user info en token lokaal bewaart
+    public static class General
     {
-        // API URL — wijst naar het FitnessClub.API project (REST API met JWT)
+        // basis URL van de API
         public static string ApiUrl => "http://10.0.2.2:5000/api/";
 
-        // User Info properties opgeslagen in Preferences voor persistentie
+        // user id in Preferences
         public static string UserId
         {
             get => Preferences.Default.Get("user_id", "");
@@ -42,7 +43,7 @@
             set => Preferences.Default.Set("token", value);
         }
 
-        // Helper properties voor snelle checks
+        // checkt of er nog een geldige sessie bestaat
         public static bool IsLoggedIn => !string.IsNullOrEmpty(Token) && !string.IsNullOrEmpty(UserId);
         public static bool IsAdmin => UserRole?.Equals("Admin", StringComparison.OrdinalIgnoreCase) == true;
         public static bool IsTrainer => UserRole?.Equals("Trainer", StringComparison.OrdinalIgnoreCase) == true;

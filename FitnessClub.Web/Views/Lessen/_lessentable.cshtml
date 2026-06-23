@@ -1,5 +1,5 @@
-@using Microsoft.AspNetCore.Mvc.Localization
-@using FitnessClub.Web.Translations
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@using FitnessClub.Web.Resources
 @inject IHtmlLocalizer<SharedResource> L
 @model FitnessClub.Web.Models.PaginatedList<FitnessClub.Models.Models.Les>
 
@@ -84,10 +84,14 @@ else
                                 </form>
                             }
 
-                            @* Admin: bewerken/verwijderen *@
-                            @if (User.IsInRole("Admin"))
+                            @* Admin en Trainer mogen bewerken Trainer kan zichzelf vervangen *@
+                            @if (User.IsInRole("Admin") || User.IsInRole("Trainer"))
                             {
                                 <a asp-action="Edit" asp-route-id="@les.Id" class="btn btn-warning btn-sm"><i class="bi bi-pencil"></i></a>
+                            }
+                            @* Alleen Admin mag verwijderen *@
+                            @if (User.IsInRole("Admin"))
+                            {
                                 <a asp-action="Delete" asp-route-id="@les.Id" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></a>
                             }
                         </td>

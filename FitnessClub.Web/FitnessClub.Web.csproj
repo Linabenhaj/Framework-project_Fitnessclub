@@ -6,9 +6,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-		<!-- EnableDefaultEmbeddedResourceItems WEGGEHAALD — was de schuldige.
-		     Met de standaard-instelling maakt de .NET-SDK automatisch satellite assemblies
-		     per cultuur (nl/, en/, fr/) wat nodig is voor IStringLocalizer. -->
+		
 	</PropertyGroup>
 
 	<ItemGroup>

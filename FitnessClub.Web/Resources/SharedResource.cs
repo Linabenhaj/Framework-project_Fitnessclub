@@ -1,6 +1,3 @@
-﻿namespace FitnessClub.Web.Resources
-{
-    public class SharedResource
-    {
-    }
-}
+namespace FitnessClub.Web.Resources;
+
+public class SharedResource { }

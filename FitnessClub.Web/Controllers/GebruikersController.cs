@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FitnessClub.Web.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class GebruikersController : Controller
+    public class GebruikersController : Controller // Beheer van gebruikersaccounts door de admin
     {
         private readonly UserManager<Gebruiker> _userManager;
         private readonly IFitnessClubDbContext _context;
@@ -132,7 +132,7 @@ namespace FitnessClub.Web.Controllers
             }
         }
 
-        // POST: Gebruikers/Delete/5 — HARD delete (echt uit DB)
+        // POST: Gebruikers/Delete/5  HARD delete (echt uit DB)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)

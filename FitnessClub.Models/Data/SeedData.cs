@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FitnessClub.Models.Data
 {
-    public static class SeedData
+    public static class SeedData //  database  initialiseren met demo gegevens en rollen
     {
         public static async Task InitializeAsync(
             FitnessClubDbContext context,  

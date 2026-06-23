@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FitnessClub.Models.Models
 {
-    public class Les : BasisEntiteit
+    public class Les : BasisEntiteit 
     {
         [Required(ErrorMessage = "Naam is verplicht")]
         [Display(Name = "Naam")]
@@ -40,9 +40,10 @@ namespace FitnessClub.Models.Models
         [Display(Name = "Actief")]
         public bool IsActief { get; set; } = true;
 
+
         // Type-veld voor filtering 
         [Display(Name = "Type")]
-        [StringLength(50)]
+        [StringLength(50)] //nodig?
         public string Type { get; set; } = string.Empty;
 
         public string KorteInfo => $"{Naam} ({StartTijd:HH:mm})";

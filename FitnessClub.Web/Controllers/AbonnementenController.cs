@@ -18,7 +18,7 @@ namespace FitnessClub.Web.Controllers
         }
 
         // GET: Abonnementen (zichtbaar voor iedereen die ingelogd is)
-        // Filteren op naam/type 
+        // Filteren op naam
         public async Task<IActionResult> Index(string searchString, string sortOrder, int pageNumber = 1)
         {
             ViewData["CurrentFilter"] = searchString;
@@ -61,7 +61,7 @@ namespace FitnessClub.Web.Controllers
             if (abonnement == null) return NotFound();
             return View(abonnement);
         }
-
+        //alleen admins mogen abonnementen aanmaken, bewerken en verwijderen
         // GET: Abonnementen/Create
         [Authorize(Roles = "Admin")]
         public IActionResult Create()

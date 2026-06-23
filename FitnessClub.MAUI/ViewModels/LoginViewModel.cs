@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FitnessClub.MAUI.Services;
 using FitnessClub.MAUI.Views;
@@ -9,19 +9,23 @@ namespace FitnessClub.MAUI.ViewModels
     // ViewModel voor de loginpagina
     public partial class LoginViewModel : BaseViewModel
     {
+        // service voor API calls
         private readonly ApiService _apiService;
 
+        // tweerichtings binding met de Entry velden in XAML
         [ObservableProperty] private string email = "admin@fitnessclub.be";
         [ObservableProperty] private string password = "Admin123!";
         [ObservableProperty] private string errorMessage = string.Empty;
         [ObservableProperty] private bool showError;
 
+        // ApiService wordt via Dependency Injection meegegeven
         public LoginViewModel(ApiService apiService)
         {
             _apiService = apiService;
             Title = "Inloggen";
         }
 
+        // command die in XAML wordt opgeroepen door de Aanmelden knop
         [RelayCommand]
         private async Task Login()
         {
@@ -39,14 +43,18 @@ namespace FitnessClub.MAUI.ViewModels
                     return;
                 }
 
+                // oude lokale data wissen vóór nieuwe login
                 General.ClearUserInfo();
 
+                // API call naar account login
                 var result = await _apiService.LoginAsync(Email, Password);
 
                 if (result.Success && !string.IsNullOrEmpty(result.Token))
                 {
+                    // rol uit het JWT token halen
                     var rol = result.Roles?.FirstOrDefault() ?? "Lid";
 
+                    // user info en token opslaan in Preferences voor auto re-login
                     General.SaveUserInfo(
                         userId:    result.Id    ?? Guid.NewGuid().ToString(),
                         email:     result.Email ?? Email,
@@ -55,8 +63,10 @@ namespace FitnessClub.MAUI.ViewModels
                         role:      rol,
                         token:     result.Token);
 
+                    // token doorgeven aan HttpClient voor alle volgende calls
                     _apiService.SetToken(result.Token);
 
+                    // navigatie afhankelijk van rol
                     if (rol.Equals("Admin", StringComparison.OrdinalIgnoreCase))
                         await Shell.Current.GoToAsync(nameof(AdminDashboardPage));
                     else
@@ -80,12 +90,14 @@ namespace FitnessClub.MAUI.ViewModels
             }
         }
 
+        // navigatie naar registratie pagina
         [RelayCommand]
         private async Task NavigateToRegister()
         {
             await Shell.Current.GoToAsync(nameof(RegisterPage));
         }
 
+        // terug naar home pagina
         [RelayCommand]
         private async Task NavigateToHome()
         {

@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace FitnessClub.Web.Middleware
 {
-    public class RequestLoggingMiddleware  // Middleware voor gedetailleerd request logging
+    public class RequestLoggingMiddleware  // Middleware voor gedetailleerd request logging en is geregistreerd in Program.cs
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<RequestLoggingMiddleware> _logger;
@@ -61,4 +61,4 @@ namespace FitnessClub.Web.Middleware
             return builder.UseMiddleware<RequestLoggingMiddleware>();
         }
     }
-}
+} 

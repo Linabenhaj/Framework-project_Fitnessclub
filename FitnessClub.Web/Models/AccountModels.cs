@@ -51,7 +51,7 @@ namespace FitnessClub.Web.Models
         [Display(Name = "Abonnement")]
         public int? AbonnementId { get; set; }
 
-        // Validatie gebeurt in de Controller (Range op bool is buggy in MVC)
+        // Validatie gebeurt in de Controller 
         [Display(Name = "Ik ga akkoord met de voorwaarden")]
         public bool AccepteerVoorwaarden { get; set; }
     }

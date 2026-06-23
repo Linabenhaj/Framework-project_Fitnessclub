@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitnessClub.Web.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : Controller //centraliseert alle authenticatie
     {
         private readonly UserManager<Gebruiker> _userManager;
         private readonly SignInManager<Gebruiker> _signInManager;
@@ -50,7 +50,7 @@ namespace FitnessClub.Web.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterModel model)
+        public async Task<IActionResult> Register(RegisterModel model) // maken van nieuwe gebruiker en meteen inloggen, met validatie van voorwaarden
         {
             // Voorwaarden-validatie handmatig 
             if (!model.AccepteerVoorwaarden)
@@ -75,8 +75,8 @@ namespace FitnessClub.Web.Controllers
 
                 if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(user, "Lid");
-                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    await _userManager.AddToRoleAsync(user, "Lid"); // rol toegeknd bijregistratie
+                    await _signInManager.SignInAsync(user, isPersistent: false); // meteen inloggen na registratie
                     TempData["SuccessMessage"] = "Welkom! Je account is aangemaakt.";
                     return RedirectToAction("Index", "Home");
                 }
@@ -105,8 +105,8 @@ namespace FitnessClub.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(
-                    model.Email, model.Wachtwoord, model.Onthouden, false);
+                var result = await _signInManager.PasswordSignInAsync( 
+                    model.Email, model.Wachtwoord, model.Onthouden, false); // false = geen lockout bij mislukte pogingen
 
                 if (result.Succeeded)
                 {
@@ -122,7 +122,7 @@ namespace FitnessClub.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> Logout() //Logout maakt SignOutAsync aan en verwijdert het cookie
         {
             await _signInManager.SignOutAsync();
             TempData["SuccessMessage"] = "Je bent uitgelogd.";
@@ -130,7 +130,7 @@ namespace FitnessClub.Web.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Profile()
+        public async Task<IActionResult> Profile() // toont de profielpagina, WijzigAbonnement laat de gebruiker zijn abonnement veranderen
         {
             // Admins hebben geen profielpagina  zij gebruiken Gebruikers-beheer
             if (User.IsInRole("Admin"))
@@ -145,7 +145,7 @@ namespace FitnessClub.Web.Controllers
                 .Include(g => g.Abonnement)
                 .FirstOrDefaultAsync(g => g.Id == user.Id);
 
-            // Lijst met beschikbare abonnementen om uit te kiezen (met prijs)
+            // Lijst met beschikbare abonnementen om uit te kiezen
             var abonnementen = await _context.Abonnementen
                 .Where(a => a.IsActief && !a.IsVerwijderd)
                 .OrderBy(a => a.Prijs)

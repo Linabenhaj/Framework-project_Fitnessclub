@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FitnessClub.Models.Models
 {
-    public abstract class BasisEntiteit
+    public abstract class BasisEntiteit // definiëren  de soft delte en velden die we overal willen gebruiken
     {
         [Key]
         public int Id { get; set; }
