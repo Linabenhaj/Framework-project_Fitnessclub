@@ -1,78 +1,144 @@
-# Projectvoorstel:  Fitnessclub Applicatie
+# Projectvoorstel: Fitnessclub Applicatie
 
-Dit project is een desktopapplicatie ontwikkeld in C Sharp met .NET WPF voor het beheren van een fitnessclub. De applicatie ondersteunt verschillende rollen: Admin, Medewerker en Lid. Elke rol heeft zijn eigen dashboard en functies.
+Dit project is een desktopapplicatie ontwikkeld in C# met .NET WPF voor het beheren van een fitnessclub. De applicatie ondersteunt verschillende rollen: Admin, Medewerker en Lid. Elke rol heeft zijn eigen dashboard en functies.
 
-# Interne logica van de applicatie
+## Interne logica van de applicatie
 
 De applicatie biedt een compleet systeem voor het beheren van leden, lessen, abonnementen, inschrijvingen, gebruikersrollen en toegangsrechten. Ze maakt gebruik van Entity Framework Core en ASP.NET Identity voor veilige authenticatie en autorisatie op basis van rollen.
 
 De admin heeft volledige controle over de fitnessclub. De admin kan lessen toevoegen, bewerken en verwijderen, leden koppelen aan lessen, abonnementen beheren door prijzen aan te passen of te verwijderen, ledenprofielen bekijken en via het dashboard een overzicht krijgen van alle leden, lessen en abonnementen.
 
-Het lid kan beschikbare lessen bekijken via het lessenoverzicht voor leden, kan eigen abonnementen bekijken en persoonlijke informatie zien via het profielgedeelte.
+Het lid kan beschikbare lessen bekijken via het lessenoverzicht, eigen abonnementen raadplegen en persoonlijke informatie zien via het profielgedeelte.
 
-De belangrijkste vensters in de applicatie zijn het loginvenster, het registratievenster, het dashboard, het lessenoverzicht voor leden, het venster om nieuwe lessen toe te voegen en het venster om leden te bewerken. Het loginvenster wordt gebruikt voor het aanmelden via ASP.NET Identity, het registratievenster voor het aanmaken van een nieuwe gebruiker met keuze van abonnement, en het dashboard toont verschillende tabbladen afhankelijk van de gebruikersrol. Het lessenoverzicht voor leden laat alle beschikbare lessen zien, het venster voor nieuwe lessen laat de admin nieuwe lessen aanmaken en het bewerkvenster laat de admin leden aanpassen.
+De belangrijkste vensters in de applicatie zijn het loginvenster, het registratievenster, het dashboard, het lessenoverzicht voor leden, het venster om nieuwe lessen toe te voegen en het venster om leden te bewerken. Het loginvenster wordt gebruikt voor het aanmelden via ASP.NET Identity, het registratievenster voor het aanmaken van een nieuwe gebruiker met keuze van abonnement, en het dashboard toont verschillende tabbladen afhankelijk van de gebruikersrol.
 
-De gebruikte technologieën in dit project zijn .NET 9 met WPF,Class Library, Entity Framework Core, ASP.NET Identity, SQL Server en het MVVM-ontwerppatroon. De applicatie ondersteunt soft delete functionaliteit en toegangsbeheer op basis van rollen.
+De gebruikte technologieën zijn .NET 9 met WPF, Class Library, Entity Framework Core, ASP.NET Identity, SQL Server en het MVVM-ontwerppatroon. De applicatie ondersteunt soft delete-functionaliteit en toegangsbeheer op basis van rollen.
 
-Om de applicatie te installeren moet de repository worden gedownload of gekloond, vervolgens geopend in Visual Studio, daarna moet de SQL Server-verbinding in FitnessClubDbContext.cs gecontroleerd worden. Vervolgens voer je de migraties uit via de Package Manager Console met het commando Update-Database en kun je de applicatie starten met F5.
+## Installatie
 
-Bij het eerste opstarten worden standaardrollen en testgebruikers aangemaakt via de SeedService. De admin gebruikt het e-mailadres [admin@fitness.com](mailto:admin@fitness.com) met wachtwoord Admin123 en een standaard lid gebruikt het e-mailadres [lid@fitness.com](mailto:lid@fitness.com) met wachtwoord Lid123. Deze gegevens kunnen worden aangepast in de seeddata.
+1. Download of kloon de repository
+2. Open het project in Visual Studio
+3. Controleer de SQL Server-verbinding in `FitnessClubDbContext.cs`
+4. Voer de migraties uit via de Package Manager Console:
+5. Start de applicatie met **F5**
 
+Bij het eerste opstarten worden standaardrollen en testgebruikers aangemaakt via de `SeedService`.
 
-# Screenshots applicatie
-Voor de screenshots van de applicatie gebruikte ik de user "Wesley" die hiervoor aangemaakt was en dus even niet lid@fitness.com. Maar deze werkt uiteraard ook.
+| Rol | E-mailadres | Wachtwoord |
+| Admin | admin@fitness.com | Admin123 |
+| Lid | lid@fitness.com | Lid123 |
+| Trainer | Trainer@fitness.com | Trainer123 |
 
-## Welkom ventser
+> Deze gegevens kunnen worden aangepast in de seeddata.
 
+## Screenshots applicatie
 
-## loginvenster
+> Voor de screenshots werd de gebruiker "Wesley" gebruikt, die hiervoor aangemaakt was. Het standaard testaccount `lid@fitness.com` werkt uiteraard ook.
 
+### Welkomstvenster
+<!-- screenshot hier -->
 
-## registratieformulier
+### Loginvenster
+<!-- screenshot hier -->
 
+### Registratieformulier
+<!-- screenshot hier -->
 
+### Dashboard admin
+<!-- screenshot hier -->
 
-## Dashbaord admin
+### Pop-up vensters
+<!-- screenshot hier -->
 
+### Les toevoegen
+<!-- screenshot hier -->
 
-## Pop-up vensters
-## les toevoegen 
+### Abonnement bewerken
+<!-- screenshot hier -->
 
-## abonnement bewerken
+### Nieuwe inschrijving toevoegen
+<!-- screenshot hier -->
 
-## Nieuwe inschrijving toevoegen
+### Dashboard gebruiker
+<!-- screenshot hier -->
 
+---
 
-## Dashbaord user
+# MAUI App
 
-# MAUI APP
+### Homepagina
+<!-- screenshot hier -->
 
-## Homepagina app
+### Inlogpagina
+<!-- screenshot hier -->
 
+### Registreren
+<!-- screenshot hier -->
 
-## Inlog pagina
+### Admin dashboard
+<!-- screenshot hier -->
 
-## Regristreren pagina
+---
 
-## Admin dashboard
+# .NET Web
 
+### Welkomstpagina
+<!-- screenshot hier -->
 
+### Loginpagina
+<!-- screenshot hier -->
 
-# .NET WEB 
+### Registreren
+<!-- screenshot hier -->
 
-## welkom pagina
+### Gebruikersdashboard
+<!-- screenshot hier -->
 
+### Uitlogpagina
+<!-- screenshot hier -->
 
-## login pagina 
+---
 
+# Bronnen & Inspiratie
 
-## registreren pagina
+## Inspirerend project
 
+- **Agenda app van Waldo Heudens** — structuur van MAUI-navigatie, API-integratie en MVVM-patroon dienden als referentie voor de opbouw van de MAUI app.
 
+## Officiële documentatie
 
-## user dashboard
+- [ASP.NET Core MVC documentatie](https://learn.microsoft.com/en-us/aspnet/core/mvc/)
+- [.NET MAUI documentatie](https://learn.microsoft.com/en-us/dotnet/maui/)
+- [Localisatie in ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization)
+- [JWT authenticatie in ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/jwt-authn)
+- [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
+  
+# AI-gebruik
 
+Tijdens dit project werd AI ingezet als hulpmiddel voor de volgende doeleinden:
 
+| Doel | Tool |
 
-## logout pagina
+| Design inspiratie & UI-structuur | DeepSeek, Claude |
+| Vragen rond build-errors & debugging | DeepSeek, Claude |
+| Vertaling van views (NL → EN / FR) | DeepSeek, Claude |
+| Grote commit berichten opstellen | DeepSeek |
+| Schrijffouten corrigeren | DeepSeek, Claude |
+| README opstellen | Claude (Cowork) |
 
+## Gebruikte AI-gesprekken
+
+**DeepSeek — technische hulp & vertalingen:**
+- [Gesprek 1](https://chat.deepseek.com/share/sf2e5ues75abm79nbq)
+- [Gesprek 2](https://chat.deepseek.com/share/nxdx3at5io1vosvrhf)
+- [Gesprek 3](https://chat.deepseek.com/share/wivn1c348y9kkltycs)
+- [Gesprek 4](https://chat.deepseek.com/share/imxeaw9b06jkfxgqid)
+- [Gesprek 5](https://chat.deepseek.com/share/l5grt7z1aky33gryg7)
+- [Gesprek 6](https://chat.deepseek.com/share/hmgk2pitngj6z75ho0)
+
+**Claude — meertaligheid, errors & README:**
+- [Gesprek 1](https://claude.ai/share/3df3d947-ac99-4aef-9d7e-684d73c1f730)
+
+> ⚠️ *Alle AI-gegenereerde inhoud werd kritisch nagelezen, begrepen en waar nodig aangepast door de student zelf.*
+
+*© 2026 Lina Benhaj — FitnessClub project*
