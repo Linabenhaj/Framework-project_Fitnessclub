@@ -40,7 +40,7 @@ namespace FitnessClub.MAUI.ViewModels
             {
                 if (General.IsAdmin)
                 {
-                    var result = await _apiService.GetAllBookingsAsync();
+                    var result = await _apiService.GetAllBookingsAsync(); 
                     if (result.Success && result.Data != null)
                     {
                         _allInschrijvingen = result.Data;
@@ -52,7 +52,7 @@ namespace FitnessClub.MAUI.ViewModels
                             result.Message ?? "API niet bereikbaar", "OK");
                     }
                 }
-                else
+                else // Gebruiker is geen admin, laad alleen zijn eigen inschrijvingen
                 {
                     var cached = await _db.Inschrijvingen
                         .Where(i => i.GebruikerId == General.UserId)
@@ -63,7 +63,8 @@ namespace FitnessClub.MAUI.ViewModels
                         ApplyFilter();
                     }
 
-                    var result = await _apiService.GetUserInschrijvingenAsync(General.UserId);
+                    // Probeer de inschrijvingen van de API te laden, maar als dat mislukt, gebruik de cache
+                    var result = await _apiService.GetUserInschrijvingenAsync(General.UserId); //
                     if (result.Success && result.Data != null)
                     {
                         var lessenResult = await _apiService.GetAllLessenAsync();
@@ -78,7 +79,7 @@ namespace FitnessClub.MAUI.ViewModels
 
                         await SyncToSqliteAsync(result.Data);
                     }
-                    else if (cached.Count == 0)
+                    else if (cached.Count == 0) // Als er geen cache is en de API niet bereikbaar is, toon een foutmelding
                     {
                         await Shell.Current.DisplayAlert("Fout",
                             result.Message ?? "API niet bereikbaar", "OK");
@@ -95,7 +96,7 @@ namespace FitnessClub.MAUI.ViewModels
             }
         }
 
-        private void ApplyFilter()
+        private void ApplyFilter()// past de filter toe op de lijst van inschrijvingen
         {
             MijnInschrijvingen.Clear();
             var filtered = _allInschrijvingen.AsEnumerable();
@@ -107,14 +108,14 @@ namespace FitnessClub.MAUI.ViewModels
                 MijnInschrijvingen.Add(ins);
         }
 
-        private async Task SyncToSqliteAsync(List<LocalInschrijving> inschrijvingen)
+        private async Task SyncToSqliteAsync(List<LocalInschrijving> inschrijvingen) // synchroniseert de inschrijvingen met de lokale SQLite database
         {
             try
             {
                 foreach (var ins in inschrijvingen)
                 {
                     var existing = await _db.Inschrijvingen.FindAsync(ins.Id);
-                    if (existing == null)
+                    if (existing == null)  // als de inschrijving nog niet bestaat in de lokale database, voeg deze toe
                         _db.Inschrijvingen.Add(ins);
                     else
                         existing.Status = ins.Status;

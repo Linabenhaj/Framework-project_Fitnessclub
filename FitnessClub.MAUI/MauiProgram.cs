@@ -61,14 +61,15 @@ namespace FitnessClub.MAUI
             // SQLite database voor lokale opslag
             var dbPath = Path.Combine(FileSystem.AppDataDirectory, "fitnessclub.db");
             services.AddDbContext<LocalDbContext>(
-                options => options.UseSqlite($"Data Source={dbPath}"),
+                options => options.UseSqlite($"Data Source={dbPath}"), //Dbcontext wordt per request aangemaakt, dus Transient is hier correct
                 ServiceLifetime.Transient);
 
-            // service voor API calls
+            // service voor API calls!
             services.AddSingleton<ApiService>(sp =>
                 new ApiService(sp.GetRequiredService<IHttpClientFactory>().CreateClient("FitnessApi")));
             services.AddSingleton<AuthService>();
 
+            //moeten in de hele app beschikbaar zijn
             // ViewModels per pagina
             services.AddTransient<DashboardViewModel>();
             services.AddTransient<AdminDashboardViewModel>();
@@ -90,6 +91,7 @@ namespace FitnessClub.MAUI
             services.AddTransient<HomePage>();
             services.AddTransient<GebruikersPage>();
 
+            //
             // hoofdshell van de app
             services.AddSingleton<AppShell>();
         }
@@ -98,7 +100,7 @@ namespace FitnessClub.MAUI
 
         private static void ConfigureHttpClient(MauiAppBuilder builder)
         {
-            var apiBase = ResolveApiBase();
+            var apiBase = ResolveApiBase();// bepaalt de juiste API base URL afhankelijk van het platform (Android of andere)
 
             builder.Services.AddHttpClient("FitnessApi", client =>
             {
@@ -108,7 +110,7 @@ namespace FitnessClub.MAUI
                     new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
             })
             .ConfigurePrimaryHttpMessageHandler(() =>
-                new HttpClientHandler
+                new HttpClientHandler // de handler doet de SSL certificaat validatie, hier wordt self-signed certificaten op localhost/
                 {
                     ServerCertificateCustomValidationCallback = (msg, cert, chain, errors) =>
                     {

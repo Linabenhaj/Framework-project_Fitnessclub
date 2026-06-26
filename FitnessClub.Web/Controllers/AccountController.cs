@@ -105,7 +105,7 @@ namespace FitnessClub.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync( 
+                var result = await _signInManager.PasswordSignInAsync(  //!
                     model.Email, model.Wachtwoord, model.Onthouden, false); // false = geen lockout bij mislukte pogingen
 
                 if (result.Succeeded)

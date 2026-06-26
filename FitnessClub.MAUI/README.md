@@ -18,7 +18,6 @@ Deze app **consumeert de RESTful API** uit het project `FitnessClub.API` en gebr
 8. [GDPR](#gdpr)
 9. [Gebruikte technologieën en bibliotheken](#gebruikte-technologieën-en-bibliotheken)
 10. [Bronvermelding](#bronvermelding)
-11. [AI-gebruik](#ai-gebruik)
 
 ---
 
@@ -253,71 +252,6 @@ De code is **niet één-op-één gekopieerd**:
 - [Shell navigation in MAUI](https://learn.microsoft.com/en-us/dotnet/maui/fundamentals/shell/)
 - [HttpClient + JWT Bearer](https://learn.microsoft.com/en-us/dotnet/api/system.net.http.headers.authenticationheadervalue)
 - [EF Core SQLite provider](https://learn.microsoft.com/en-us/ef/core/providers/sqlite/)
-
----
-
-## AI-gebruik
-
-Conform de richtlijnen mocht ik AI-tools gebruiken voor dit project. Hieronder volgt een overzicht van waarvoor en met welke prompts AI-assistentie is ingezet.
-
-### Gebruikte AI-tools
-- Claude (Anthropic)
-
-### Onderwerpen waarvoor AI ingezet is
-
-> _Hier voeg ik (Lina) de exacte links naar mijn AI-conversaties toe._
-
-#### 1. MAUI-projectopzet (csproj, MauiProgram.cs)
-- Prompt: _(in te vullen)_
-- Link: _(in te vullen)_
-
-#### 2. MVVM met CommunityToolkit
-- Prompt: _(in te vullen)_
-- Link: _(in te vullen)_
-
-#### 3. ApiService + HttpClient met JWT
-- Prompt: _(in te vullen)_
-- Link: _(in te vullen)_
-
-#### 4. SQLite + LocalDbContext setup
-- Prompt: _(in te vullen)_
-- Link: _(in te vullen)_
-
-#### 5. AppShell navigatie + rol-gebaseerde menus
-- Prompt: _(in te vullen)_
-- Link: _(in te vullen)_
-
-#### 6. XAML bindings en converters
-- Prompt: _(in te vullen)_
-- Link: _(in te vullen)_
-
-#### 7. Online/Offline sync logica
-- Prompt: _(in te vullen)_
-- Link: _(in te vullen)_
-
-#### 8. Android-emulator setup + USB debugging
-- Prompt: _(in te vullen)_
-- Link: _(in te vullen)_
-
-#### 9. Debugging — XAML resources, navigatiefouten, role-detection
-- Prompt: _(in te vullen)_
-- Link: _(in te vullen)_
-
-#### 10. GDPR-melding implementatie
-- Prompt: _(in te vullen)_
-- Link: _(in te vullen)_
-
-### Hoe ik AI-output heb verwerkt
-- Alle gegenereerde code is **gelezen, begrepen en aangepast** aan de FitnessClub-context
-- **Modellen en naamgeving** zijn consistent met de Class Library (`LocalLes`, `LocalInschrijving`, etc.)
-- **Overbodige code** is verwijderd
-- **Commentaren** zijn in het Nederlands geschreven
-- **Bugs** in AI-suggesties (bv. verkeerde JSON-parsing, foute Shell-routes, missende `Notes`-veld bij inschrijvingen) zijn herkend en verholpen
-- Specifieke aanpassingen voor mijn thema:
-  - Trainer-claim-flow (uniek voor FitnessClub)
-  - 24u-regel voor uitschrijven
-  - Abonnementkeuze tijdens registratie (Basic/Medium/Pro)
-  - Klantendienst-info-box op profielpagina (i.p.v. bewerken)
 
 ---
 

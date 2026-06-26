@@ -17,7 +17,7 @@ builder.Services.AddDbContext<FitnessClubDbContext>(options =>
 builder.Services.AddScoped<IFitnessClubDbContext>(sp =>
     sp.GetRequiredService<FitnessClubDbContext>());
 
-// Identity
+// Identity!
 builder.Services.AddIdentity<Gebruiker, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;

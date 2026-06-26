@@ -44,12 +44,12 @@ namespace FitnessClub.MAUI
                 }
             };
         }
-
+        //na succesvolle login wordt methode aangeroepeen om de gebruikersinformatie op te slaan en de navigatie aan te passen
         public async Task OnLoginSucceeded(string userId, string email, string firstName, string lastName,
                                            string role, string token)
         {
             General.SaveUserInfo(userId, email, firstName, lastName, role, token);
-            _apiService.SetToken(token);
+            _apiService.SetToken(token);//wordt gezet op de HTTTp client
 
             bool isAdmin = role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
             bool isTrainer = role.Equals("Trainer", StringComparison.OrdinalIgnoreCase);

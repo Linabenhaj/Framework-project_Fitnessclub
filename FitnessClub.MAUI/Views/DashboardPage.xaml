@@ -136,9 +136,9 @@
                         CornerRadius="10"
                         HeightRequest="50"/>
 
-                <Button Text="🚪 Uitloggen" 
+                <Button Text="Afmelden"
                         Command="{Binding LogoutCommand}"
-                        BackgroundColor="#F44336" 
+                        BackgroundColor="#F44336"
                         TextColor="White"
                         CornerRadius="10"
                         HeightRequest="50"/>

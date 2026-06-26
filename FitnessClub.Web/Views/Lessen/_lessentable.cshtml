@@ -71,15 +71,17 @@ else
                                 </form>
                             }
 
-                            @* Trainer: zichzelf aangeven als de les nog geen trainer heeft *@
-                            @if (User.IsInRole("Trainer") && string.IsNullOrEmpty(les.Trainer))
+                            @* Trainer mag zichzelf aangeven OF de bestaande trainer-naam wijzigen *@
+                            @if (User.IsInRole("Trainer"))
                             {
                                 <form asp-action="ClaimAsTrainer" asp-route-id="@les.Id" method="post" class="d-inline-flex align-items-center gap-1">
                                     @Html.AntiForgeryToken()
-                                    <input type="text" name="trainerName" placeholder="Je naam"
-                                           class="form-control form-control-sm" style="width: 110px;" required />
+                                    <input type="text" name="trainerName"
+                                           placeholder="@(string.IsNullOrEmpty(les.Trainer) ? "Je naam" : "Nieuwe naam")"
+                                           value="@les.Trainer"
+                                           class="form-control form-control-sm" style="width: 130px;" required />
                                     <button type="submit" class="btn btn-warning btn-sm">
-                                        <i class="bi bi-person-check"></i> Aangeven
+                                        <i class="bi bi-person-check"></i> @(string.IsNullOrEmpty(les.Trainer) ? "Aangeven" : "Wijzigen")
                                     </button>
                                 </form>
                             }

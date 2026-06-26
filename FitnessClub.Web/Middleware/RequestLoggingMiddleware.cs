@@ -5,8 +5,8 @@ namespace FitnessClub.Web.Middleware
 {
     public class RequestLoggingMiddleware  // Middleware voor gedetailleerd request logging en is geregistreerd in Program.cs
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<RequestLoggingMiddleware> _logger;
+        private readonly RequestDelegate _next; //via dependency injection wordt de volgende middleware in de pipeline doorgegeven
+        private readonly ILogger<RequestLoggingMiddleware> _logger; // Logger voor logging van request details
 
         public RequestLoggingMiddleware(RequestDelegate next, ILogger<RequestLoggingMiddleware> logger)
         {
@@ -14,9 +14,9 @@ namespace FitnessClub.Web.Middleware
             _logger = logger;
         }
 
-        public async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context) // Middleware logica voor elk inkomend request!!!
         {
-            var stopwatch = Stopwatch.StartNew();  // Start stopwatch voor timing
+            var stopwatch = Stopwatch.StartNew();  // Start stopwatch voor timing van request
             var request = context.Request;
             var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";  // Haal IP adres op
 

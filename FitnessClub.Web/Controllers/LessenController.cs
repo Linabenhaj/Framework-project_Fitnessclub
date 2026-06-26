@@ -96,7 +96,7 @@ namespace FitnessClub.Web.Controllers
                          where !l.IsVerwijderd && l.IsActief
                          select l;
 
-            if (!string.IsNullOrEmpty(filterTrainer) && filterTrainer != "all")
+            if (!string.IsNullOrEmpty(filterTrainer) && filterTrainer != "all") // filteren op trainer
             {
                 lessen = lessen.Where(l => l.Trainer == filterTrainer);
             }
@@ -124,7 +124,7 @@ namespace FitnessClub.Web.Controllers
             return PartialView("_LessenTable", paginatedLessen);
         }
 
-        // Trainer geeft zichzelf aan voor een les (vult Trainer-veld in)
+        // Trainer geeft zichzelf aan voor een les OF wijzigt de bestaande trainer-naam
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Trainer")]
@@ -132,7 +132,7 @@ namespace FitnessClub.Web.Controllers
         {
             if (string.IsNullOrWhiteSpace(trainerName))
             {
-                TempData["ErrorMessage"] = "Vul je naam in om je aan te geven als trainer.";
+                TempData["ErrorMessage"] = "Vul een naam in.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -143,17 +143,14 @@ namespace FitnessClub.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            if (!string.IsNullOrEmpty(les.Trainer))
-            {
-                TempData["ErrorMessage"] = $"Deze les heeft al een trainer ({les.Trainer}).";
-                return RedirectToAction(nameof(Index));
-            }
-
+            bool wasLeeg = string.IsNullOrEmpty(les.Trainer);
             les.Trainer = trainerName.Trim();
             les.GewijzigdOp = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = $"Je bent aangegeven als trainer voor '{les.Naam}'.";
+            TempData["SuccessMessage"] = wasLeeg
+                ? $"Je bent aangegeven als trainer voor '{les.Naam}'."
+                : $"Trainer voor '{les.Naam}' gewijzigd naar '{les.Trainer}'.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -404,7 +401,7 @@ namespace FitnessClub.Web.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id) //!
         {
             var les = await _context.Lessen.FindAsync(id);
             if (les != null)

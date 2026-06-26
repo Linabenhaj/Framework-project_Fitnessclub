@@ -37,13 +37,14 @@
         </DataTemplate>
     </Shell.ItemTemplate>
 
-    <!-- (Afmelden): rode accentkleur -->
+    <!-- Afmelden krijgt een duidelijke rode accentkleur -->
     <Shell.MenuItemTemplate>
         <DataTemplate x:DataType="MenuItem">
-            <Grid BackgroundColor="#121212" HeightRequest="50">
+            <Grid BackgroundColor="#1A1A1A" HeightRequest="55">
                 <Label Text="{Binding Text}"
                        TextColor="#EF5350"
                        FontSize="15"
+                       FontAttributes="Bold"
                        VerticalOptions="Center"
                        Margin="20,0" />
             </Grid>

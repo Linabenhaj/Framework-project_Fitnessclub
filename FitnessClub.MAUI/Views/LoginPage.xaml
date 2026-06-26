@@ -121,29 +121,6 @@
                     </Label>
                 </HorizontalStackLayout>
 
-                <!-- Test accounts in tekstvorm voor demo -->
-                <BoxView HeightRequest="1" BackgroundColor="#E0E0E0" Margin="0,6,0,4" />
-                <Label Text="Test accounts"
-                       FontSize="11"
-                       FontAttributes="Bold"
-                       TextColor="#9E9E9E"
-                       HorizontalOptions="Center" />
-                <Label FontSize="11"
-                       TextColor="#616161"
-                       HorizontalTextAlignment="Center"
-                       LineBreakMode="WordWrap">
-                    <Label.FormattedText>
-                        <FormattedString>
-                            <Span Text="Admin: " FontAttributes="Bold" />
-                            <Span Text="admin@fitnessclub.be / Admin123!" />
-                            <Span Text="&#10;Trainer: " FontAttributes="Bold" />
-                            <Span Text="trainer@fitnessclub.be / Trainer123!" />
-                            <Span Text="&#10;Lid: " FontAttributes="Bold" />
-                            <Span Text="user@fitnessclub.be / User123!" />
-                        </FormattedString>
-                    </Label.FormattedText>
-                </Label>
-
             </VerticalStackLayout>
         </ScrollView>
 

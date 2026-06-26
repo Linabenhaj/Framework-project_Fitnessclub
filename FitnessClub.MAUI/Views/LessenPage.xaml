@@ -154,13 +154,14 @@
             </CollectionView>
         </RefreshView>
 
-        <!-- Info-tekstbox onderaan: hoe uitschrijven -->
+        <!-- Info-tekstbox onderaan: hoe uitschrijven. Alleen voor leden zichtbaar -->
         <Border Grid.Row="3"
                 BackgroundColor="#E3F2FD"
                 Padding="14,10"
                 Margin="12,6,12,12"
                 StrokeThickness="0"
-                StrokeShape="RoundRectangle 8">
+                StrokeShape="RoundRectangle 8"
+                IsVisible="{Binding MagInschrijven}">
             <Label FontSize="12"
                    TextColor="#0D47A1"
                    HorizontalTextAlignment="Center">
